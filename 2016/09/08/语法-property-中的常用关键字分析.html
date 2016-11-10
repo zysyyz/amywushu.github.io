@@ -1,0 +1,958 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Property," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Amywushu" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="我搬进鸟的眼睛，经常盯着路过的风。
+
+栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+
+因为： Objective-C 的对象在内存中是以堆的方式分配空间的
+
+堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[语法] @property 中的常用关键字分析">
+<meta property="og:url" content="https://amywushu.github.io/2016/09/08/语法-property-中的常用关键字分析.html">
+<meta property="og:site_name" content="Amywushu">
+<meta property="og:description" content="我搬进鸟的眼睛，经常盯着路过的风。
+
+栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+
+因为： Objective-C 的对象在内存中是以堆的方式分配空间的
+
+堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图1.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图2assign.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图3.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图4.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图5.png">
+<meta property="og:updated_time" content="2016-11-09T08:47:50.684Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[语法] @property 中的常用关键字分析">
+<meta name="twitter:description" content="我搬进鸟的眼睛，经常盯着路过的风。
+
+栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+
+因为： Objective-C 的对象在内存中是以堆的方式分配空间的
+
+堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在">
+<meta name="twitter:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+
+  <title> [语法] @property 中的常用关键字分析 | Amywushu </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Amywushu</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [语法] @property 中的常用关键字分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-08T00:00:00+08:00" content="2016-09-08">
+              2016-09-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Grammar/" itemprop="url" rel="index">
+                    <span itemprop="name">Grammar</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/08/语法-property-中的常用关键字分析.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/08/语法-property-中的常用关键字分析.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center"><p>我搬进鸟的眼睛，经常盯着路过的风。</p>
+</blockquote>
+<h2 id="栈与堆"><a href="#栈与堆" class="headerlink" title="栈与堆"></a>栈与堆</h2><p>首先，我们需要知道：为什么<strong>只有OC对象需要进行内存管理</strong>，而其它非对象类型（如基本数据类型）不需要我们来管理呢？</p>
+<blockquote>
+<p>因为： Objective-C 的对象在内存中是以堆的方式分配空间的</p>
+<ul>
+<li>堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存</li>
+<li>OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   </li>
+<li>非OC对象一般放在栈里面(栈内存会被系统自动回收)</li>
+</ul>
+</blockquote>
+<a id="more"></a>
+<p>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> a = <span class="number">10</span>;</div><div class="line"><span class="keyword">int</span> b = <span class="number">20</span>;</div><div class="line">Car *c = [[Car alloc] init];</div></pre></td></tr></table></figure>
+<p>我们知道OC对象一般都是指针形式，大神ibireme在 <a href="http://blog.ibireme.com/2013/11/25/objc-object/" target="_blank" rel="external">Objective-C 中的类和对象</a>中提到：</p>
+<blockquote>
+<p>凡是首地址是*isa的struct指针，都可以被认为是objc中的对象。运行时可以通过isa指针，查找到该对象是属于什么类(Class)。</p>
+</blockquote>
+<p>下图可以清楚的表示 OC 中的堆栈分配：</p>
+<p><img src="/images/2016-09-08-语法-property-中的常用关键字分析/图1.png" alt=""></p>
+<h2 id="assign-与-weak"><a href="#assign-与-weak" class="headerlink" title="assign 与 weak"></a>assign 与 weak</h2><blockquote>
+<p><strong>基础知识提要</strong></p>
+<p>@property 声明的属性，会自动创建 getter,setter 方法。 属性中申明的关键字主要有三大类：</p>
+<ul>
+<li>readwrite/readonly： 是否生成 setter 方法, 默认 readwrite</li>
+<li>assign/weak/strong/copy/retain： setter 方法中如何传递所有权等内存管理策略, ARC 环境默认为 strong</li>
+<li>nonatomic/atomic：是否加线程锁（并不能完全控制线程访问，最好事是自己手动底层加锁，默认 atomic</li>
+</ul>
+</blockquote>
+<p><em>NSString 的引用计数LLVM是有优化的，并不是简单根据设定的关键字来判断。本文只是为了方便易懂，以这个类作为例子。</em></p>
+<h3 id="assign"><a href="#assign" class="headerlink" title="assign"></a>assign</h3><p>如果设置 assign ，在 setter 方法中是这样的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)setCarName:(<span class="built_in">NSString</span> *)name &#123;</div><div class="line">	_carName = name;  <span class="comment">//默认是有下划线的</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>也就是说成员变量 _name 并没有获得 name 所指的对象的所有权，原来对象 @“Amywushu” 的 retainCount 不会改变。一旦  name 被释放，_carName 也就不再指向一个合法的位置，出现指针悬空，如下图所示，相当于 _carName （图中为 carName ）指向的 name，但实际上 _carName 是指向OC对象的，这里只是为了方便理解。</p>
+<p><img src="/images/2016-09-08-语法-property-中的常用关键字分析/图2assign.png" alt=""></p>
+<h3 id="assign-weak-的区别"><a href="#assign-weak-的区别" class="headerlink" title="assign/weak 的区别"></a>assign/weak 的区别</h3><p>ARC 中 OC 对象已经不再使用 assign 了，而是使用 weak ，两者的区别在： weak 弱引用所指的对象没有被任何strong指针指向，那么就将被销毁，所有指向这个对象的 weak 指针也将被置为 nil 。而 assign 不会被置为 nil 。但对于非 OC 对象来讲，因为其存储空间在栈上，由系统管理内存，所以一般还是使用 assign。</p>
+<h3 id="unsafe-unretained"><a href="#unsafe-unretained" class="headerlink" title="unsafe_unretained"></a>unsafe_unretained</h3><p>unsafe_unretained 的语义与 assign 类似，相当于用于 OC 对象类型的 assign 。使用这个关键字主要出于性能考虑，因为 weak 对性能有一些影响，因此对性能要求高的地方可以考虑使用 unsafe_unretained 替换 weak 。比如 <a href="https://github.com/ibireme/YYModel/blob/master/YYModel/NSObject%2BYYModel.m" target="_blank" rel="external">YYModel</a> 的实现，为了追求更高的性能，其中大量使用 unsafe_unretained 作为变量标识符。</p>
+<h2 id="retain-与-strong"><a href="#retain-与-strong" class="headerlink" title="retain 与 strong"></a>retain 与 strong</h2><blockquote>
+<p><strong>知识点:</strong></p>
+<p><strong>MRR内存管理基本原则</strong></p>
+<ol>
+<li>为创建的所有对象设置所有权     </li>
+<li>应使用retain方法获取对象（你尚未拥有）的所有权 </li>
+<li>当不再使用某个对象时，必须放弃其所有权 </li>
+<li>不能放弃不归你所有的对象的所有权</li>
+</ol>
+</blockquote>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//对象通过 alloc 消息创建后，变量 atom 就拥有了该对象的所有权（原则1）</span></div><div class="line">Atom *atom = [[Atom alloc] init];</div><div class="line"></div><div class="line"><span class="comment">//变量 href 获取了这个对象的所有权（原则2），不能写成 Atom *href = atom; </span></div><div class="line"><span class="comment">//这样写的话 href 没有获取对象的所有权，一旦 atom 释放了，href 就不再指向一个合法的位置，出现指针悬空。</span></div><div class="line">Atom *href = [atom <span class="keyword">retain</span>];</div><div class="line"></div><div class="line"><span class="comment">// 变量 atom 释放，但 href 依旧拥有该对象的所有权</span></div><div class="line">[atom release];</div><div class="line"></div><div class="line"><span class="comment">// 变量 href 释放，对象引用计数变为 0 ，运行时系统可以释放对象了</span></div><div class="line">[href release];</div></pre></td></tr></table></figure>
+<p> ——引用自<a href="https://yq.aliyun.com/articles/57166?&amp;utm_source=qq" target="_blank" rel="external">[精通Objective-C]内存管理</a></p>
+<p>如果设置 retain ，在 setter 方法中是这样的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)setCarName:(<span class="built_in">NSString</span> *)name &#123;</div><div class="line">	<span class="keyword">if</span> (_carName != name) &#123;</div><div class="line">		[_carName release];</div><div class="line">		_carName = [name <span class="keyword">retain</span>];</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>也就是说，retain/strong 会在 setter 方法中，对传入的对象 <code>&quot;Amywushu&quot;</code> 进行引用计数 +1 的操作。简单来说，就是会拥有传入对象 <code>&quot;Amywushu&quot;</code> 的所有权，而不是像 assign/weak 一样，依赖于传入的对象指针 <code>name</code> ，而并非拥有实际所有权。</p>
+<p>相当于一个保险柜拥有两把钥匙，变量解除所有权 (release) ，也就相当于归还钥匙。当两把钥匙都被归还之后，这个保险柜（对象）也就会被释放。只要拥有该对象的所有权（至少有一把钥匙没有归还），这个对象就不会被释放。</p>
+<p><img src="/images/2016-09-08-语法-property-中的常用关键字分析/图3.png" alt=""></p>
+<p>如图所示，<code>_carName</code> 和 <code>name</code> 均拥有对 <code>Amywushu</code> 这个字符串对象的所有权，该对象的引用计数变为 1+1=2 。</p>
+<p>strong 是在 iOS 引入 ARC 的时候引入的关键字，是retain的一个可选的替代。 strong 跟 retain 的意思相同并产生相同的代码，但是语意上更好更能体现对象的关系。</p>
+<p>关于 strong 和 weak 还有什么不清楚的话，可以学习 onevcat 的<a href="https://onevcat.com/2012/06/arc-hand-by-hand/" target="_blank" rel="external">手把手教你ARC——iOS/Mac开发ARC入门和使用</a>这篇文章，讲得非常清晰易懂。</p>
+<h2 id="copy-与-mutableCopy"><a href="#copy-与-mutableCopy" class="headerlink" title="copy 与 mutableCopy"></a>copy 与 mutableCopy</h2><p>copy 、mutableCopy 与 strong 的区别在于，深拷贝时，示例变量对于传入对象的副本拥有所有权，而不是对象本身；浅拷贝时，则没有区别。<br>如果设置 copy ，在 setter 方法中是这样的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)setCarName:(<span class="built_in">NSString</span> *)name &#123;</div><div class="line">	<span class="keyword">if</span> (_carName != name) &#123;</div><div class="line">		[_carName release];</div><div class="line">		_carName = [name <span class="keyword">copy</span>];</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="/images/2016-09-08-语法-property-中的常用关键字分析/图4.png" alt=""></p>
+<p>如上图所示，原来对象的 retainCount 不变，新 copy 出来的对象副本的 retainCount=1 ，原对象引用计数不变，两者 copy 之后互不相关，这是深拷贝。</p>
+<blockquote>
+<ul>
+<li><strong>深拷贝与浅拷贝</strong></li>
+</ul>
+<p><strong>深拷贝</strong>： 是对内存空间的拷贝，也就是这里的 copy（数组等类型例外）<br><strong>浅拷贝</strong>： 是对内存地址的拷贝，也就是上面的 retain/strong，以及 copy 的某些情况<br><strong>深拷贝和浅拷贝比较复杂，我的另一篇文章有具体讲解<a href="https://amywushu.github.io/2016/10/20/%E8%AF%AD%E6%B3%95-copy-%E4%B8%8E-mutableCopy%EF%BC%88%E4%BC%A0%E8%AF%B4%E4%B8%AD%E7%9A%84%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D%EF%BC%89.html">[语法] copy 与 mutableCopy（传说中的深浅拷贝）</a>，这里只是简要提及一下。</strong></p>
+</blockquote>
+<p><strong>注意！ 如果是 copy 的是一个 NSArray 呢?</strong>    比如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">NSArray</span> *array = [<span class="built_in">NSArray</span> arrayWithObjects:<span class="string">@"hello"</span>,<span class="string">@"world"</span>,<span class="string">@"baby"</span>];</div><div class="line"><span class="built_in">NSArray</span> *array2 = [array <span class="keyword">copy</span>];</div></pre></td></tr></table></figure>
+<p>这个时候,系统的确是为 array2 开辟了一块内存空间,但是我们要知道的是, array2 中的每个元素,,只是 copy 了指向 array 中相对应元素的指针，这是<strong>“单层深拷贝”</strong>.</p>
+<hr>
+<p><strong>一般来说，不要将 copy 用到 NSMutableString ，NSMutableArray ，NSMutableDictionary 等可变对象上，除非有特别的需求。</strong></p>
+<p>例如:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> ()</span></div><div class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSMutableArray</span> *mutableArray_copy;</div><div class="line"><span class="keyword">@end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line"></div><div class="line">    <span class="built_in">NSMutableArray</span> *mutableArray = [<span class="built_in">NSMutableArray</span> arrayWithObject:<span class="string">@"123"</span>];</div><div class="line">    <span class="keyword">self</span>.mutableArray_copy = mutableArray;</div><div class="line"></div><div class="line">    [<span class="keyword">self</span>.mutableArray_copy addObject:<span class="string">@"456"</span>];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>运行则会报出错误 <strong>signal SIGABRT</strong></p>
+<p><img src="/images/2016-09-08-语法-property-中的常用关键字分析/图5.png" alt=""></p>
+<p>我们明明在代码里用的 NSMutableArray 这个可变数组，为什么错误里会说是在向 NSArray 这个不可变数组，调用 addObject: 这个方法呢？（ __NSArrayI 表示的是 NSArray 类型）。<br>是因为在 <code>self.mutableArray_copy = mutableArray;</code> 这一句的时候，会调用 mutableArray_copy 的 setter 方法， copy 属性默认 setter 方法是这样写的:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">- (<span class="keyword">void</span>)setMutableArray_copy:(<span class="built_in">NSMutableArray</span> *)mutableArray_copy &#123;</div><div class="line">	_mutableArray_copy = [mutableArray_copy <span class="keyword">copy</span>];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>setter 方法里调用的是 copy，而不是 mutableCopy ，也就是说拷贝过来的是不可变的 NSArray 类型。那么 NSMutableArray 的添加元素等方法自然就不能使用了。<br>解决方法为：将 copy 改为 strong ；或者重写 setter 方法，将 copy 改为 mutableCopy 。</p>
+<blockquote>
+<p>copy 现在都比较少用，一般用于 NSString 。因为<strong>父类指针可以指向子类对象</strong>，NSMutableNSString 是 NSString 的子类，使用 strong 的话虽然 NSString 是不可变对象，但是它传入的值可能会是 NSMutableString 可变对象，<strong>如果这个可变对象的内容在其他地方被修改了，那 NSString 指针所指的对象也随之改变了</strong>，而其本身可能对此毫不知情。因此一般用 copy 。</p>
+</blockquote>
+<h2 id="nonull-nullable-null-resettable"><a href="#nonull-nullable-null-resettable" class="headerlink" title="nonull nullable null_resettable"></a>nonull nullable null_resettable</h2><p>这三个属性关键字是 WWDC2015 中介绍的 OC 新特性，与 Swift 中的 ? 和 ! 类似。</p>
+<ul>
+<li><strong>nonull</strong>：该属性不能为 nil ,必须有值。</li>
+<li><strong>nullable</strong>：表示可选的，可以为 nil。</li>
+<li><strong>null_resettable</strong>：表示 setter 方法是 nullable ,可以为 nil；而 getter 方法是nonull ，必须有值。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，就是内存处理方式不一样，assign/weak 相当于借用传入的指针变量来指向对象（实际上并不是，可以这样理解），retain/strong 相当于不同的指针变量指向同一个对象，copy 则是在内存里复制了一个对象并指向它。读写属性以及原子性比较简单，不再赘述。</p>
+<p>关于 atomic 的锁机制，以及 ARC 机制到底如何进行的内存管理，之后会进一步学习。敬请期待。</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="https://segmentfault.com/a/1190000004943276" target="_blank" rel="external">Objective-C 内存管理——你需要知道的一切</a>　<a href="https://segmentfault.com/a/1190000004943276" target="_blank" rel="external">https://segmentfault.com/a/1190000004943276</a></p>
+<p>[2] <a href="http://www.wugaojun.com/blog/2015/07/25/at-propertyshu-xing-guan-jian-zi-xiang-jie/" target="_blank" rel="external">@property属性关键字详解</a>　<a href="http://www.wugaojun.com/blog/2015/07/25/at-propertyshu-xing-guan-jian-zi-xiang-jie/" target="_blank" rel="external">http://www.wugaojun.com/blog/2015/07/25/at-propertyshu-xing-guan-jian-zi-xiang-jie/</a></p>
+<p>[3] <a href="https://hran.me/archives/objective-c-automatic-reference-counting.html" target="_blank" rel="external">Objective-C 的自动引用计数（ARC）</a> 　<a href="https://hran.me/archives/objective-c-automatic-reference-counting.html" target="_blank" rel="external">https://hran.me/archives/objective-c-automatic-reference-counting.html</a></p>
+<p>[4] <a href="http://www.pchou.info/ios/2015/06/05/oc-memory-management.html" target="_blank" rel="external">Objective-c 内存管理的历史和参考资料</a> 　<a href="http://www.pchou.info/ios/2015/06/05/oc-memory-management.html" target="_blank" rel="external">http://www.pchou.info/ios/2015/06/05/oc-memory-management.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Property/" rel="tag">#Property</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html" rel="next" title="[源码学习] AFNetworking 3.1.0 第一部分">
+                <i class="fa fa-chevron-left"></i> [源码学习] AFNetworking 3.1.0 第一部分
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/12/逆向知识-栈·参数存储方式.html" rel="prev" title="[逆向知识] 栈·参数存储方式">
+                [逆向知识] 栈·参数存储方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/08/语法-property-中的常用关键字分析.html"
+     data-title="[语法] @property 中的常用关键字分析"
+     data-content=""
+     data-url="https://amywushu.github.io/2016/09/08/语法-property-中的常用关键字分析.html">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/08/语法-property-中的常用关键字分析.html"
+           data-title="[语法] @property 中的常用关键字分析" data-url="https://amywushu.github.io/2016/09/08/语法-property-中的常用关键字分析.html">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Amywushu" />
+          <p class="site-author-name" itemprop="name">Amywushu</p>
+          <p class="site-description motion-element" itemprop="description">好吧，你想知道点儿什么？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://amywushu.github.io" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#栈与堆"><span class="nav-number">1.</span> <span class="nav-text">栈与堆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#assign-与-weak"><span class="nav-number">2.</span> <span class="nav-text">assign 与 weak</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#assign"><span class="nav-number">2.1.</span> <span class="nav-text">assign</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#assign-weak-的区别"><span class="nav-number">2.2.</span> <span class="nav-text">assign/weak 的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unsafe-unretained"><span class="nav-number">2.3.</span> <span class="nav-text">unsafe_unretained</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#retain-与-strong"><span class="nav-number">3.</span> <span class="nav-text">retain 与 strong</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#copy-与-mutableCopy"><span class="nav-number">4.</span> <span class="nav-text">copy 与 mutableCopy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nonull-nullable-null-resettable"><span class="nav-number">5.</span> <span class="nav-text">nonull nullable null_resettable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Amywushu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+    <span class="site-pv">总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"amywushu"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,913 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="逆向,栈," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Amywushu" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="人在世上，爱欲之中，独生独死，独来独往，苦乐自知，无有代者。
+
+基础提要：栈结构ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[逆向知识] 栈·参数存储方式">
+<meta property="og:url" content="https://amywushu.github.io/2016/10/12/逆向知识-栈·参数存储方式.html">
+<meta property="og:site_name" content="Amywushu">
+<meta property="og:description" content="人在世上，爱欲之中，独生独死，独来独往，苦乐自知，无有代者。
+
+基础提要：栈结构ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图2.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图3.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图4.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图5.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图6.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图7.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图8.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图9.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图10.png">
+<meta property="og:updated_time" content="2016-10-25T12:32:30.127Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[逆向知识] 栈·参数存储方式">
+<meta name="twitter:description" content="人在世上，爱欲之中，独生独死，独来独往，苦乐自知，无有代者。
+
+基础提要：栈结构ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：">
+<meta name="twitter:image" content="https://amywushu.github.io/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+
+  <title> [逆向知识] 栈·参数存储方式 | Amywushu </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Amywushu</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [逆向知识] 栈·参数存储方式
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-12T00:00:00+08:00" content="2016-10-12">
+              2016-10-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Basics/" itemprop="url" rel="index">
+                    <span itemprop="name">Basics</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/12/逆向知识-栈·参数存储方式.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/12/逆向知识-栈·参数存储方式.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center"><p>人在世上，爱欲之中，独生独死，独来独往，苦乐自知，无有代者。</p>
+</blockquote>
+<h2 id="基础提要：栈结构"><a href="#基础提要：栈结构" class="headerlink" title="基础提要：栈结构"></a>基础提要：栈结构</h2><p>ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png" alt=""></p>
+<a id="more"></a>
+<h3 id="为什么栈向下增长？"><a href="#为什么栈向下增长？" class="headerlink" title="为什么栈向下增长？"></a>为什么栈向下增长？</h3><blockquote>
+<p>每一个可执行C程序，从低地址到高地址依次是：text，data，bss，堆，栈，环境参数变量；<strong>其中堆和栈之间有很大的地址空间空闲着，在需要分配空间的时候，堆向上涨，栈往下涨。</strong></p>
+<p>这样设计可以使得堆和栈能够充分利用空闲的地址空间。如果栈向上涨的话，我们就必须得指定栈和堆的一个严格分界线，但这个分界线怎么确定呢？平均分？但是有的程序使用的堆空间比较多，而有的程序使用的栈空间比较多。</p>
+<p>所以就可能出现这种情况：一个程序因为栈溢出而崩溃的时候，其实它还有大量闲置的堆空间呢，但是我们却无法使用这些闲置的堆空间。</p>
+<p>所以呢，最好的办法就是让堆和栈一个向上涨，一个向下涨，这样它们就可以最大程度地共用这块剩余的地址空间，达到利用率的最大化！！</p>
+<p>—— 引用自<a href="http://www.cnblogs.com/youxin/p/3313288.html" target="_blank" rel="external">判断栈和堆的生长方向</a></p>
+</blockquote>
+<h3 id="如何判断栈的增长方向？"><a href="#如何判断栈的增长方向？" class="headerlink" title="如何判断栈的增长方向？"></a>如何判断栈的增长方向？</h3><p>很简单，我们可以通过两个函数的调用来确定。我们知道，执行一个函数时，这个函数的相关信息都会出现栈之中，比如参数、返回地址和局部变量。</p>
+<p>那么，当它调用另一个函数时，在它栈信息保持不变的情况下，会把被调用函数的信息放到栈中。两个函数的相对信息位置是固定的，肯定是先调用的函数其信息先入栈，后调用的函数其信息后入栈。只需要判断这两个地址，就可以判断栈的增长方向了。</p>
+<p>比如设计两个函数<code>fun1()</code>和<code>fun2()</code>，将<code>fun1()</code>中某参数的地址传给<code>fun2()</code>，且在<code>fun1()</code>中调用<code>fun2()</code>，最后在<code>fun2()</code>中打印出两个函数参数的地址，则大功告成。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func2</span><span class="params">(<span class="keyword">int</span> *a)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> b=<span class="number">0</span>;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%x\n%x\n"</span>,a,&amp;b);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">func1</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">int</span> a=<span class="number">0</span>;</div><div class="line">    func2(&amp;a);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    func1();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我这边测试打印出来分别是<code>5fbff91c</code>  <code>5fbff8f4</code> （我用的<code>Xcode</code> 的 <code>command line</code> 测试的）。即<code>a</code> 的地址 &gt; <code>b</code>的地址，先分配的是高地址，因此是高地址向低地址增长。</p>
+<h3 id="如何区分栈底和栈顶？"><a href="#如何区分栈底和栈顶？" class="headerlink" title="如何区分栈底和栈顶？"></a>如何区分栈底和栈顶？</h3><p>很容易将分不清高地址和低地址到底谁才是栈底。我们可以想象一个桶，这个桶内的空间就是栈区，桶底（栈底）是确定了的，不会改变。往桶内加水，即使入栈操作。水面即是栈顶，也就<code>SP</code>指针所在的位置。我们不断加水，只会使得水面（栈顶<code>SP</code>指针）增长，而水底（栈底指针）仍旧不变。而栈区又是高地址向低地址增长，因此栈区的最高地址是为栈低，<code>SP</code>指针是栈顶指针。</p>
+<p>只不过，在实际应用情况中，我们经常习惯将栈底指针（最高地址处）放在最上面，<code>SP</code>指针在最下面，也就是一个倒扣着的桶，在失重情况下，往倒扣的桶里加水，水底仍然是栈底指针，水面仍然是栈顶指针，水面随着水的加入而增长。</p>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><p>在逆向过程中，我一直对栈的数据排列非常迷惑，现在让我们一起来解决它吧！<br>以下是我逆向遇到的一个小实例：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图2.png" alt=""></p>
+<p>在图中我们可以看到目前运行到第三行代码<code>stp   x9, x10, [sp, #8]</code>处，<code>stp</code>指令是将寄存器中的值依次存入后面的地址处。我们先打印一下<code>x12</code> <code>x8</code>以及<code>sp</code>的值：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图3.png" alt=""></p>
+<p>那么也就是说第二条指令<code>stp   x12, x8, [sp, #24]</code>已经将<code>x12</code>和<code>x8</code>的值存入了<code>sp+24</code>地址处。</p>
+<p>那么我们仔细想想，究竟这两个值在栈上是如何排列的呢？先存入的是<code>x12</code>还是<code>x8</code>呢？第二参数是在<code>sp+24</code>的高地址处还是低地址处呢？</p>
+<p>我们打印一下内存上的信息看一下就知道了：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图4.png" alt=""></p>
+<blockquote>
+<p>/4xb: 就是说从该地址开始，按照1个字节，16进制的方式打印4个单位。<br>/4xw: 按照4个字节，16进制的方式打印4个单位</p>
+<p>更多有关打印格式的请看<a href="http://blog.chinaunix.net/uid-26980210-id-3300895.html" target="_blank" rel="external">gdb查看内存区命令</a></p>
+</blockquote>
+<p>跟上面<code>x12</code>和<code>x8</code>比较后，我们可以发现，<strong>内存在打印的时候，每个打印单位（这里是以<code>w</code>格式打印，即4个字节）我们要从右往左看（从高地址到低地址），单位内部还是从左到右为高地址到低地址。</strong>也就是说，第一个打印单位的最右边是当前打印地址（最低地址），最后一个打印单位的最左边是最高地址。如下图所示，图中箭头为从高地址指向低地址：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图5.png" alt=""></p>
+<p>那么，也就是说，<br><code>x12</code>存储在从<code>sp+24 (0x16fd11cc8)</code>到<code>sp+31 (0x16fd11ccf)</code>之间<br><code>x8</code> 存储在从<code>sp+32 (0x16fd11cd0)</code> 到<code>sp+39 (0x16fd11cd7)</code>之间</p>
+<p>则他们之间的具体排列如下图所示</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图6.png" alt=""></p>
+<h3 id="小测试（第3、4行命令）"><a href="#小测试（第3、4行命令）" class="headerlink" title="小测试（第3、4行命令）"></a>小测试（第3、4行命令）</h3><p>现在我们大概对数据的排布有一个更深入的理解了，那么，就以第三行命令来测试一下我们是否真的理解了吧！<br>在执行第三条命令之前，我们先看一下<code>x9</code>，<code>x10</code>的值：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图7.png" alt=""></p>
+<p>那么，按照上一条命令的方式，我们来猜测一下内存排布吧。<br><code>stp    x9, x10, [sp, #8]</code> 这条命令的意思是，将<code>x9</code>，<code>x10</code>中的值依次放入<code>sp+8</code>所在的位置。那么，到底是存储在<code>sp+8</code>的高地址处，还是低地址处呢？</p>
+<p>其实很好理解，因为栈是向低地址处增长的，如果我们往<code>sp</code>到<code>sp+8</code>处写入这两个寄存器的值，很明显是不够的，这里只有8个字节的空间，而我们需要16个字节，因此<code>sp</code>指针就会往低地址处移动，则栈空间就增大了，但是<code>sp</code>指针并没有改变，这些指令都没有关于要改变栈顶指针的，所以这个想法是错误的。</p>
+<p>也就是说，<strong>在往栈内存储数据时，都在高地址到给定的地址之间存入，即向栈中已分配的空间存入。</strong></p>
+<p>那么，<code>x9</code>，<code>x10</code>依次存储在<code>sp+8 ~ sp+15</code>，<code>sp+16 ~ sp+23</code>之间。</p>
+<p>按照之前讲的打印单位与单位之间是从右往左为从高地址到低地址，单位内的顺序是从左往右，1个地址存储1个字节（8位，两个字符）。<br>我们按照一个字节一个字节的打印（16进制），则</p>
+<ul>
+<li>在<code>sp+8 ~ sp+15</code>处的数据应为：<code>64 c3 af 0b 00 00 00 00</code>；</li>
+<li>在<code>sp+16 ~ sp+31</code>处的数据应为：<code>86 dd a9 b1 00 00 00 00</code>。</li>
+</ul>
+<p>如果我们按照<code>4xw</code>的格式打印，则应该是<code>sp+8:  0x0bafc364 0x00000000</code>，<code>sp+16:  0xb1a9dd86 0x00000000</code></p>
+<p>我们打印一下看看猜测是否正确：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图8.png" alt=""></p>
+<p>完全正确！<br>我们继续往下执行第4条命令：<br><code>str   x11, [sp]</code>这条命令的意思是，将<code>x11</code>中的值放入<code>sp</code>所指的地方。我们知道<code>sp</code>是栈顶指针，是栈的最后一个元素所在的位置，所以<code>x11</code>肯定是存储在<code>sp</code>到<code>sp+8</code>之间。<br>打印一下<code>x11</code>的值：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图9.png" alt=""></p>
+<p>那么，依旧按照之前的方法，每个打印单位，要从右往左看：</p>
+<ul>
+<li>那么<code>sp</code>的地址<code>0x16fd11cb0</code>到<code>sp+8 (0x16fd11cb8)</code>之间依次应该为<code>ef e1 0f db 00 00 00 00</code>；</li>
+<li>按照<code>4xw</code>的打印格式则应该为：<code>0x16fd11cb0:   0xdbofelef 0x00000000 0x0bafc364 0x00000000</code>   （<code>sp+8 ~ sp+15</code>是刚刚我们执行过的<code>x9</code>的值）</li>
+</ul>
+<p>打印一下：</p>
+<p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图10.png" alt=""></p>
+<p>完全正确！<br>好了，现在关于内存栈的数据排列，你是不是有更清晰的图像印在脑海里了呢？</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/逆向/" rel="tag">#逆向</a>
+          
+            <a href="/tags/栈/" rel="tag">#栈</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/08/语法-property-中的常用关键字分析.html" rel="next" title="[语法] @property 中的常用关键字分析">
+                <i class="fa fa-chevron-left"></i> [语法] @property 中的常用关键字分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" rel="prev" title="[语法] copy 与 mutableCopy（传说中的深浅拷贝）">
+                [语法] copy 与 mutableCopy（传说中的深浅拷贝） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/10/12/逆向知识-栈·参数存储方式.html"
+     data-title="[逆向知识] 栈·参数存储方式"
+     data-content=""
+     data-url="https://amywushu.github.io/2016/10/12/逆向知识-栈·参数存储方式.html">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/12/逆向知识-栈·参数存储方式.html"
+           data-title="[逆向知识] 栈·参数存储方式" data-url="https://amywushu.github.io/2016/10/12/逆向知识-栈·参数存储方式.html">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Amywushu" />
+          <p class="site-author-name" itemprop="name">Amywushu</p>
+          <p class="site-description motion-element" itemprop="description">好吧，你想知道点儿什么？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://amywushu.github.io" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础提要：栈结构"><span class="nav-number">1.</span> <span class="nav-text">基础提要：栈结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么栈向下增长？"><span class="nav-number">1.1.</span> <span class="nav-text">为什么栈向下增长？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何判断栈的增长方向？"><span class="nav-number">1.2.</span> <span class="nav-text">如何判断栈的增长方向？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何区分栈底和栈顶？"><span class="nav-number">1.3.</span> <span class="nav-text">如何区分栈底和栈顶？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例"><span class="nav-number">2.</span> <span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小测试（第3、4行命令）"><span class="nav-number">2.1.</span> <span class="nav-text">小测试（第3、4行命令）</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Amywushu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+    <span class="site-pv">总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"amywushu"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="c," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Amywushu" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="人生如此，拿酒来。
+
+题目（编程题：病毒）小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。
+小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[练习] C语言编程题（2016年360笔试习题之病毒">
+<meta property="og:url" content="https://amywushu.github.io/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html">
+<meta property="og:site_name" content="Amywushu">
+<meta property="og:description" content="人生如此，拿酒来。
+
+题目（编程题：病毒）小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。
+小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎">
+<meta property="og:updated_time" content="2016-11-11T03:33:57.164Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[练习] C语言编程题（2016年360笔试习题之病毒">
+<meta name="twitter:description" content="人生如此，拿酒来。
+
+题目（编程题：病毒）小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。
+小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+
+  <title> [练习] C语言编程题（2016年360笔试习题之病毒 | Amywushu </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Amywushu</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                [练习] C语言编程题（2016年360笔试习题之病毒
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-21T00:00:00+08:00" content="2016-09-21">
+              2016-09-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Practice/" itemprop="url" rel="index">
+                    <span itemprop="name">Practice</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center"><p>人生如此，拿酒来。</p>
+</blockquote>
+<h2 id="题目（编程题：病毒）"><a href="#题目（编程题：病毒）" class="headerlink" title="题目（编程题：病毒）"></a>题目（编程题：病毒）</h2><p>小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。</p>
+<p>小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎没有完全成功。可能是由于保护机制的原因，内存写入只接受二进制的形式，所以十进制表达中除了0和1之外的其他值都没有成功写入内存。小B希望知道，究竟有多少数成功的写入了服务器的内存！</p>
+<a id="more"></a>
+<p><strong>输入</strong>  </p>
+<blockquote>
+<p>输入中有多组测试数据，每组测试数据在单独的一行中，为整数n（1&lt;=n&lt;=10^9）。</p>
+</blockquote>
+<p><strong>输出</strong> </p>
+<blockquote>
+<p>对每组测试数据，在单独的行中输出问题的答案。</p>
+</blockquote>
+<p><strong>举例</strong> </p>
+<blockquote>
+<p>输入：10<br>输出： 2</p>
+<p>输入：20<br>输出：3</p>
+</blockquote>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"> <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"> <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></div><div class="line"> <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> *  1. 输入的字符数组从最高位开始依次与1做比较</div><div class="line"> *  2. 小于等于1 取原值，并比较下一位，如果没有下一位，则返回；</div><div class="line"> *  3. 大于1，则其后的位数都取1，并返回；</div><div class="line"> *  4. 将得到的字符数组看作二进制，并转化为十进制。</div><div class="line"> *</div><div class="line"> */</div><div class="line"><span class="keyword">static</span> <span class="keyword">char</span> addarray[<span class="number">10</span>] = <span class="string">""</span>;</div><div class="line"><span class="keyword">static</span> <span class="keyword">char</span> array1[<span class="number">10</span>] = <span class="string">""</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">char</span> * <span class="title">fun</span><span class="params">(<span class="keyword">char</span> *cstring, <span class="keyword">int</span> n)</span> </span>&#123;</div><div class="line">    <span class="keyword">char</span> compareString = *(cstring + n);</div><div class="line">    <span class="keyword">char</span> *onestring = <span class="string">"1"</span>;</div><div class="line">    <span class="keyword">char</span> <span class="built_in">array</span>[<span class="number">10</span>] = <span class="string">""</span>;</div><div class="line">    <span class="keyword">char</span> *rec = <span class="string">""</span>;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(onestring,&amp;compareString) &gt;= <span class="number">0</span>) &#123;  <span class="comment">//compareString &lt;= 1</span></div><div class="line">        <span class="built_in">array</span>[<span class="number">0</span>] = compareString;</div><div class="line">        <span class="keyword">if</span> (*(cstring+n+<span class="number">1</span>)) &#123;</div><div class="line">            <span class="built_in">strcat</span>(<span class="built_in">array</span>, fun(cstring, n+<span class="number">1</span>));</div><div class="line">            <span class="built_in">strcpy</span>(addarray, <span class="built_in">array</span>);</div><div class="line">            rec = addarray;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">            rec = cstring + n;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> &#123;         <span class="comment">//compareString &gt; 1</span></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; (<span class="built_in">strlen</span>(cstring) - n); i++) &#123;</div><div class="line">            <span class="built_in">strcat</span>(array1, onestring);</div><div class="line">        &#125;</div><div class="line">        rec = array1;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> rec;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> * argv[])</span> </span>&#123;</div><div class="line">  </div><div class="line">    <span class="keyword">char</span> nstring[<span class="number">10</span>];</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"Input String:"</span>);</div><div class="line">    <span class="built_in">scanf</span>(<span class="string">"%s"</span>, nstring);</div><div class="line">  </div><div class="line">    <span class="keyword">char</span> *resultString = fun(nstring, <span class="number">0</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s\n"</span>, resultString);</div><div class="line">  </div><div class="line">    <span class="keyword">long</span> result = strtol(resultString, <span class="literal">NULL</span>, <span class="number">2</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%ld\n"</span>, result);</div><div class="line">  </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出：</p>
+<blockquote>
+<p>Input String:20<br>11<br>3  </p>
+<p>Input String:1040<br>1011<br>11  </p>
+<p>Input Stirng:2300304<br>1111111<br>127  </p>
+</blockquote>
+<h2 id="知识点总结"><a href="#知识点总结" class="headerlink" title="知识点总结"></a>知识点总结</h2><p><strong>关于字符数组和字符串在函数间的传递</strong></p>
+<p>从代码中可以看到我用了两个静态数组变量，之所以不直接定义在函数体内作为局部变量是因为：</p>
+<blockquote>
+<p>当用字符指针<code>char*</code>返回字符数组首地址时，函数体内的局部变量数组里的值已经被释放，返回的首地址虽然没有变，但里面的值已经无意义了。</p>
+</blockquote>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></div><div class="line">  </div><div class="line">  <span class="function"><span class="keyword">char</span> *<span class="title">test</span><span class="params">()</span></span></div><div class="line">  &#123;</div><div class="line">      <span class="comment">//char tmp[30]="测试";</span></div><div class="line">      <span class="keyword">char</span> *tmp=<span class="string">"测试"</span>;<span class="comment">//写成这样可以用指针返回数组首地址</span></div><div class="line">     <span class="keyword">return</span> tmp;</div><div class="line"> &#125;</div><div class="line"> </div><div class="line"> <span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line"> &#123;</div><div class="line">     <span class="built_in">printf</span>(<span class="string">"%s"</span>,test());</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>打印出来的值可能是乱码也能为nil。<br>解决方式：<br><strong>1.  static全局变量</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">char</span> *<span class="title">test</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">     <span class="keyword">static</span> <span class="keyword">char</span> tmp[<span class="number">30</span>]=<span class="string">"static测试"</span>;</div><div class="line">     <span class="keyword">return</span> tmp;</div><div class="line">&#125;</div><div class="line"> </div><div class="line"> <span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s"</span>,test());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在数组tmp[30]前面加入了<code>static</code>关键字，它就使得<code>tmp[30]</code>存放在内存中的静态存储区中，所占用的存储单元一直不释放，直到整个程序运行结束。所以当主函数调用完<code>print()</code>函数后，该空间依然存在。所以<code>main()</code>函数中接到首地值后可以访问数组中的元素。</p>
+<p><strong>2.  结构体作为返回值</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"string.h"</span></span></div><div class="line"></div><div class="line"><span class="keyword">struct</span> ret</div><div class="line">&#123;</div><div class="line">    <span class="keyword">char</span> buf[<span class="number">30</span>];</div><div class="line">&#125;;</div><div class="line"> </div><div class="line"> <span class="function"><span class="keyword">struct</span> ret <span class="title">test</span><span class="params">(<span class="keyword">char</span> *tmp)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> ret a;</div><div class="line">    <span class="built_in">strcpy</span>(a.buf,tmp);</div><div class="line">    <span class="keyword">return</span> a;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">struct</span> ret b;</div><div class="line">    b=test(<span class="string">"用结构体作为返回值传递数组"</span>);</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"%s"</span>,b.buf);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>两点注意：</p>
+<p>1、数组之间的赋值不要直接，即不要直接将数组 A 赋给数组 B，而是要用<code>strcpy</code>（字符型数组）或者<code>memcpy</code>（非字符型数组）。</p>
+<p>2、用结构体定义变量和函数时不要忘了结构体名（上面程序的<code>ret</code>）。</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] <a href="http://www.cnblogs.com/wuqi1003/archive/2013/01/09/2853657.html" target="_blank" rel="external">【原】C语言函数返回数组的问题</a>　 <a href="http://www.cnblogs.com/wuqi1003/archive/2013/01/09/2853657.html" target="_blank" rel="external">http://www.cnblogs.com/wuqi1003/archive/2013/01/09/2853657.html</a><br>[2] <a href="http://blog.csdn.net/edonlii/article/details/9162769" target="_blank" rel="external">C语言中字符串如何转换为二进制、八进制、十进制、十六进制</a>  　<a href="http://blog.csdn.net/edonlii/article/details/9162769" target="_blank" rel="external">http://blog.csdn.net/edonlii/article/details/9162769</a><br>[3] <a href="http://blog.csdn.net/hgj125073/article/details/8439448" target="_blank" rel="external">C语言之strcat函数</a>　<a href="http://blog.csdn.net/hgj125073/article/details/8439448" target="_blank" rel="external">http://blog.csdn.net/hgj125073/article/details/8439448</a><br>[4] <a href="http://c.biancheng.net/cpp/html/162.html" target="_blank" rel="external">C语言strcmp()函数：比较字符串（区分大小写）</a>　<a href="http://c.biancheng.net/cpp/html/162.html" target="_blank" rel="external">http://c.biancheng.net/cpp/html/162.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/c/" rel="tag">#c</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/08/语法-property-中的常用关键字分析.html" rel="next" title="[语法] @property 中的常用关键字分析">
+                <i class="fa fa-chevron-left"></i> [语法] @property 中的常用关键字分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/12/逆向知识-栈·参数存储方式.html" rel="prev" title="[逆向知识] 栈·参数存储方式">
+                [逆向知识] 栈·参数存储方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html"
+     data-title="[练习] C语言编程题（2016年360笔试习题之病毒"
+     data-content=""
+     data-url="https://amywushu.github.io/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html"
+           data-title="[练习] C语言编程题（2016年360笔试习题之病毒" data-url="https://amywushu.github.io/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Amywushu" />
+          <p class="site-author-name" itemprop="name">Amywushu</p>
+          <p class="site-description motion-element" itemprop="description">好吧，你想知道点儿什么？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://amywushu.github.io" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="" target="_blank" title="weibo">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  weibo
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#题目（编程题：病毒）"><span class="nav-number">1.</span> <span class="nav-text">题目（编程题：病毒）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码"><span class="nav-number">2.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#知识点总结"><span class="nav-number">3.</span> <span class="nav-text">知识点总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">4.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Amywushu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+    <span class="site-pv">总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"amywushu"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

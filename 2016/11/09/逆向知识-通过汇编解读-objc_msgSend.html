@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next pisces use-motion">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -91,7 +91,7 @@
 基础知识提要调用方法，本质是发送消息。比如：
 12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerName(&quot;test&quot;">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[逆向知识] 通过汇编解读 objc_msgSend">
+<meta property="og:title" content="通过汇编解读 objc_msgSend">
 <meta property="og:url" content="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">
 <meta property="og:site_name" content="Amywushu">
 <meta property="og:description" content="想做一条瀑布，每一秒钟都可以跳楼。
@@ -107,9 +107,9 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/cache.png">
-<meta property="og:updated_time" content="2016-11-10T09:39:37.772Z">
+<meta property="og:updated_time" content="2016-12-06T07:18:15.544Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[逆向知识] 通过汇编解读 objc_msgSend">
+<meta name="twitter:title" content="通过汇编解读 objc_msgSend">
 <meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。
 
 基础知识提要调用方法，本质是发送消息。比如：
@@ -121,7 +121,7 @@
 <script type="text/javascript" id="hexo.configuration">
   var NexT = window.NexT || {};
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: 'Pisces',
     sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
@@ -136,7 +136,7 @@
 
 
 
-  <title> [逆向知识] 通过汇编解读 objc_msgSend | Amywushu </title>
+  <title> 通过汇编解读 objc_msgSend | Amywushu </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -279,7 +279,7 @@
             
             
               
-                [逆向知识] 通过汇编解读 objc_msgSend
+                通过汇编解读 objc_msgSend
               
             
           </h1>
@@ -305,8 +305,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Basics/" itemprop="url" rel="index">
-                    <span itemprop="name">Basics</span>
+                  <a href="/categories/逆向知识/" itemprop="url" rel="index">
+                    <span itemprop="name">逆向知识</span>
                   </a>
                 </span>
 
@@ -497,13 +497,17 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" rel="next" title="[语法] copy 与 mutableCopy（传说中的深浅拷贝）">
-                <i class="fa fa-chevron-left"></i> [语法] copy 与 mutableCopy（传说中的深浅拷贝）
+              <a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" rel="next" title="copy 与 mutableCopy（传说中的深浅拷贝）">
+                <i class="fa fa-chevron-left"></i> copy 与 mutableCopy（传说中的深浅拷贝）
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/06/基础知识-ARC-是如何进行内存管理的.html" rel="prev" title="ARC 是如何进行内存管理的">
+                ARC 是如何进行内存管理的 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -519,7 +523,7 @@
     <div class="post-spread">
       
         <div class="ds-share flat" data-thread-key="2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html"
-     data-title="[逆向知识] 通过汇编解读 objc_msgSend"
+     data-title="通过汇编解读 objc_msgSend"
      data-content=""
      data-url="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">
   <div class="ds-share-inline">
@@ -549,7 +553,7 @@
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html"
-           data-title="[逆向知识] 通过汇编解读 objc_msgSend" data-url="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">
+           data-title="通过汇编解读 objc_msgSend" data-url="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">
       </div>
     
   </div>
@@ -594,7 +598,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -602,7 +606,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -611,7 +615,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -700,7 +704,7 @@
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT.Pisces
   </a>
 </div>
 
@@ -779,6 +783,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.2"></script>
+
+
 
   
   <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>

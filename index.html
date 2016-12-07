@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion">
+<html class="theme-next pisces use-motion">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -101,7 +101,7 @@
 <script type="text/javascript" id="hexo.configuration">
   var NexT = window.NexT || {};
   var CONFIG = {
-    scheme: 'Mist',
+    scheme: 'Pisces',
     sidebar: {"position":"left","display":"post"},
     fancybox: true,
     motion: true,
@@ -262,8 +262,138 @@
             
               
                 
+                <a class="post-title-link" href="/2016/12/06/基础知识-ARC-是如何进行内存管理的.html" itemprop="url">
+                  ARC 是如何进行内存管理的
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-06T00:00:00+08:00" content="2016-12-06">
+              2016-12-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/基础知识/" itemprop="url" rel="index">
+                    <span itemprop="name">基础知识</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/06/基础知识-ARC-是如何进行内存管理的.html#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/06/基础知识-ARC-是如何进行内存管理的.html" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。</p>
+</blockquote>
+<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：</p>
+<ul>
+<li>retain ：　　 　使得对象的引用计数+1</li>
+<li>release：　　　使得对象的引用计数-1</li>
+<li>autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1</li>
+<li>dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/12/06/基础知识-ARC-是如何进行内存管理的.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html" itemprop="url">
-                  [逆向知识] 通过汇编解读 objc_msgSend
+                  通过汇编解读 objc_msgSend
                 </a>
               
             
@@ -290,8 +420,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Basics/" itemprop="url" rel="index">
-                    <span itemprop="name">Basics</span>
+                  <a href="/categories/逆向知识/" itemprop="url" rel="index">
+                    <span itemprop="name">逆向知识</span>
                   </a>
                 </span>
 
@@ -389,7 +519,7 @@
               
                 
                 <a class="post-title-link" href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" itemprop="url">
-                  [语法] copy 与 mutableCopy（传说中的深浅拷贝）
+                  copy 与 mutableCopy（传说中的深浅拷贝）
                 </a>
               
             
@@ -416,8 +546,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Grammar/" itemprop="url" rel="index">
-                    <span itemprop="name">Grammar</span>
+                  <a href="/categories/OC语法/" itemprop="url" rel="index">
+                    <span itemprop="name">OC语法</span>
                   </a>
                 </span>
 
@@ -519,7 +649,7 @@
               
                 
                 <a class="post-title-link" href="/2016/10/12/逆向知识-栈·参数存储方式.html" itemprop="url">
-                  [逆向知识] 栈·参数存储方式
+                  栈·参数存储排布
                 </a>
               
             
@@ -546,8 +676,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Basics/" itemprop="url" rel="index">
-                    <span itemprop="name">Basics</span>
+                  <a href="/categories/逆向知识/" itemprop="url" rel="index">
+                    <span itemprop="name">逆向知识</span>
                   </a>
                 </span>
 
@@ -644,7 +774,7 @@
               
                 
                 <a class="post-title-link" href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html" itemprop="url">
-                  [练习] C语言编程题（2016年360笔试习题之病毒
+                  C语言编程题（2016年360笔试习题之病毒
                 </a>
               
             
@@ -671,8 +801,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Practice/" itemprop="url" rel="index">
-                    <span itemprop="name">Practice</span>
+                  <a href="/categories/练习/" itemprop="url" rel="index">
+                    <span itemprop="name">练习</span>
                   </a>
                 </span>
 
@@ -769,7 +899,7 @@
               
                 
                 <a class="post-title-link" href="/2016/09/08/语法-property-中的常用关键字分析.html" itemprop="url">
-                  [语法] @property 中的常用关键字分析
+                  @property 中的常用关键字分析
                 </a>
               
             
@@ -796,8 +926,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Grammar/" itemprop="url" rel="index">
-                    <span itemprop="name">Grammar</span>
+                  <a href="/categories/OC语法/" itemprop="url" rel="index">
+                    <span itemprop="name">OC语法</span>
                   </a>
                 </span>
 
@@ -901,7 +1031,7 @@
               
                 
                 <a class="post-title-link" href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html" itemprop="url">
-                  [源码学习] AFNetworking 3.1.0 第一部分
+                  AFNetworking 3.1.0 第一部分
                 </a>
               
             
@@ -928,8 +1058,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Source/" itemprop="url" rel="index">
-                    <span itemprop="name">Source</span>
+                  <a href="/categories/源码学习/" itemprop="url" rel="index">
+                    <span itemprop="name">源码学习</span>
                   </a>
                 </span>
 
@@ -1052,8 +1182,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Translation/" itemprop="url" rel="index">
-                    <span itemprop="name">Translation</span>
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
                   </a>
                 </span>
 
@@ -1169,7 +1299,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1177,7 +1307,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1186,7 +1316,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -1264,7 +1394,7 @@
 <div class="theme-info">
   主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Mist
+    NexT.Pisces
   </a>
 </div>
 
@@ -1343,6 +1473,13 @@
 
   
   
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.2"></script>
+
+
 
   
 

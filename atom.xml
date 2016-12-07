@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2016-12-07T03:57:38.697Z</updated>
+  <updated>2016-12-07T04:01:29.442Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -17,12 +17,12 @@
   
   <entry>
     <title>ARC 是如何进行内存管理的</title>
-    <link href="https://amywushu.github.io/2016/12/06/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html"/>
-    <id>https://amywushu.github.io/2016/12/06/基础知识-ARC-是如何进行内存管理的.html</id>
-    <published>2016-12-05T16:00:00.000Z</published>
-    <updated>2016-12-07T03:57:38.697Z</updated>
+    <link href="https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html"/>
+    <id>https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html</id>
+    <published>2016-12-06T16:00:00.000Z</published>
+    <updated>2016-12-07T04:01:29.442Z</updated>
     
-    <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。</p>
+    <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>任重而道远，不过进一寸便有进一寸的欢喜。</p>
 </blockquote>
 <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：</p>
 <ul>
@@ -184,7 +184,7 @@ __Block_byref_val_0 val = {
     
     <summary type="html">
     
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;想做一条瀑布，每一秒钟都可以跳楼。&lt;/p&gt;
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;任重而道远，不过进一寸便有进一寸的欢喜。&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;基础知识提要&quot;&gt;&lt;a href=&quot;#基础知识提要&quot; class=&quot;headerlink&quot; title=&quot;基础知识提要&quot;&gt;&lt;/a&gt;基础知识提要&lt;/h2&gt;&lt;p&gt;对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：&lt;/p&gt;
 &lt;ul&gt;

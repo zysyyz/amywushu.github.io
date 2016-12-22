@@ -121,7 +121,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图15.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图16.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图17.png">
-<meta property="og:updated_time" content="2016-12-07T08:43:13.784Z">
+<meta property="og:updated_time" content="2016-12-19T07:49:09.067Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="（译） iOS  Kernel  Heap  Armageddon —— Stefan Esser">
 <meta name="twitter:description" content="人世间最让你感动的是什么？   ——是遥远的相似性
@@ -499,15 +499,15 @@
 <p>对于堆风水，我们不仅需要分配任意大小的内存块，还需要在重写导致的任意代码执行时，分配被数据填充的任意大小内存块。对于此，我们再次使用数据对象类型（当然也可以使用字典对象类型）。</p>
 <pre><code>&lt;plist version=&quot;1.0&quot;&gt;
 &lt;dict&gt;
-       &lt;key&gt;ThisArrayAllocates_4_Bytes&lt;/key&gt;
+        &lt;key&gt;ThisArrayAllocates_4_Bytes&lt;/key&gt;
         &lt;array&gt;
               &lt;true /&gt;
         &lt;/array&gt;
-       &lt;key&gt;ThisArrayAllocates_12_Bytes&lt;/key&gt;
+        &lt;key&gt;ThisArrayAllocates_12_Bytes&lt;/key&gt;
         &lt;array&gt;
               &lt;true /&gt;&lt;true /&gt;&lt;true /&gt;
         &lt;/array&gt;
-       &lt;key&gt;ThisArrayAllocates_28_Bytes&lt;/key&gt;
+        &lt;key&gt;ThisArrayAllocates_28_Bytes&lt;/key&gt;
         &lt;array&gt;
               &lt;true /&gt;&lt;true /&gt;&lt;true &gt;&lt;true /&gt;&lt;true /&gt;&lt;true /&gt;&lt;true /&gt;
        &lt;/array&gt;
@@ -522,15 +522,15 @@
 <pre><code>&lt;plist version=&quot;1.0&quot;&gt;
 &lt;dict&gt;
   &lt;key&gt;AAAA&lt;/key&gt;
-      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    &lt;/data&gt;
+      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/data&gt;
    &lt;key&gt;BBBB&lt;/key&gt;
-      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    &lt;/data&gt;
+      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/data&gt;
    &lt;key&gt;CCCC&lt;/key&gt;
-      &lt;data&gt;ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ    &lt;/data&gt;
+      &lt;data&gt;ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ&lt;/data&gt;
    &lt;key&gt;DDDD&lt;/key&gt;
-      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    &lt;/data&gt;
+      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/data&gt;
    &lt;key&gt;EEEE&lt;/key&gt;
-      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    &lt;/data&gt;
+      &lt;data&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/data&gt;
    &lt;key&gt;CCCC&lt;/key&gt;
       &lt;true /&gt;
 &lt;/dict&gt;

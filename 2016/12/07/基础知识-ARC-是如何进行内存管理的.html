@@ -112,7 +112,7 @@ retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
 dealloc：　　　当对象的引用计数为0的时候自动调用，表">
-<meta property="og:updated_time" content="2016-12-07T11:50:21.980Z">
+<meta property="og:updated_time" content="2016-12-23T03:26:01.108Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARC 是如何进行内存管理的">
 <meta name="twitter:description" content="任重而道远，不过进一寸便有进一寸的欢喜。
@@ -438,7 +438,7 @@ objc_destroyWeak(&obj2);
 <p>注：以 <code>init</code> 开始的方法必须是实例方法，且必须要返回对象，该返回对象不注册到 autorelease pool 上，基本上只是对 alloc 方法返回值的对象进行初始化处理并返回该对象。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ARC 无效</span></div><div class="line">- (<span class="keyword">id</span>)allocObject</div><div class="line">&#123;</div><div class="line">	<span class="keyword">id</span> obj = [[<span class="built_in">NSObject</span> alloc] init];</div><div class="line">	<span class="keyword">return</span> obj;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">id</span>)object</div><div class="line">&#123;</div><div class="line">	<span class="keyword">id</span> obj = [[<span class="built_in">NSObject</span> alloc] init];</div><div class="line">	[obj autorelease];</div><div class="line">	<span class="keyword">return</span> obj;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">&#123;</div><div class="line">	<span class="keyword">id</span> obj1 = [obj0 allocObject];</div><div class="line">	<span class="comment">//alloc开头的方法返回自己生成并持有的对象，</span></div><div class="line">	<span class="comment">//即obj变量持有NSObject对象，该对象的引用计数至少=1</span></div><div class="line"></div><div class="line"></div><div class="line">	<span class="keyword">id</span> obj2 = [obj0 object];</div><div class="line">	<span class="comment">//取得对象存在，但obj2变量不持有NSObject对象，</span></div><div class="line">	<span class="comment">//该对象的引用计数无变化</span></div><div class="line"></div><div class="line">	[obj2 <span class="keyword">retain</span>];</div><div class="line">	<span class="comment">//使得obj2持有对象，对象的引用计数+1</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//启用ARC</span></div><div class="line">- (<span class="keyword">id</span>)object</div><div class="line">&#123;</div><div class="line">	<span class="keyword">id</span> obj = [[<span class="built_in">NSObject</span> alloc] init];</div><div class="line">	<span class="keyword">return</span> obj；</div><div class="line">	<span class="comment">//因为return使得变量obj超出作用域，所以强引用失效，自己持有的对象会被释放，</span></div><div class="line">	<span class="comment">//但是因为该对象是作为方法的返回值，所以ARC会自动将其注册到autorelease pool</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>　　也就是说<strong>对于非自己持有的方法，比如 [NSMutableArray array] 方法，在其方法内部，自动为返回值添加了 autorelease，我们可以使用这个返回值，但并不持有返回值所指的对象。</strong>在其对应的 autorelease pool 释放时（在主线程中，就是 RunLoop 循环一次之后），返回值所指的对象即被释放，如果没有对返回值执行 retain 操作，则对象没有持有者，自动调用 dealloc 方法，被废弃。</p>
-<p>　　我们常说，ARC 有效时，编译器会自动插入 retain/release/autorelease 方法。但实际上，<strong>ARC 在调用这些方法时，并不是通过普通的 OC 消息派发机制，而是直接调用底层 C 语言版本</strong>，比如 ARC 会调用与 retain 等价的底层函数 objc_retain。这样做更能能优化性能，也是不能覆写 retain、release、autorelease 方法的原因，因为这些方法不会被直接调用。</p>
+<p>　　我们常说，ARC 有效时，编译器会自动插入 retain/release/autorelease 方法。但实际上，<strong>ARC 在调用这些方法时，并不是通过普通的 OC 消息派发机制，而是直接调用底层 C 语言版本</strong>，比如 ARC 会调用与 retain 等价的底层函数 objc_retain。这样做更能优化性能，也是不能覆写 retain、release、autorelease 方法的原因，因为这些方法不会被直接调用。</p>
 <p>　　ARC 的优化还体现在很多方面，如使用非自己持有的方法，我们可以看到，在方法内部的返回对象调用 autorelease，与方法返回后，在调用方对返回对象 retain，两个操作实际上是可以抵消的，ARC 会自动做这方面的优化。以 [NSMutableArray array] 为例：</p>
 <pre code="">
 // ARC 代码
@@ -655,7 +655,7 @@ __Block_byref_val_0 val = {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-count">10</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -672,7 +672,7 @@ __Block_byref_val_0 val = {
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -698,15 +698,6 @@ __Block_byref_val_0 val = {
                     <i class="fa fa-fw fa-github"></i>
                   
                   GitHub
-                </a>
-              </span>
-            
-              <span class="links-of-author-item">
-                <a href="" target="_blank" title="weibo">
-                  
-                    <i class="fa fa-fw fa-globe"></i>
-                  
-                  weibo
                 </a>
               </span>
             
@@ -746,8 +737,8 @@ __Block_byref_val_0 val = {
       <div class="footer-inner">
         <div class="copyright" >
   
-  &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

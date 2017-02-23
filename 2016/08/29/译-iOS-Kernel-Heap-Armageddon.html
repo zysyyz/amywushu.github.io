@@ -92,18 +92,18 @@
 
 
 
-<meta name="description" content="人世间最让你感动的是什么？   ——是遥远的相似性
+<meta name="description" content="人世间最让你感动的是什么？   ——是遥远的相似性　（霍金答记者问）
 
 摘要你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。
-在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser">
+在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="（译） iOS  Kernel  Heap  Armageddon —— Stefan Esser">
 <meta property="og:url" content="https://amywushu.github.io/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html">
 <meta property="og:site_name" content="Amywushu">
-<meta property="og:description" content="人世间最让你感动的是什么？   ——是遥远的相似性
+<meta property="og:description" content="人世间最让你感动的是什么？   ——是遥远的相似性　（霍金答记者问）
 
 摘要你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。
-在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser">
+在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图1.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图2.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图3.png">
@@ -121,13 +121,13 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图15.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图16.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图17.png">
-<meta property="og:updated_time" content="2016-12-19T07:49:09.067Z">
+<meta property="og:updated_time" content="2017-02-23T06:50:28.483Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="（译） iOS  Kernel  Heap  Armageddon —— Stefan Esser">
-<meta name="twitter:description" content="人世间最让你感动的是什么？   ——是遥远的相似性
+<meta name="twitter:description" content="人世间最让你感动的是什么？   ——是遥远的相似性　（霍金答记者问）
 
 摘要你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。
-在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser">
+在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo">
 <meta name="twitter:image" content="https://amywushu.github.io/images/2016-08-29-译-iOS-Kernel-Heap-Armageddon/图1.png">
 
 
@@ -374,7 +374,7 @@
       
 
       
-        <blockquote class="blockquote-center"><p>人世间最让你感动的是什么？   ——是遥远的相似性</p>
+        <blockquote class="blockquote-center"><p>人世间最让你感动的是什么？   ——是遥远的相似性<br>　（霍金答记者问）</p>
 </blockquote>
 <h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a><strong>摘要</strong></h2><p>你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。</p>
 <p>在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser 之前所提到的那样。接着，我们将看一看其他的内核堆管理以及 Mac OSX 和 iOS 内核中的内存分配封装函数。在简单介绍这些封装函数之后，我们将进一步介绍这些分配器在最新版本 iOS 5 之后的改变。本文将继续介绍内核层的应用数据重写与直接攻击分配器的空闲列表区之间的差异。最后将展示一种普遍的技术：为了实现内核堆利用，通过执行内核堆喷射  (heap spraying) ，来控制内核堆布局的布局。</p>

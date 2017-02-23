@@ -92,18 +92,18 @@
 
 
 
-<meta name="description" content="想做一条瀑布，每一秒钟都可以跳楼。
+<meta name="description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
 
 基础知识提要调用方法，本质是发送消息。比如：
-12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerName(&quot;test&quot;">
+12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerNam">
 <meta property="og:type" content="article">
 <meta property="og:title" content="通过汇编解读 objc_msgSend">
 <meta property="og:url" content="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">
 <meta property="og:site_name" content="Amywushu">
-<meta property="og:description" content="想做一条瀑布，每一秒钟都可以跳楼。
+<meta property="og:description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
 
 基础知识提要调用方法，本质是发送消息。比如：
-12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerName(&quot;test&quot;">
+12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerNam">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend1.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend2.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend3.png">
@@ -113,13 +113,13 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/cache.png">
-<meta property="og:updated_time" content="2016-12-07T08:49:33.672Z">
+<meta property="og:updated_time" content="2017-02-23T07:09:33.585Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过汇编解读 objc_msgSend">
-<meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。
+<meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
 
 基础知识提要调用方法，本质是发送消息。比如：
-12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerName(&quot;test&quot;">
+12345Person *p = [[Person alloc] init];[p test];// 本质是发送消息： clang -rewrite-objc main.m((void (*)(id, SEL))(void *)objc_msgSend)((id)p, sel_registerNam">
 <meta name="twitter:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend1.png">
 
 
@@ -366,7 +366,7 @@
       
 
       
-        <blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。</p>
+        <blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详</p>
 </blockquote>
 <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>调用方法，本质是发送消息。比如：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Person *p = [[Person alloc] init];</div><div class="line">[p test];</div><div class="line"></div><div class="line"><span class="comment">// 本质是发送消息： clang -rewrite-objc main.m</span></div><div class="line">((<span class="keyword">void</span> (*)(<span class="keyword">id</span>, SEL))(<span class="keyword">void</span> *)objc_msgSend)((<span class="keyword">id</span>)p, sel_registerName(<span class="string">"test"</span>));</div></pre></td></tr></table></figure>

@@ -95,7 +95,7 @@
 <meta name="description" content="好吧，你想知道点儿什么？">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Amywushu">
-<meta property="og:url" content="https://amywushu.github.io/archives/2016/09/index.html">
+<meta property="og:url" content="https://amywushu.github.io/page/2/index.html">
 <meta property="og:site_name" content="Amywushu">
 <meta property="og:description" content="好吧，你想知道点儿什么？">
 <meta name="twitter:card" content="summary">
@@ -122,7 +122,7 @@
 
 
 
-  <title> 归档 | Amywushu </title>
+  <title> Amywushu </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -143,7 +143,9 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -253,140 +255,132 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
+  <section id="posts" class="posts-expand">
+    
+      
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
+  
+  
 
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 11 篇日志。 继续努力。
-    </span>
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
 
     
+      <header class="post-header">
 
-      
-      
-      
-
-      
         
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html" itemprop="url">
+                  （译） iOS  Kernel  Heap  Armageddon —— Stefan Esser
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-29T00:00:00+08:00" content="2016-08-29">
+              2016-08-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
         </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
         
-            <a class="post-title-link" href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html" itemprop="url">
-              
-                <span itemprop="name">C语言编程题（2016年360笔试习题之病毒）</span>
-              
+          <blockquote class="blockquote-center"><p>人世间最让你感动的是什么？   ——是遥远的相似性<br>　（霍金答记者问）</p>
+</blockquote>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a><strong>摘要</strong></h2><p>你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。</p>
+<p>在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser 之前所提到的那样。接着，我们将看一看其他的内核堆管理以及 Mac OSX 和 iOS 内核中的内存分配封装函数。在简单介绍这些封装函数之后，我们将进一步介绍这些分配器在最新版本 iOS 5 之后的改变。本文将继续介绍内核层的应用数据重写与直接攻击分配器的空闲列表区之间的差异。最后将展示一种普遍的技术：为了实现内核堆利用，通过执行内核堆喷射  (heap spraying) ，来控制内核堆布局的布局。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html#more" rel="contents">
+              阅读全文 &raquo;
             </a>
+          </div>
         
-      </h1>
+      
+    </div>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-21T00:00:00+08:00"
-              content="2016-09-21" >
-          09-21
-        </time>
-      </div>
+    <div>
+      
+    </div>
 
-    </header>
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
   </article>
 
 
-
     
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/08/语法-property-中的常用关键字分析.html" itemprop="url">
-              
-                <span itemprop="name">@property 中的常用关键字分析</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-08T00:00:00+08:00"
-              content="2016-09-08" >
-          09-08
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html" itemprop="url">
-              
-                <span itemprop="name">AFNetworking 3.1.0 第一部分</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-06T00:00:00+08:00"
-              content="2016-09-06" >
-          09-06
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
   </section>
 
   
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
 
 
 
@@ -593,12 +587,6 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
-
 
   
 

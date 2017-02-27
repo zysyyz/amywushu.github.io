@@ -278,6 +278,125 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/27/源码学习-hook-原理之-fishhook-源码解读.html" itemprop="url">
+                  hook 原理之 fishhook 源码解读
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-27T00:00:00+08:00" content="2017-02-27">
+              2017-02-27
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/源码学习/" itemprop="url" rel="index">
+                    <span itemprop="name">源码学习</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　——逃亡者的恰恰 《低俗小说》</p>
+</blockquote>
+<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍以下本文会用到的三个表。</p>
+<p>String Table（以下简称为 strtab）：是放置 Section 名、变量名、符号名的字符串表。将这些字符串放置在 strtab 中，字符串末尾自带的 \0 为分隔符（机器码00）。只需要知道 strtab 的基地址（base），然后加上在 Symbol Table 中找到的该字符串的偏移量（offset）就可以找到这个字符串。</p>
+<p>Symbol Table（以下简称为 symtab）:即符号表。每个目标文件都有自己的符号表，记录了符号的映射。在 Mach-O 中，符号表是由结构体 n_list 构成。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/27/源码学习-hook-原理之-fishhook-源码解读.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/21/基础知识-解读-Mach-O-文件格式.html" itemprop="url">
                   解读 Mach-O 文件格式
                 </a>
@@ -319,13 +438,6 @@
           
 
           
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/21/基础知识-解读-Mach-O-文件格式.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/21/基础知识-解读-Mach-O-文件格式.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
             
           
 
@@ -443,13 +555,6 @@
           
 
           
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/12/16/译-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/16/译-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
             
           
 
@@ -571,13 +676,6 @@
           
 
           
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/12/07/基础知识-ARC-是如何进行内存管理的.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/07/基础知识-ARC-是如何进行内存管理的.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
             
           
 
@@ -702,13 +800,6 @@
 
           
             
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -827,13 +918,6 @@
           
 
           
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
             
           
 
@@ -958,13 +1042,6 @@
 
           
             
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/12/逆向知识-栈·参数存储方式.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/12/逆向知识-栈·参数存储方式.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -1083,13 +1160,6 @@
 
           
             
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -1207,13 +1277,6 @@
           
 
           
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/08/语法-property-中的常用关键字分析.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/08/语法-property-中的常用关键字分析.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
             
           
 
@@ -1340,13 +1403,6 @@
 
           
             
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -1401,134 +1457,13 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html" itemprop="url">
-                  （译） iOS  Kernel  Heap  Armageddon —— Stefan Esser
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-29T00:00:00+08:00" content="2016-08-29">
-              2016-08-29
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/翻译/" itemprop="url" rel="index">
-                    <span itemprop="name">翻译</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/29/译-iOS-Kernel-Heap-Armageddon.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote class="blockquote-center"><p>人世间最让你感动的是什么？   ——是遥远的相似性<br>　（霍金答记者问）</p>
-</blockquote>
-<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a><strong>摘要</strong></h2><p>你所了解到的关于 iOS 内核堆利用的公开研究，最终都可以归结于对内核堆空间的分配，这个观点由 nemo 首先提出来。总而言之，这种分配将空间内的内核内存分成相同大小的内存块。通过利用重写堆元数据，可以向空间的空闲列表 (freelist) 中注入任意内存区。</p>
-<p>在本文中，我们将首先概括关于内核堆空间分配的知识，像 nemo 和 Esser 之前所提到的那样。接着，我们将看一看其他的内核堆管理以及 Mac OSX 和 iOS 内核中的内存分配封装函数。在简单介绍这些封装函数之后，我们将进一步介绍这些分配器在最新版本 iOS 5 之后的改变。本文将继续介绍内核层的应用数据重写与直接攻击分配器的空闲列表区之间的差异。最后将展示一种普遍的技术：为了实现内核堆利用，通过执行内核堆喷射  (heap spraying) ，来控制内核堆布局的布局。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -1567,7 +1502,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1584,7 +1519,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -1744,30 +1679,9 @@
 
   
 
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"amywushu"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
-  
 
 
+  
 
 
 

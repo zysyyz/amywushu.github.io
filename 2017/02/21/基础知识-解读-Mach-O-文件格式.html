@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/mach-o.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/mach-o-header.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/IDA.png">
-<meta property="og:updated_time" content="2017-02-23T07:07:08.641Z">
+<meta property="og:updated_time" content="2017-02-27T13:13:10.475Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解读 Mach-O 文件格式">
 <meta name="twitter:description" content="桃花坞里桃花庵，桃花庵里桃花仙。桃花仙人种桃树，又摘桃花换酒钱。酒醒只在花前坐，酒醉还来花下眠。半醉半醒日复日，花开花落年复年。但愿老死花酒间，不愿鞠躬车马前。　　——唐寅《桃花庵歌》
@@ -326,13 +326,6 @@
 
           
             
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/21/基础知识-解读-Mach-O-文件格式.html#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/21/基础知识-解读-Mach-O-文件格式.html" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -437,7 +430,7 @@
 <p>其中 flag 字段分为两个部分，一个是区域类型（section type），一个是区域属性（section attributes）。其中 type 是互斥的，即只能有一个类型，而 attributes 不是互斥的，可以有多个属性。如果段（segment）中的任何一个 section 拥有属性 S_ATTR_DEBUG，那么该段所有的 section 都必须拥有这个属性。具体的flag字段内容以及意义请参考 <code>/usr/include/mach-o/loader.h</code>。</p>
 <p>段名为大写，节名为小写。各节的作用主要有：</p>
 <p>__text:　主程序代码<br>__stub_helper:　用于动态链接的存根<br>__symbolstub1:　用于动态链接的存根<br>__objc_methname:　Objective-C 的方法名<br>__objc_classname:　Objective-C 的类名<br>__cstring:　硬编码的字符串</p>
-<p>__lazy_symbol:　懒加载，延迟加载节，通过 dyld_stub_binder 辅助链接<br>__nl_symbol_ptr:　非延迟加载节<br>__mod_init_func:　初始化的全局函数地址，在 main 之前被调用<br>__mod_term_func:　结束函数地址<br>__cfstring:　Core Foundation 用到的字符串（OC字符串）</p>
+<p>__lazy_symbol:　懒加载，延迟加载节，通过 dyld_stub_binder 辅助链接<br>_got:　存储引用符号的实际地址，类似于动态符号表<br>__nl_symbol_ptr:　非延迟加载节<br>__mod_init_func:　初始化的全局函数地址，在 main 之前被调用<br>__mod_term_func:　结束函数地址<br>__cfstring:　Core Foundation 用到的字符串（OC字符串）</p>
 <p>__objc_clsslist:　Objective-C 的类列表<br>__objc_nlclslist:　Objective-C 的 +load 函数列表，比 __mod_init_func 更早执行<br>__objc_const:　Objective-C 的常量<br>__data:　初始化的可变的变量<br>__bss:　未初始化的静态变量   </p>
 <p>查看某段中某节的命令为： <code>otool -s __TEXT __text 可执行文件</code>。 </p>
 <h2 id="与-IDA-的对应位置"><a href="#与-IDA-的对应位置" class="headerlink" title="与 IDA 的对应位置"></a>与 IDA 的对应位置</h2><p>如果用 MachOView 来查看的话，界面左上角有一个 RAW、RVA 的选项。RAW 就是指该字节相对于文件开始部分的绝对偏移，文件头部的地址是从0x000开始的。RVA 是相对于某个基地址的偏移，也就是整体的绝对偏移值再加上某个基地址，文件头部的地址是从某个值（基地址）开始的。 IDA 中则是使用的 RVA 地址。</p>
@@ -486,6 +479,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/02/27/源码学习-hook-原理之-fishhook-源码解读.html" rel="prev" title="hook 原理之 fishhook 源码解读">
+                hook 原理之 fishhook 源码解读 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -499,25 +496,6 @@
 
     <div class="post-spread">
       
-        <div class="ds-share flat" data-thread-key="2017/02/21/基础知识-解读-Mach-O-文件格式.html"
-     data-title="解读 Mach-O 文件格式"
-     data-content=""
-     data-url="https://amywushu.github.io/2017/02/21/基础知识-解读-Mach-O-文件格式.html">
-  <div class="ds-share-inline">
-    <ul  class="ds-share-icons-16">
-
-      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
-      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
-      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
-      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
-      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
-
-    </ul>
-    <div class="ds-share-icons-more">
-    </div>
-  </div>
-</div>
-      
     </div>
   </div>
 
@@ -528,10 +506,6 @@
 
           
   <div class="comments" id="comments">
-    
-      <div class="ds-thread" data-thread-key="2017/02/21/基础知识-解读-Mach-O-文件格式.html"
-           data-title="解读 Mach-O 文件格式" data-url="https://amywushu.github.io/2017/02/21/基础知识-解读-Mach-O-文件格式.html">
-      </div>
     
   </div>
 
@@ -575,7 +549,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -592,7 +566,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -767,30 +741,9 @@
 
   
 
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"amywushu"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
-  
 
 
+  
 
 
 

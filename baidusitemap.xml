@@ -4,8 +4,50 @@
 
     
   <url>
+    <loc>https://amywushu.github.io/2017/03/01/hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html</loc>
+    <lastmod>2017-03-01T13:34:29.066Z</lastmod>
+    <data>
+        <display>
+        <title>hook 原理之 Method Swizzling</title>
+        <pubTime>2017-02-28T16:00:00.000Z</pubTime>
+        
+        <tag>hook</tag>
+         
+        <tag>runtime</tag>
+         
+         
+           
+             
+              <breadCrumb title="基础知识" url="https://amywushu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html</loc>
+    <lastmod>2017-02-28T08:02:19.866Z</lastmod>
+    <data>
+        <display>
+        <title>解读 Mach-O 文件格式</title>
+        <pubTime>2017-02-20T16:00:00.000Z</pubTime>
+        
+        <tag>Mach-O</tag>
+         
+         
+           
+             
+              <breadCrumb title="基础知识" url="https://amywushu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>https://amywushu.github.io/2017/02/27/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-hook-%E5%8E%9F%E7%90%86%E4%B9%8B-fishhook-%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB.html</loc>
-    <lastmod>2017-02-27T13:41:17.939Z</lastmod>
+    <lastmod>2017-02-28T03:37:44.250Z</lastmod>
     <data>
         <display>
         <title>hook 原理之 fishhook 源码解读</title>
@@ -19,26 +61,6 @@
            
              
               <breadCrumb title="源码学习" url="https://amywushu.github.io/categories/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html</loc>
-    <lastmod>2017-02-27T13:13:10.475Z</lastmod>
-    <data>
-        <display>
-        <title>解读 Mach-O 文件格式</title>
-        <pubTime>2017-02-20T16:00:00.000Z</pubTime>
-        
-        <tag>Mach-O</tag>
-         
-         
-           
-             
-              <breadCrumb title="基础知识" url="https://amywushu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
           
         </display>
     </data>

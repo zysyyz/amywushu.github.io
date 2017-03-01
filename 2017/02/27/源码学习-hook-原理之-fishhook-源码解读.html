@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-hook-原理之-fishhook-源码解读/dysymtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-hook-原理之-fishhook-源码解读/symtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-hook-原理之-fishhook-源码解读/strtab.png">
-<meta property="og:updated_time" content="2017-02-27T13:41:17.939Z">
+<meta property="og:updated_time" content="2017-02-28T03:37:44.250Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hook 原理之 fishhook 源码解读">
 <meta name="twitter:description" content="数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》
@@ -361,7 +361,7 @@
 <p>以上为 n_list 的结构，其中 n_strx 的值代表该字符串在 strtab 中的偏移量（offset）。关于 n_list 的具体结构解析详见 <a href="http://turingh.github.io/2016/05/24/nlist-Mach-O%E6%96%87%E4%BB%B6%E9%87%8D%E5%AE%9A%E5%90%91%E4%BF%A1%E6%81%AF%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/#" target="_blank" rel="external">nlist-Mach-O文件重定向信息数据结构分析</a></p>
 <p>Dynamic Symbol Table(Indirect Symbols)：动态符号表是加载动态库时能导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在<strong>原所属表指针</strong>中的偏移量（offset）+ 原所属表在<strong>动态符号表</strong>中的偏移量 + 动态符号表的<strong>基地址</strong>（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。</p>
 <p>懒加载（lazy load），又叫做延迟加载。也就说在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 过程来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
-<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr 和 _la_symbol_ptr。</p>
+<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr 和 _la_symbol_ptr。这两个指针表，保存着与字符串表对应的函数指针。</p>
 <h2 id="fishhook-概述"><a href="#fishhook-概述" class="headerlink" title="fishhook 概述"></a>fishhook 概述</h2><p><a href="https://github.com/facebook/fishhook" target="_blank" rel="external">fishhook</a> 是 facehook 开源的重绑定 Mach-O 符号的库，用来 hook C 语言函数（即只能重绑定 C 符号）。主要原因在于只针对 C 语言做了符号修饰。</p>
 <p>基本思路为： </p>
 <blockquote>
@@ -410,7 +410,7 @@
 <p>如上图所示，_dyld_stub_binder 符号（也是这个程序中的 _nl_symbol_ptr 的首个符号）在 dysymtab 中的 Symbol 数据为0xA1，那么在对应的 symtab 中，它的地址应为 symtab 首地址 + 0xA1 <em> 16 = 0x10005510 + 161 </em> 16 = 0x10005F20。(16是 n_list 结构共16个字节)</p>
 <p>Symbol Table 中的 n_strx（之前提到的 n_list 结构）即为 strtab 中的 index。</p>
 <p><img src="/images/2017-02-27-源码学习-hook-原理之-fishhook-源码解读/strtab.png" alt=""></p>
-<p>最后就是匹配替换了。这段代码比较清晰，通过比较字符串表中的字符串与 rebindings 数组中的 name 字段，匹配成功后，替换对应的函数指针。</p>
+<p>最后就是匹配替换了。比较字符串表中的字符串与 rebindings 数组中的 name 字段，匹配成功后，将 _nl_symbol_ptr 或 _la_symbol_ptr 这两个 Section 的指针表中对应的函数指针（<code>indirect\_symbol\_bindings[i]</code>）赋值给 rebindings 数组中的 replaced 字段，然后用数组中的 replacement 字段（也就是自定以的 my_open 或 my_close 函数的指针）覆盖原来的函数指针。</p>
 <blockquote>
 <p>这里使用了 goto 来跳出双重循环，值得参考。</p>
 </blockquote>
@@ -457,6 +457,10 @@
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/01/hook-原理之-Method-Swizzling.html" rel="prev" title="hook 原理之 Method Swizzling">
+                hook 原理之 Method Swizzling <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -524,7 +528,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-count">12</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -541,7 +545,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

@@ -105,7 +105,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/mach-o.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/mach-o-header.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-21-基础知识-解读-Mach-O-文件格式/IDA.png">
-<meta property="og:updated_time" content="2017-02-27T13:13:10.475Z">
+<meta property="og:updated_time" content="2017-02-28T08:02:19.866Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解读 Mach-O 文件格式">
 <meta name="twitter:description" content="桃花坞里桃花庵，桃花庵里桃花仙。桃花仙人种桃树，又摘桃花换酒钱。酒醒只在花前坐，酒醉还来花下眠。半醉半醒日复日，花开花落年复年。但愿老死花酒间，不愿鞠躬车马前。　　——唐寅《桃花庵歌》
@@ -433,7 +433,8 @@
 <p>__lazy_symbol:　懒加载，延迟加载节，通过 dyld_stub_binder 辅助链接<br>_got:　存储引用符号的实际地址，类似于动态符号表<br>__nl_symbol_ptr:　非延迟加载节<br>__mod_init_func:　初始化的全局函数地址，在 main 之前被调用<br>__mod_term_func:　结束函数地址<br>__cfstring:　Core Foundation 用到的字符串（OC字符串）</p>
 <p>__objc_clsslist:　Objective-C 的类列表<br>__objc_nlclslist:　Objective-C 的 +load 函数列表，比 __mod_init_func 更早执行<br>__objc_const:　Objective-C 的常量<br>__data:　初始化的可变的变量<br>__bss:　未初始化的静态变量   </p>
 <p>查看某段中某节的命令为： <code>otool -s __TEXT __text 可执行文件</code>。 </p>
-<h2 id="与-IDA-的对应位置"><a href="#与-IDA-的对应位置" class="headerlink" title="与 IDA 的对应位置"></a>与 IDA 的对应位置</h2><p>如果用 MachOView 来查看的话，界面左上角有一个 RAW、RVA 的选项。RAW 就是指该字节相对于文件开始部分的绝对偏移，文件头部的地址是从0x000开始的。RVA 是相对于某个基地址的偏移，也就是整体的绝对偏移值再加上某个基地址，文件头部的地址是从某个值（基地址）开始的。 IDA 中则是使用的 RVA 地址。</p>
+<h2 id="与-IDA-的对应地址"><a href="#与-IDA-的对应地址" class="headerlink" title="与 IDA 的对应地址"></a>与 IDA 的对应地址</h2><p>如果用 MachOView 来查看的话，界面左上角有一个 RAW、RVA 的选项。RAW 就是指该字节相对于文件开始部分的绝对偏移，文件头部的地址是从0x000开始的。RVA 是相对于某个基地址的偏移，也就是整体的绝对偏移值再加上某个基地址，文件头部的地址是从某个值（基地址）开始的。 </p>
+<p>这个所谓的基地址其实是 LC_SEGMENT_64(_PAGEZERO) 中的 VM_Size 字段的值，因为留出这段空白页面就是为了捕获程序的空指针，以及考虑到页面对齐。IDA 中就是使用的 RVA 地址。这个地址在 armv7 中是0x4000，arm64 中是0x10000 0000。</p>
 <p><img src="/images/2017-02-21-基础知识-解读-Mach-O-文件格式/IDA.png" alt=""></p>
 <p>Section(__TEXT,__text) 所在的 RVA 地址，对应的就是 IDA 解析的函数开始地址。 IDA 解析的 Mach-O 文件中的函数都位于 Section(__TEXT) 段，然后还会接着解析 Section(__DATA) 段，即 IDA 中的数据区。</p>
 <p>LC_MAIN 加载命令中的 Entry Offset 字段 + 基地址（RVA 选项下的文件头部地址） = IDA 中左侧函数 _main 的地址。</p>
@@ -549,7 +550,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-count">12</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -566,7 +567,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">16</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -613,7 +614,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#框架图"><span class="nav-number">1.</span> <span class="nav-text">框架图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Header"><span class="nav-number">2.</span> <span class="nav-text">Header</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Load-Commands"><span class="nav-number">3.</span> <span class="nav-text">Load Commands</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Segment"><span class="nav-number">4.</span> <span class="nav-text">Segment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Section"><span class="nav-number">5.</span> <span class="nav-text">Section</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与-IDA-的对应位置"><span class="nav-number">6.</span> <span class="nav-text">与 IDA 的对应位置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#框架图"><span class="nav-number">1.</span> <span class="nav-text">框架图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Header"><span class="nav-number">2.</span> <span class="nav-text">Header</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Load-Commands"><span class="nav-number">3.</span> <span class="nav-text">Load Commands</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Segment"><span class="nav-number">4.</span> <span class="nav-text">Segment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Section"><span class="nav-number">5.</span> <span class="nav-text">Section</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与-IDA-的对应地址"><span class="nav-number">6.</span> <span class="nav-text">与 IDA 的对应地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">7.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
           </div>
         </section>

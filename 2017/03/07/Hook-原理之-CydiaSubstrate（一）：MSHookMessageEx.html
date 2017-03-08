@@ -1,0 +1,896 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Microsoft YaHei:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hook," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Amywushu" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
+<meta property="og:url" content="https://amywushu.github.io/2017/03/07/Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html">
+<meta property="og:site_name" content="Amywushu">
+<meta property="og:description" content="前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
+<meta property="og:updated_time" content="2017-03-08T02:59:58.265Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
+<meta name="twitter:description" content="前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整">
+<meta name="twitter:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+
+  <title> Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx | Amywushu </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Amywushu</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-07T00:00:00+08:00" content="2017-03-07">
+              2017-03-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/逆向知识/" itemprop="url" rel="index">
+                    <span itemprop="name">逆向知识</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center"></blockquote>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
+<blockquote>
+<p>在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整个工具主要分为 MobileHooker、MobileLoader 以及 Safe mode 三部分。    </p>
+<p>MobileHooker，是 CydiaSubstrate 的一个组件，对 C 和 Objective-C 均有效。</p>
+<p>MobileHooker 组件主要提供了 MSHookMessageEx 和 MSHookFunction 两个函数针对不同语言的 inline hook 功能，其中 MSHookMessageEx 负责用来 hook Objective-C 函数，MSHookFunction 负责用来 hook C/C++ 函数。<br>　　　　　　　　　　　　————简书作者：HWenj《<a href="http://www.jianshu.com/p/3479f9632a6f" target="_blank" rel="external">iOS HOOK</a>》</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h2><p>CydiaSubstrate 源代码现在已经不开源了，我调试用的代码是 iOS5 的时候的版本，<a href="https://github.com/r-plus/substrate" target="_blank" rel="external">GitHub</a>。虽然已经过时很久，仅支持32位的移动端，以及32/64位的 PC 端，但其中还是有很多东西值得学习。</p>
+<p>正如前文所说，MSHookMessageEx 是针对 OC 函数的 hook，因此它也是采用的 Method Swizzling 方法（详见我之前的文章“<a href="https://amywushu.github.io/2017/03/01/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html#">Hook 原理之 Method Swizzling</a>”），下面我们来分析一下老版本中的源代码。核心代码在 C++ 文件 <code>ObjectiveC.cpp</code> 中。</p>
+<ol>
+<li><p>首先需要在你的工程中引入以下几个文件：ARM.hpp、x86.hpp、CydiaSubstrate.h、Debug.hpp、Debug.cpp 以及 Log.hpp,后面三个文件可以不导入，修改几处 Log 的代码即可。</p>
+</li>
+<li><p>然后在工程中添加一对新的 C++ 文件（即实现文件和头文件），我的命名为 MyMSHookMessageFx。 </p>
+</li>
+<li><p>然后将 ObjectiveC.cpp 中的内容，包括引入的头文件，<code>static Method MSFindMethod(Class _class, SEL sel)</code> 函数，<code>static void MSHookMessageInternal(...)</code> 函数和 <code>_extern void MSHookMessageEx(...)</code> 函数拷贝到 MyMSHookMessageFx.cpp 中。</p>
+</li>
+<li><p>新建 Cocoa Touch Class，我的命名为 <code>MySwizzling</code>。在头文件中添加函数声明 <code>- (void)exchange</code>。</p>
+</li>
+<li><p>在实现文件 MySwizzling.m 中添加以下代码：</p>
+</li>
+</ol>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">"MySwizzling.h"</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">MySwizzling</span></span></div><div class="line"></div><div class="line"><span class="keyword">void</span> *(*oldConnect)(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd);</div><div class="line"></div><div class="line"><span class="keyword">void</span> *newConnect(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd) &#123;</div><div class="line">    </div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"new connect"</span>);  </div><div class="line">    <span class="keyword">return</span> oldConnect(<span class="keyword">self</span>, _cmd);</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)connect_orig &#123;</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"origin connect"</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)exchange &#123;</div><div class="line">    </div><div class="line">    MSHookMessageEx([<span class="keyword">self</span> <span class="keyword">class</span>], <span class="keyword">@selector</span>(connect_orig), &amp;newConnect, &amp;oldConnect);</div><div class="line">    [<span class="keyword">self</span> connect_orig];   </div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">@end</span></div></pre></td></tr></table></figure>
+<p>6.　最后在你想测试的地方，初始化类，调用方法即可。（我是在 ViewController.m: -(void)viewDidLoad 中调用的）</p>
+<h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><h3 id="MSHookMessageEx"><a href="#MSHookMessageEx" class="headerlink" title="MSHookMessageEx"></a>MSHookMessageEx</h3><p>MSHookMessageEx 函数就是对 MSHookMessageInternal 函数的封装，除了 prefix 参数为 NULL 之外，其余的参数都原封不动的传入。</p>
+<h3 id="MSHookMessageInternal"><a href="#MSHookMessageInternal" class="headerlink" title="MSHookMessageInternal"></a>MSHookMessageInternal</h3><p>先厘清一下这个核心函数的整个流程。</p>
+<p>进入 MSHookMessageInternal 函数先是一大堆 log 比较清晰，就不分析了。然后调用 <code>Method method(MSFindMethod(_class, sel));</code> 通过 MSFindMethod 函数获取 sel 对应的方法 method；</p>
+<p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。</p>
+<p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的汇编代码，将返回值存储在 old 中。</p>
+<p>如果是本类的方法，就跳过 if 函数，将找到的 sel 对应的方法 method 的实现 imp 赋给 old。</p>
+<p>然后将 old 的值赋给 *result，即 oldConnect 函数指针。</p>
+<p>如果 prefix != NULL，就给 _class 类添加一个 sel 为 prefix+sel，imp 为 old 的方法。</p>
+<p>如果是本类的方法，即 direct = true，就通过 <code>method_setImplementation</code> 函数将传入的 newConnect 的函数地址赋给 sel 对应的方法 method 中的实现。即调用 connect_orig，会跳到 newConnect 的入口函数处。</p>
+<p>如果不是本类的方法，即 direct = false，则通过 <code>class_addMethod</code> 函数将函数名为 sel，函数地址为 newConnect 函数地址，函数类型为 type 的方法添加到 _class 类中。</p>
+<h4 id="MSFindMethod"><a href="#MSFindMethod" class="headerlink" title="MSFindMethod"></a>MSFindMethod</h4><p>MSFindMethod 函数主要是用于找到传入的参数 sel 对应的 method。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> Method MSFindMethod(Class _<span class="keyword">class</span>, SEL sel) &#123;</div><div class="line">    <span class="keyword">for</span> (; _<span class="keyword">class</span> != <span class="literal">nil</span>; _<span class="keyword">class</span> = class_getSuperclass(_<span class="keyword">class</span>)) &#123;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> size;</div><div class="line">        Method *methods(class_copyMethodList(_<span class="keyword">class</span>, &amp;size));</div><div class="line">        <span class="keyword">if</span> (methods == <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">continue</span>;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j(<span class="number">0</span>); j != size; ++j) &#123;</div><div class="line">            Method method(methods[j]);</div><div class="line">            <span class="keyword">if</span> (!sel_isEqual(method_getName(methods[j]), sel))</div><div class="line">                <span class="keyword">continue</span>;</div><div class="line"></div><div class="line">            free(methods);</div><div class="line">            <span class="keyword">return</span> method;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        free(methods);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>主要是通过两个 for 循环，遍历参数 _class 及其父类（父类的父类…直到基类），通过函数 <code>class_copyMethodList</code> 取得 _class 的方法列表，通过第二个 for 循环来遍历方法列表，与 sel 字符串作比较，如果匹配成功，即找到 sel 对应的方法，就返回该 method，否则一直遍历，直到最后返回 nil。</p>
+<blockquote>
+<p>这份源代码中，作者在使用 C++ 语言的初始化时，多用括号。如 int j = 0;  作者常使用 int j(0);</p>
+</blockquote>
+<h4 id="if-direct"><a href="#if-direct" class="headerlink" title="if (!direct)"></a>if (!direct)</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">    <span class="keyword">if</span> (!direct) &#123;</div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__arm__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">11</span> * <span class="keyword">sizeof</span>(<span class="keyword">uint32_t</span>));</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__i386__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">20</span>);</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__x86_64__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">50</span>);</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line">        <span class="keyword">uint32_t</span> *buffer(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span> *&gt;(mmap(</div><div class="line">            <span class="literal">NULL</span>, length, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span></div><div class="line">        )));</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (buffer == MAP_FAILED)</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error:mmap() = %d"</span>, errno);</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="literal">false</span>) fail:</div><div class="line">            munmap(buffer, length);</div><div class="line">        <span class="keyword">else</span> &#123;</div><div class="line">            Class super(class_getSuperclass(_class));</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__arm__)</span></div><div class="line">            buffer[ <span class="number">0</span>] = A$stmdb_sp$_$rs$((<span class="number">1</span> &lt;&lt; A$r0) | (<span class="number">1</span> &lt;&lt; A$r1) | (<span class="number">1</span> &lt;&lt; A$r2) | (<span class="number">1</span> &lt;&lt; A$r3) | (<span class="number">1</span> &lt;&lt; A$lr));</div><div class="line">            buffer[ <span class="number">1</span>] = A$ldr_rd_$rn_im$(A$r0, A$pc, ( <span class="number">8</span> - <span class="number">1</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">2</span>] = A$ldr_rd_$rn_im$(A$r1, A$pc, ( <span class="number">9</span> - <span class="number">2</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">3</span>] = A$ldr_rd_$rn_im$(A$lr, A$pc, (<span class="number">10</span> - <span class="number">3</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">4</span>] = A$blx_rm(A$lr);</div><div class="line">            buffer[ <span class="number">5</span>] = A$str_rd_$rn_im$(A$r0, A$sp, <span class="number">-4</span>);</div><div class="line">            buffer[ <span class="number">6</span>] = A$ldmia_sp$_$rs$((<span class="number">1</span> &lt;&lt; A$r0) | (<span class="number">1</span> &lt;&lt; A$r1) | (<span class="number">1</span> &lt;&lt; A$r2) | (<span class="number">1</span> &lt;&lt; A$r3) | (<span class="number">1</span> &lt;&lt; A$lr));</div><div class="line">            buffer[ <span class="number">7</span>] = A$ldr_rd_$rn_im$(A$pc, A$sp, <span class="number">-4</span> - (<span class="number">5</span> * <span class="number">4</span>));</div><div class="line">            buffer[ <span class="number">8</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(super);</div><div class="line">            buffer[ <span class="number">9</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(sel);</div><div class="line">            buffer[<span class="number">10</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(&amp;class_getMethodImplementation);</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__i386__)</span></div><div class="line">            ......</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__x86_64__)</span></div><div class="line">            ......</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line">            <span class="keyword">if</span> (mprotect(buffer, length, PROT_READ | PROT_EXEC) == <span class="number">-1</span>) &#123;</div><div class="line">                ......</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            old = <span class="keyword">reinterpret_cast</span>&lt;IMP&gt;(buffer);</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (MSDebug) &#123;</div><div class="line">                ......</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>前两句代码比较容易理解，给 length 分配大小，然后给 buffer 分配内存，以4个字节为单位分配11个可读写的内存。然后将 super 赋值为 _class 的父类。</p>
+<p>接下来这一部分涉及到汇编和机器码的对应问题，后面的讲解主要以32位的 arm 为例，i386 和 x86_64 都跟它差不多，比它要更简单一点。</p>
+<p>推荐官方手册：ARM Architecture Reference Manual。非常详细和权威的参考资料。</p>
+<p>汇编语言对应着不同的机器语言指令集。一种汇编语言专用于某种计算机系统结构，而不像高级语言，可以在不同系统平台间移植。CPU 处理的时候实际上是处理的机器语言，也就是我们常说的机器码。由汇编器负责汇编语言到机器语言的转换。</p>
+<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png" alt=""></p>
+<p>上图为与汇编语言相对应的通用的机器码格式。cond 为条件码，如 EQ(EQual to 0)、NE(Not Equal to 0)、CS(Carry Set)等等，如果是无条件，则为 AL(ALways)，对应的机器码为1110。</p>
+<p>26~27位是保留位。</p>
+<p>I 位，也就是第25位，是用来表明 shifter_operand 段存放的类型。0表示寄存器，1表示立即数。</p>
+<p>24~21位是 opcode，表明指令的类型。如 AND 为0000，SUB 为0010，MOV 为1101等等。</p>
+<p>S 位，第20位，表明是否影响 cpsr（程序状态寄存器），有则置1，否则置0。</p>
+<p>19~16位是指 Rn 寄存器，也就是第一个源操作数寄存器，根据每个指令的格式，有的指令有 Rn，有的没有。</p>
+<p>15~12位是指 Rd 寄存器，即目的寄存器，存放操作后的数据。</p>
+<p>11~0位标明第二个源操作数，若为立即数则填该立即数的二进制值，若为通用寄存器则填通用寄存器标号的二进制值。另外根据不同的指令，这一字段会有不同的具体划分，可查阅官方手册。</p>
+<p>根据 ARM.hpp 头文件中的宏定义，可具体分析这几句汇编代码。以第一句<code>A$stmdb_sp$_$rs$(...)</code> 为例，在头文件中的定义为：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> A$r &#123;</div><div class="line">    A$r0, A$r1, A$r2, A$r3,</div><div class="line">    A$r4, A$r5, A$r6, A$r7,</div><div class="line">    A$r8, A$r9, A$r10, A$r11,</div><div class="line">    A$r12, A$r13, A$r14, A$r15,</div><div class="line">    A$sp = A$r13,</div><div class="line">    A$lr = A$r14,</div><div class="line">    A$pc = A$r15</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> A$stmdb_sp$_$rs$(rs) <span class="comment">/* stmdb sp!, &#123;rs&#125; */</span> \</span></div><div class="line">    (0xe9200000 | (A$sp <span class="meta-string">&lt;&lt; 16) | (rs))</span></div></pre></td></tr></table></figure>
+<p>0xe920000 的二进制数为1110 10 0 1001 0 000000000000，即无条件，操作指令为1001，0~19的字段填充通过按位或来填充。首先 A$sp 左移16位，A$sp = A$r13 = 13 = 1101，左移16位，即填充至19~16位，Rn 寄存器的位置，0~15的字段由 rs 填充。</p>
+<p>第一句 <code>buffer[ 0] = A$stmdb_sp$_$rs$((1 &lt;&lt; A$r0) | (1 &lt;&lt; A$r1) | (1 &lt;&lt; A$r2) | (1 &lt;&lt; A$r3) | (1 &lt;&lt; A$lr));</code> 即1左移0位，1左移1位，1左移2位，1左移3位，1左移14位，按位或之后为：1110 10 0 1001 0 1101 0100 0000 0000 1111。官方手册上关于 stmdb 的格式是这样的：</p>
+<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png" alt=""></p>
+<p>其中 register_list 的解释为：</p>
+<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png" alt=""></p>
+<p>根据这两幅图，我们将机器码整理为汇编语言，即为 <code>stmdb  sp! {r0~r3,lr}</code></p>
+<p>将后面的几句依次整理为汇编语言：</p>
+<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png" alt=""></p>
+<p>即为</p>
+<pre><code>
+stmdb  sp! {r0~r3, lr}
+ldr  r0, [pc, #0x14]
+ldr  r1, [pc, #0x14]
+ldr  r2, [pc, #0x14]
+blx  lr
+str  r0, [sp, #-0x4]
+ldia  sp!, {r0~r3, lr}
+ldr  pc, [sp, #-0x18]
+</code></pre>
+
+<p>我们在 newConnect 函数的末尾 <code>return oldConnect(self, _cmd)</code> 处下一个断点，然后在控制台输入几次 si 命令，即可看到增加的这几行汇编代码，如下图：</p>
+<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png" alt=""></p>
+<p>那么这几行汇编代码是什么意思呢？<br>第1行，是将 r0~r3，以及 lr 寄存器推入栈中，即保存现在的状态。</p>
+<p>第2、3、4行，分别将 pc+0x14 处的数值存入 r0,r1,lr 寄存器。这几行汇编指令都是以机器码的形式写入 buffer 中的，buffer[0]~buffer[7] 保存了这8条指令。<code>buffer[ 8] = reinterpret_cast&lt;uint32_t&gt;(super);</code> 即保存的是 super （_class 父类）的值，buffer[9] 保存的是 sel 的值，buffer[10] 保存的是 class_getMethodImplementation 的地址。</p>
+<blockquote>
+<p>有关 pc 的计算。<br>　　PC 值（program counter）表示下一条指令存储的地址。由于 ARM 采用流水线来提高 CPU 利用效率，无论是 ARM7 的3级流水线还是 ARM9 的5级流水线，如果当前指令在执行，那么下一条指令一定正在译码，再下一条指令正在读取。<br>　　因此 PC 值实际上指的是当前执行指令的下一条的再一下条指令。</p>
+</blockquote>
+<p>第5行，跳到 lr 寄存器中的地址处，执行指令代码。也就是执行 class_getMethodImplementation 函数，它的参数为 r0,r1。也就是执行 <code>class_getMethodImplementation(super, sel)；</code></p>
+<p>第6行，lr 寄存器存储的地址中的代码执行完毕后，将返回值 r0 寄存器中的值保存到栈中，即 sp-0x4 中，然后 sp = sp -0x4。也就是说保存了 sel 对应的 imp 值。</p>
+<p>第7行，将 r0~r3，以及 lr 寄存器推出栈，恢复之前的状态。</p>
+<p>第8行，将 pc 指向 sp-0x18 处的值。因为第7行指令执行完之后，sp 的值也恢复到第1条指令执行之前的状态，所以需要 sp-0x18 来找到再第6条指令处保存的返回值，并执行。（有关 ARM 中栈以及 SP 的操作，可以参考我之前的文章 <a href="https://amywushu.github.io/2016/10/12/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E6%A0%88%C2%B7%E5%8F%82%E6%95%B0%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F.html">栈·参数存储排布</a>）</p>
+<p>因此整个汇编代码做的事情实际上就是前面在流程中提到的，根据运行设备的架构（32位的arm，i386 和 x86_64）来执行<code>class_getMethodImplementation(super,sel)</code>，以及执行这个 imp。</p>
+<p>class_getMethodImplementation 函数会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。所以它跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
+<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会先跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
+<h3 id="if-prefix-NULL"><a href="#if-prefix-NULL" class="headerlink" title="if (prefix!=NULL)"></a>if (prefix!=NULL)</h3><p>这一部分比起上一部分来说就简单多了。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
+<p>比如 prefix = “xxx”，sel = @selector(connect_orig)。执行了这段代码之后，只需要在头文件中声明　- (void)xxxconnect_orig;　不用在 .m 文件中实现，直接调用　[self xxxconnect_orig];　就会执行原来的 connect_orig 代码。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，因为使用的是 <code>method_getImplementation</code> 函数，正如我的前一篇文章所言，它会去寻找父类（以及父类的父类，直到基类）的函数。所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast　<a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
+<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hook/" rel="tag">#hook</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/01/基础知识-Hook-原理之-Method-Swizzling.html" rel="next" title="Hook 原理之 Method Swizzling">
+                <i class="fa fa-chevron-left"></i> Hook 原理之 Method Swizzling
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar1.jpg"
+               alt="Amywushu" />
+          <p class="site-author-name" itemprop="name">Amywushu</p>
+          <p class="site-description motion-element" itemprop="description">好吧，你想知道点儿什么？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://amywushu.github.io" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前情提要"><span class="nav-number">1.</span> <span class="nav-text">前情提要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码编译"><span class="nav-number">2.</span> <span class="nav-text">源码编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码解析"><span class="nav-number">3.</span> <span class="nav-text">源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MSHookMessageEx"><span class="nav-number">3.1.</span> <span class="nav-text">MSHookMessageEx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MSHookMessageInternal"><span class="nav-number">3.2.</span> <span class="nav-text">MSHookMessageInternal</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MSFindMethod"><span class="nav-number">3.2.1.</span> <span class="nav-text">MSFindMethod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if-direct"><span class="nav-number">3.2.2.</span> <span class="nav-text">if (!direct)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#if-prefix-NULL"><span class="nav-number">3.3.</span> <span class="nav-text">if (prefix!=NULL)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Amywushu</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+    <span class="site-pv">总访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = false;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = decodeURIComponent(data.url);
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title >= 0 || index_content >= 0 ){
+                                isMatch = true;
+								if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            } 
+							
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

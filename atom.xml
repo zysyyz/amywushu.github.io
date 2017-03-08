@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-08T02:59:58.265Z</updated>
+  <updated>2017-03-08T07:25:40.195Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,9 +20,10 @@
     <link href="https://amywushu.github.io/2017/03/07/Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-03-08T02:59:58.265Z</updated>
+    <updated>2017-03-08T07:25:40.195Z</updated>
     
-    <content type="html"><![CDATA[<blockquote class="blockquote-center"></blockquote>
+    <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
+</blockquote>
 <h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
 <blockquote>
 <p>在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整个工具主要分为 MobileHooker、MobileLoader 以及 Safe mode 三部分。    </p>
@@ -31,15 +32,15 @@
 </blockquote>
 <a id="more"></a>
 <h2 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h2><p>CydiaSubstrate 源代码现在已经不开源了，我调试用的代码是 iOS5 的时候的版本，<a href="https://github.com/r-plus/substrate" target="_blank" rel="external">GitHub</a>。虽然已经过时很久，仅支持32位的移动端，以及32/64位的 PC 端，但其中还是有很多东西值得学习。</p>
-<p>正如前文所说，MSHookMessageEx 是针对 OC 函数的 hook，因此它也是采用的 Method Swizzling 方法（详见我之前的文章“<a href="https://amywushu.github.io/2017/03/01/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html#">Hook 原理之 Method Swizzling</a>”），下面我们来分析一下老版本中的源代码。核心代码在 C++ 文件 <code>ObjectiveC.cpp</code> 中。</p>
+<p>正如前文所说，MSHookMessageEx 是针对 OC 函数的 hook，因此它也是采用的 Method Swizzling 方法（详见我之前的文章 <a href="https://amywushu.github.io/2017/03/01/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html#">Hook 原理之 Method Swizzling</a>），下面我们来分析一下老版本中的源代码。核心代码在 C++ 文件 <code>ObjectiveC.cpp</code> 中。</p>
 <ol>
-<li><p>首先需要在你的工程中引入以下几个文件：ARM.hpp、x86.hpp、CydiaSubstrate.h、Debug.hpp、Debug.cpp 以及 Log.hpp,后面三个文件可以不导入，修改几处 Log 的代码即可。</p>
+<li><p>首先需要在你的工程中引入以下几个文件：ARM.hpp、x86.hpp、CydiaSubstrate.h、Debug.hpp、Debug.cpp 以及 Log.hpp，后面三个文件可以不导入，修改几处 Log 的代码即可。</p>
 </li>
 <li><p>然后在工程中添加一对新的 C++ 文件（即实现文件和头文件），我的命名为 MyMSHookMessageFx。 </p>
 </li>
 <li><p>然后将 ObjectiveC.cpp 中的内容，包括引入的头文件，<code>static Method MSFindMethod(Class _class, SEL sel)</code> 函数，<code>static void MSHookMessageInternal(...)</code> 函数和 <code>_extern void MSHookMessageEx(...)</code> 函数拷贝到 MyMSHookMessageFx.cpp 中。</p>
 </li>
-<li><p>新建 Cocoa Touch Class，我的命名为 <code>MySwizzling</code>。在头文件中添加函数声明 <code>- (void)exchange</code>。</p>
+<li><p>新建 Cocoa Touch Class，我的命名为 <code>MySwizzling</code>。在头文件中添加函数声明 <code>- (void)exchange;</code>。</p>
 </li>
 <li><p>在实现文件 MySwizzling.m 中添加以下代码：</p>
 </li>
@@ -48,19 +49,32 @@
 <p>6.　最后在你想测试的地方，初始化类，调用方法即可。（我是在 ViewController.m: -(void)viewDidLoad 中调用的）</p>
 <h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><h3 id="MSHookMessageEx"><a href="#MSHookMessageEx" class="headerlink" title="MSHookMessageEx"></a>MSHookMessageEx</h3><p>MSHookMessageEx 函数就是对 MSHookMessageInternal 函数的封装，除了 prefix 参数为 NULL 之外，其余的参数都原封不动的传入。</p>
 <h3 id="MSHookMessageInternal"><a href="#MSHookMessageInternal" class="headerlink" title="MSHookMessageInternal"></a>MSHookMessageInternal</h3><p>先厘清一下这个核心函数的整个流程。</p>
-<p>进入 MSHookMessageInternal 函数先是一大堆 log 比较清晰，就不分析了。然后调用 <code>Method method(MSFindMethod(_class, sel));</code> 通过 MSFindMethod 函数获取 sel 对应的方法 method；</p>
-<p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。</p>
-<p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的汇编代码，将返回值存储在 old 中。</p>
-<p>如果是本类的方法，就跳过 if 函数，将找到的 sel 对应的方法 method 的实现 imp 赋给 old。</p>
-<p>然后将 old 的值赋给 *result，即 oldConnect 函数指针。</p>
-<p>如果 prefix != NULL，就给 _class 类添加一个 sel 为 prefix+sel，imp 为 old 的方法。</p>
-<p>如果是本类的方法，即 direct = true，就通过 <code>method_setImplementation</code> 函数将传入的 newConnect 的函数地址赋给 sel 对应的方法 method 中的实现。即调用 connect_orig，会跳到 newConnect 的入口函数处。</p>
-<p>如果不是本类的方法，即 direct = false，则通过 <code>class_addMethod</code> 函数将函数名为 sel，函数地址为 newConnect 函数地址，函数类型为 type 的方法添加到 _class 类中。</p>
+<ol>
+<li><p>进入 MSHookMessageInternal 函数先是一大堆 log 比较清晰，就不分析了。然后调用 <code>Method method(MSFindMethod(_class, sel));</code> 通过 MSFindMethod 函数获取 sel 对应的方法 method；</p>
+</li>
+<li><p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。如果不是本类的方法，执行第3步。如果是本类的方法，就跳过 if 函数，执行第4步。</p>
+</li>
+<li><p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的汇编代码，将返回值存储在 old 中。然后执行第5步。</p>
+</li>
+<li><p>如果是本类的方法，就跳过 if 函数，将找到的 sel 对应的方法 method 的实现 imp 赋给 old。然后执行第5步。</p>
+</li>
+<li><p>然后将 old 的值赋给 *result，即 oldConnect 函数指针。</p>
+</li>
+<li><p>如果 prefix != NULL，就给 _class 类添加一个 sel 为 prefix+sel，imp 为 old 的方法。</p>
+</li>
+<li><p>如果是本类的方法，执行第8步。如果不是，执行 else 分支，第9步。</p>
+</li>
+<li><p>direct = true，就通过 <code>method_setImplementation</code> 函数将传入的 newConnect 的函数地址赋给 sel 对应的方法 method 中的实现。即调用 connect_orig，会跳到 newConnect 的入口函数处。</p>
+</li>
+<li><p>direct = false，则通过 <code>class_addMethod</code> 函数将函数名为 sel，函数地址为 newConnect 函数地址，函数类型为 type 的方法添加到 _class 类中。</p>
+</li>
+</ol>
+<p>下面对主要部分作详细解释。</p>
 <h4 id="MSFindMethod"><a href="#MSFindMethod" class="headerlink" title="MSFindMethod"></a>MSFindMethod</h4><p>MSFindMethod 函数主要是用于找到传入的参数 sel 对应的 method。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> Method MSFindMethod(Class _<span class="keyword">class</span>, SEL sel) &#123;</div><div class="line">    <span class="keyword">for</span> (; _<span class="keyword">class</span> != <span class="literal">nil</span>; _<span class="keyword">class</span> = class_getSuperclass(_<span class="keyword">class</span>)) &#123;</div><div class="line">        <span class="keyword">unsigned</span> <span class="keyword">int</span> size;</div><div class="line">        Method *methods(class_copyMethodList(_<span class="keyword">class</span>, &amp;size));</div><div class="line">        <span class="keyword">if</span> (methods == <span class="literal">NULL</span>)</div><div class="line">            <span class="keyword">continue</span>;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> j(<span class="number">0</span>); j != size; ++j) &#123;</div><div class="line">            Method method(methods[j]);</div><div class="line">            <span class="keyword">if</span> (!sel_isEqual(method_getName(methods[j]), sel))</div><div class="line">                <span class="keyword">continue</span>;</div><div class="line"></div><div class="line">            free(methods);</div><div class="line">            <span class="keyword">return</span> method;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        free(methods);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>主要是通过两个 for 循环，遍历参数 _class 及其父类（父类的父类…直到基类），通过函数 <code>class_copyMethodList</code> 取得 _class 的方法列表，通过第二个 for 循环来遍历方法列表，与 sel 字符串作比较，如果匹配成功，即找到 sel 对应的方法，就返回该 method，否则一直遍历，直到最后返回 nil。</p>
+<p>主要是通过两个 for 循环，遍历参数 _class 及其父类（父类的父类…直到基类），通过函数 <code>class_copyMethodList</code> 取得 _class 的方法列表，通过第二个 for 循环来遍历方法列表，与 sel 字符串作比较，如果匹配成功，即找到 sel 对应的方法，返回该 method，否则一直遍历，直到最后返回 nil。</p>
 <blockquote>
-<p>这份源代码中，作者在使用 C++ 语言的初始化时，多用括号。如 int j = 0;  作者常使用 int j(0);</p>
+<p>这份源代码中，作者在使用 C++ 语言的初始化时，多用括号。如 int j = 0; 　作者常使用 int j(0);</p>
 </blockquote>
 <h4 id="if-direct"><a href="#if-direct" class="headerlink" title="if (!direct)"></a>if (!direct)</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">    <span class="keyword">if</span> (!direct) &#123;</div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__arm__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">11</span> * <span class="keyword">sizeof</span>(<span class="keyword">uint32_t</span>));</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__i386__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">20</span>);</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__x86_64__)</span></div><div class="line">        <span class="keyword">size_t</span> length(<span class="number">50</span>);</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line">        <span class="keyword">uint32_t</span> *buffer(<span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span> *&gt;(mmap(</div><div class="line">            <span class="literal">NULL</span>, length, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span></div><div class="line">        )));</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (buffer == MAP_FAILED)</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error:mmap() = %d"</span>, errno);</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="literal">false</span>) fail:</div><div class="line">            munmap(buffer, length);</div><div class="line">        <span class="keyword">else</span> &#123;</div><div class="line">            Class super(class_getSuperclass(_class));</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(__arm__)</span></div><div class="line">            buffer[ <span class="number">0</span>] = A$stmdb_sp$_$rs$((<span class="number">1</span> &lt;&lt; A$r0) | (<span class="number">1</span> &lt;&lt; A$r1) | (<span class="number">1</span> &lt;&lt; A$r2) | (<span class="number">1</span> &lt;&lt; A$r3) | (<span class="number">1</span> &lt;&lt; A$lr));</div><div class="line">            buffer[ <span class="number">1</span>] = A$ldr_rd_$rn_im$(A$r0, A$pc, ( <span class="number">8</span> - <span class="number">1</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">2</span>] = A$ldr_rd_$rn_im$(A$r1, A$pc, ( <span class="number">9</span> - <span class="number">2</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">3</span>] = A$ldr_rd_$rn_im$(A$lr, A$pc, (<span class="number">10</span> - <span class="number">3</span> - <span class="number">2</span>) * <span class="number">4</span>);</div><div class="line">            buffer[ <span class="number">4</span>] = A$blx_rm(A$lr);</div><div class="line">            buffer[ <span class="number">5</span>] = A$str_rd_$rn_im$(A$r0, A$sp, <span class="number">-4</span>);</div><div class="line">            buffer[ <span class="number">6</span>] = A$ldmia_sp$_$rs$((<span class="number">1</span> &lt;&lt; A$r0) | (<span class="number">1</span> &lt;&lt; A$r1) | (<span class="number">1</span> &lt;&lt; A$r2) | (<span class="number">1</span> &lt;&lt; A$r3) | (<span class="number">1</span> &lt;&lt; A$lr));</div><div class="line">            buffer[ <span class="number">7</span>] = A$ldr_rd_$rn_im$(A$pc, A$sp, <span class="number">-4</span> - (<span class="number">5</span> * <span class="number">4</span>));</div><div class="line">            buffer[ <span class="number">8</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(super);</div><div class="line">            buffer[ <span class="number">9</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(sel);</div><div class="line">            buffer[<span class="number">10</span>] = <span class="keyword">reinterpret_cast</span>&lt;<span class="keyword">uint32_t</span>&gt;(&amp;class_getMethodImplementation);</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__i386__)</span></div><div class="line">            ......</div><div class="line"><span class="meta">#<span class="meta-keyword">elif</span> defined(__x86_64__)</span></div><div class="line">            ......</div><div class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></div><div class="line"></div><div class="line">            <span class="keyword">if</span> (mprotect(buffer, length, PROT_READ | PROT_EXEC) == <span class="number">-1</span>) &#123;</div><div class="line">                ......</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            old = <span class="keyword">reinterpret_cast</span>&lt;IMP&gt;(buffer);</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (MSDebug) &#123;</div><div class="line">                ......</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>前两句代码比较容易理解，给 length 分配大小，然后给 buffer 分配内存，以4个字节为单位分配11个可读写的内存。然后将 super 赋值为 _class 的父类。</p>
@@ -76,55 +90,62 @@
 <p>19~16位是指 Rn 寄存器，也就是第一个源操作数寄存器，根据每个指令的格式，有的指令有 Rn，有的没有。</p>
 <p>15~12位是指 Rd 寄存器，即目的寄存器，存放操作后的数据。</p>
 <p>11~0位标明第二个源操作数，若为立即数则填该立即数的二进制值，若为通用寄存器则填通用寄存器标号的二进制值。另外根据不同的指令，这一字段会有不同的具体划分，可查阅官方手册。</p>
-<p>根据 ARM.hpp 头文件中的宏定义，可具体分析这几句汇编代码。以第一句<code>A$stmdb_sp$_$rs$(...)</code> 为例，在头文件中的定义为：</p>
+<p>根据 ARM.hpp 头文件中的宏定义，来具体分析这几句汇编代码。以第一句<code>A$stmdb_sp$_$rs$(...)</code> 为例，在头文件中的定义为：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> A$r &#123;</div><div class="line">    A$r0, A$r1, A$r2, A$r3,</div><div class="line">    A$r4, A$r5, A$r6, A$r7,</div><div class="line">    A$r8, A$r9, A$r10, A$r11,</div><div class="line">    A$r12, A$r13, A$r14, A$r15,</div><div class="line">    A$sp = A$r13,</div><div class="line">    A$lr = A$r14,</div><div class="line">    A$pc = A$r15</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> A$stmdb_sp$_$rs$(rs) <span class="comment">/* stmdb sp!, &#123;rs&#125; */</span> \</span></div><div class="line">    (0xe9200000 | (A$sp <span class="meta-string">&lt;&lt; 16) | (rs))</span></div></pre></td></tr></table></figure>
-<p>0xe920000 的二进制数为1110 10 0 1001 0 000000000000，即无条件，操作指令为1001，0~19的字段填充通过按位或来填充。首先 A$sp 左移16位，A$sp = A$r13 = 13 = 1101，左移16位，即填充至19~16位，Rn 寄存器的位置，0~15的字段由 rs 填充。</p>
+<p>0xe920000 的二进制数为1110 10 0 1001 0 000000000000，即无条件，操作指令为1001，0~19的字段通过按位或来填充。首先 A$sp 左移16位，A$sp = A$r13 = 13 = 1101，左移16位，即填充至19~16位，Rn 寄存器的位置，0~15的字段由 rs 填充。</p>
 <p>第一句 <code>buffer[ 0] = A$stmdb_sp$_$rs$((1 &lt;&lt; A$r0) | (1 &lt;&lt; A$r1) | (1 &lt;&lt; A$r2) | (1 &lt;&lt; A$r3) | (1 &lt;&lt; A$lr));</code> 即1左移0位，1左移1位，1左移2位，1左移3位，1左移14位，按位或之后为：1110 10 0 1001 0 1101 0100 0000 0000 1111。官方手册上关于 stmdb 的格式是这样的：</p>
 <p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png" alt=""></p>
-<p>其中 register_list 的解释为：</p>
+<p>其中 registers 的解释为：</p>
 <p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png" alt=""></p>
-<p>根据这两幅图，我们将机器码整理为汇编语言，即为 <code>stmdb  sp! {r0~r3,lr}</code></p>
+<p>上面的代码执行后，在第0、1、2、3、14位均为1，也就是代表了 r0、r1、r2、r3、lr 寄存器。因此我们将机器码整理为汇编语言，即为 <code>stmdb  sp! {r0~r3,lr}</code>。</p>
 <p>将后面的几句依次整理为汇编语言：</p>
 <p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png" alt=""></p>
 <p>即为</p>
 <pre><code>
 stmdb  sp! {r0~r3, lr}
-ldr  r0, [pc, #0x14]
-ldr  r1, [pc, #0x14]
-ldr  r2, [pc, #0x14]
-blx  lr
-str  r0, [sp, #-0x4]
-ldia  sp!, {r0~r3, lr}
-ldr  pc, [sp, #-0x18]
+ldr    r0, [pc, #0x14]
+ldr    r1, [pc, #0x14]
+ldr    r2, [pc, #0x14]
+blx    lr
+str    r0, [sp, #-0x4]
+ldia   sp!, {r0~r3, lr}
+ldr    pc, [sp, #-0x18]
 </code></pre>
 
-<p>我们在 newConnect 函数的末尾 <code>return oldConnect(self, _cmd)</code> 处下一个断点，然后在控制台输入几次 si 命令，即可看到增加的这几行汇编代码，如下图：</p>
+<p>我们在 newConnect 函数的末尾 <code>return oldConnect(self, _cmd)</code> 处下一个断点，然后在控制台输入几次 si 命令，即可看到增加的这几行汇编代码与我们分析的一样，如下图：</p>
 <p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png" alt=""></p>
 <p>那么这几行汇编代码是什么意思呢？<br>第1行，是将 r0~r3，以及 lr 寄存器推入栈中，即保存现在的状态。</p>
-<p>第2、3、4行，分别将 pc+0x14 处的数值存入 r0,r1,lr 寄存器。这几行汇编指令都是以机器码的形式写入 buffer 中的，buffer[0]~buffer[7] 保存了这8条指令。<code>buffer[ 8] = reinterpret_cast&lt;uint32_t&gt;(super);</code> 即保存的是 super （_class 父类）的值，buffer[9] 保存的是 sel 的值，buffer[10] 保存的是 class_getMethodImplementation 的地址。</p>
+<p>第2、3、4行，将 pc+0x14 处的数值存入 r0、r1、lr 寄存器。这几行汇编指令都是以机器码的形式写入 buffer 中的，buffer[0]~buffer[7] 保存了这8条指令。<code>buffer[ 8] = reinterpret_cast&lt;uint32_t&gt;(super);</code> 即保存的是 super （_class 父类）的值，buffer[9] 保存的是 sel 的值，buffer[10] 保存的是 class_getMethodImplementation 的地址。</p>
 <blockquote>
 <p>有关 pc 的计算。<br>　　PC 值（program counter）表示下一条指令存储的地址。由于 ARM 采用流水线来提高 CPU 利用效率，无论是 ARM7 的3级流水线还是 ARM9 的5级流水线，如果当前指令在执行，那么下一条指令一定正在译码，再下一条指令正在读取。<br>　　因此 PC 值实际上指的是当前执行指令的下一条的再一下条指令。</p>
 </blockquote>
-<p>第5行，跳到 lr 寄存器中的地址处，执行指令代码。也就是执行 class_getMethodImplementation 函数，它的参数为 r0,r1。也就是执行 <code>class_getMethodImplementation(super, sel)；</code></p>
-<p>第6行，lr 寄存器存储的地址中的代码执行完毕后，将返回值 r0 寄存器中的值保存到栈中，即 sp-0x4 中，然后 sp = sp -0x4。也就是说保存了 sel 对应的 imp 值。</p>
+<p>第5行，跳到 lr 寄存器中的地址处，执行指令代码，即 buffer[10]，class_getMethodImplementation 函数，它的参数为 r0,r1。那么，也就是执行 <code>class_getMethodImplementation(super, sel)；</code></p>
+<p>第6行，lr 寄存器存储的地址中的代码执行完毕后，将返回值 r0 寄存器中的值保存到栈中，即 sp-0x4 中，然后 sp = sp -0x4。也就是说在栈中保存了 sel 对应的 imp 值。</p>
 <p>第7行，将 r0~r3，以及 lr 寄存器推出栈，恢复之前的状态。</p>
 <p>第8行，将 pc 指向 sp-0x18 处的值。因为第7行指令执行完之后，sp 的值也恢复到第1条指令执行之前的状态，所以需要 sp-0x18 来找到再第6条指令处保存的返回值，并执行。（有关 ARM 中栈以及 SP 的操作，可以参考我之前的文章 <a href="https://amywushu.github.io/2016/10/12/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E6%A0%88%C2%B7%E5%8F%82%E6%95%B0%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F.html">栈·参数存储排布</a>）</p>
-<p>因此整个汇编代码做的事情实际上就是前面在流程中提到的，根据运行设备的架构（32位的arm，i386 和 x86_64）来执行<code>class_getMethodImplementation(super,sel)</code>，以及执行这个 imp。</p>
-<p>class_getMethodImplementation 函数会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。所以它跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
-<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会先跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
+<p>因此整个汇编代码做的事情实际上就是前面在流程中提到的，根据运行设备的架构（32位的arm，i386 和 x86_64）来执行方法调用<code>class_getMethodImplementation(super,sel)</code>，以及执行这个方法返回的 imp。</p>
+<blockquote>
+<p>　　class_getMethodImplementation 函数内部会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。<br>　　 而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。因此 class_getMethodImplementation 函数寻找对应的 imp 的流程跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，找不到再进行消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
+</blockquote>
+<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
 <h3 id="if-prefix-NULL"><a href="#if-prefix-NULL" class="headerlink" title="if (prefix!=NULL)"></a>if (prefix!=NULL)</h3><p>这一部分比起上一部分来说就简单多了。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
 <p>比如 prefix = “xxx”，sel = @selector(connect_orig)。执行了这段代码之后，只需要在头文件中声明　- (void)xxxconnect_orig;　不用在 .m 文件中实现，直接调用　[self xxxconnect_orig];　就会执行原来的 connect_orig 代码。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，因为使用的是 <code>method_getImplementation</code> 函数，正如我的前一篇文章所言，它会去寻找父类（以及父类的父类，直到基类）的函数。所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，因为使用的是 <code>method_getImplementation</code> 函数，虽然具体调用方法跟 class_getMethodImplementation 函数并不一样，在 objc/runtime.h 中也提到：。</p>
+<blockquote>
+<p>@note \c class_getMethodImplementation may be faster than \c method_getImplementation(class_getInstanceMethod(cls, name)).</p>
+</blockquote>
+<p>但正如我的前一篇文章所言，它也会去寻找父类（以及父类的父类，直到基类）的方法列表，所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast　<a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;/blockquote&gt;
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&quot;前情提要&quot;&gt;&lt;a href=&quot;#前情提要&quot; class=&quot;headerlink&quot; title=&quot;前情提要&quot;&gt;&lt;/a&gt;前情提要&lt;/h2&gt;&lt;p&gt;CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 &lt;code&gt;MS&lt;/code&gt; 为前缀。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整个工具主要分为 MobileHooker、MobileLoader 以及 Safe mode 三部分。    &lt;/p&gt;
@@ -1036,7 +1057,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html"/>
     <id>https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html</id>
     <published>2016-11-08T16:00:00.000Z</published>
-    <updated>2017-02-23T07:09:33.585Z</updated>
+    <updated>2017-03-08T07:10:53.099Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详</p>
 </blockquote>
@@ -1145,7 +1166,7 @@ __Block_byref_val_0 val = {
 <ul>
 <li>判断类的初始化 cls-&gt;isRealized() 和 cls-&gt;isInitialized() ；</li>
 <li>是否开启GC(垃圾回收)；</li>
-<li>再次尝试去缓存中获取IMP；</li>
+<li>再次尝试去缓存中获取IMP；（关于这一点我的想法是，并不是只有 objc_msgSend 调用这个函数，还有很多其他的函数来调用，这些函数可能在调用之前并没有对 cache 做处理，所以还是要再查找一遍）</li>
 <li>找不到接着去 class 的方法列表查找，找到会加入缓存列表然后返回 IMP；</li>
 <li>找不到，去父类的缓存列表找，然后去父类的方法列表找，找到了会加入自己的缓存列表，然后返回 IMP，找不到循环此步骤，直到找到基类；</li>
 <li>都找不到则 _class_resolveMethod 函数会被调用，进入消息动态处理、转发阶段。</li>

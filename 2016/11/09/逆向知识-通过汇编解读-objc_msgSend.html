@@ -113,7 +113,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/cache.png">
-<meta property="og:updated_time" content="2017-02-23T07:09:33.585Z">
+<meta property="og:updated_time" content="2017-03-08T07:10:53.099Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过汇编解读 objc_msgSend">
 <meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
@@ -466,7 +466,7 @@
 <ul>
 <li>判断类的初始化 cls-&gt;isRealized() 和 cls-&gt;isInitialized() ；</li>
 <li>是否开启GC(垃圾回收)；</li>
-<li>再次尝试去缓存中获取IMP；</li>
+<li>再次尝试去缓存中获取IMP；（关于这一点我的想法是，并不是只有 objc_msgSend 调用这个函数，还有很多其他的函数来调用，这些函数可能在调用之前并没有对 cache 做处理，所以还是要再查找一遍）</li>
 <li>找不到接着去 class 的方法列表查找，找到会加入缓存列表然后返回 IMP；</li>
 <li>找不到，去父类的缓存列表找，然后去父类的方法列表找，找到了会加入自己的缓存列表，然后返回 IMP，找不到循环此步骤，直到找到基类；</li>
 <li>都找不到则 _class_resolveMethod 函数会被调用，进入消息动态处理、转发阶段。</li>

@@ -349,7 +349,7 @@
 <p>MobileHooker 组件主要提供了 MSHookMessageEx 和 MSHookFunction 两个函数针对不同语言的 inline hook 功能，其中 MSHookMessageEx 负责用来 hook Objective-C 函数，MSHookFunction 负责用来 hook C/C++ 函数。<br>　　　　　　　　　　　　————简书作者：HWenj《<a href="http://www.jianshu.com/p/3479f9632a6f">iOS HOOK</a>》</p>
 </blockquote>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/07/Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html#more" rel="contents">
+            <a class="btn" href="/2017/03/07/Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -468,7 +468,7 @@
 <p>runtime 运行时机制，主要是在 OC 和 C 语言（或汇编语言）之间架了一座桥梁。比如我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a> 中提到的调用方法的本质是发送消息。方法调用是 OC 中的，而消息发送，找到方法的入口则是 C （或汇编）中的。这其中转换的过程，就是 runtime。</p>
 <p>runtime 是一个使用 C 语言以及汇编写的动态库。它封装了一些 C 语言的结构体和函数，这些函数可以让使用者在运行时创建、查看、修改类，对象以及方法等。同时也执行着较为底层的传递消息，寻找方法的执行代码的操作。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/01/基础知识-Hook-原理之-Method-Swizzling.html#more" rel="contents">
+            <a class="btn" href="/2017/03/01/基础知识-Hook-原理之-Method-Swizzling.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -589,7 +589,7 @@
 <p>Dynamic Symbol Table(Indirect Symbols): 动态符号表是加载动态库时导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在<strong>原所属表指针</strong>中的偏移量（offset）+ 原所属表在<strong>动态符号表</strong>中的偏移量 + 动态符号表的<strong>基地址</strong>（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。</p>
 <p>Symbol Table（以下简称为 symtab）: 即符号表。每个目标文件都有自己的符号表，记录了符号的映射。在 Mach-O 中，符号表是由结构体 n_list 构成。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/27/源码学习-Hook-原理之-fishhook-源码解读.html#more" rel="contents">
+            <a class="btn" href="/2017/02/27/源码学习-Hook-原理之-fishhook-源码解读.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -706,7 +706,7 @@
 </blockquote>
 <h2 id="框架图"><a href="#框架图" class="headerlink" title="框架图"></a>框架图</h2><p><img src="/images/2017-02-21-基础知识-解读-Mach-O-文件格式/mach-o.png" alt=""></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/21/基础知识-解读-Mach-O-文件格式.html#more" rel="contents">
+            <a class="btn" href="/2017/02/21/基础知识-解读-Mach-O-文件格式.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -827,7 +827,7 @@
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>大家好，在这篇博文中，我决定讲述一些原理，是关于两个在 <a href="https://www.lookout.com/trident-pegasus-enterprise-discovery">Pegasusu spyware</a> 中提到的 OS X/iOS 的内核漏洞的，影响至 OS X 10.11.6 以及 iOS 9.3.4 版本。我尝试对这些漏洞以及它们的利用程序进行深入的分析。</p>
 <p>由于这是我写下的第一篇博客，因此有什么错误或粗糙的地方，还请你多一点耐心，如果你发现任何错误或者困扰的地方，请发邮件给我 <code>me@jndok.net</code> ，我将会尽力帮助你。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/12/16/译-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html#more" rel="contents">
+            <a class="btn" href="/2016/12/16/译-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -950,7 +950,7 @@
 <li>dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放</li>
 </ul>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/12/07/基础知识-ARC-是如何进行内存管理的.html#more" rel="contents">
+            <a class="btn" href="/2016/12/07/基础知识-ARC-是如何进行内存管理的.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1069,7 +1069,7 @@
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Person *p = [[Person alloc] init];</div><div class="line">[p test];</div><div class="line"></div><div class="line"><span class="comment">// 本质是发送消息： clang -rewrite-objc main.m</span></div><div class="line">((<span class="keyword">void</span> (*)(<span class="keyword">id</span>, SEL))(<span class="keyword">void</span> *)objc_msgSend)((<span class="keyword">id</span>)p, sel_registerName(<span class="string">"test"</span>));</div></pre></td></tr></table></figure>
 <p>当编译器遇到一个方法调用时，它会将方法的调用翻译成以下函数中的一个，<br>objc_msgSend、 objc_msgSend_stret、 objc_msgSendSuper 和 objc_msgSendSuper_stret。 </p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html#more" rel="contents">
+            <a class="btn" href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1192,7 +1192,7 @@
 <p>单层深拷贝(one-level-deep copy)：指的是对于被拷贝对象，至少有一层是深拷贝。<br>完全拷贝(real-deep copy)：指的是对于被拷贝对象的每一层都是对象拷贝。</p>
 </blockquote>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html#more" rel="contents">
+            <a class="btn" href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1310,7 +1310,7 @@
 <h2 id="基础提要：栈结构"><a href="#基础提要：栈结构" class="headerlink" title="基础提要：栈结构"></a>基础提要：栈结构</h2><p>ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：</p>
 <p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png" alt=""></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/10/12/逆向知识-栈·参数存储方式.html#more" rel="contents">
+            <a class="btn" href="/2016/10/12/逆向知识-栈·参数存储方式.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1428,7 +1428,7 @@
 <h2 id="题目（编程题：病毒）"><a href="#题目（编程题：病毒）" class="headerlink" title="题目（编程题：病毒）"></a>题目（编程题：病毒）</h2><p>小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。</p>
 <p>小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎没有完全成功。可能是由于保护机制的原因，内存写入只接受二进制的形式，所以十进制表达中除了0和1之外的其他值都没有成功写入内存。小B希望知道，究竟有多少数成功的写入了服务器的内存！</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html#more" rel="contents">
+            <a class="btn" href="/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>

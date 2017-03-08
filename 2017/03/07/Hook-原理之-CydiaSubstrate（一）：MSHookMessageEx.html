@@ -94,31 +94,31 @@
 
 <meta name="description" content="愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》
 
-前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
 
-在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubst">
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstra">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
 <meta property="og:url" content="https://amywushu.github.io/2017/03/07/Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html">
 <meta property="og:site_name" content="Amywushu">
 <meta property="og:description" content="愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》
 
-前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
 
-在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubst">
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstra">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
-<meta property="og:updated_time" content="2017-03-08T07:25:40.195Z">
+<meta property="og:updated_time" content="2017-03-08T07:30:16.419Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
 <meta name="twitter:description" content="愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》
 
-前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
+前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
 
-在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubst">
+在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstra">
 <meta name="twitter:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
 
 
@@ -360,7 +360,7 @@
       
         <blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
 </blockquote>
-<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此可以 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
 <blockquote>
 <p>在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整个工具主要分为 MobileHooker、MobileLoader 以及 Safe mode 三部分。    </p>
 <p>MobileHooker，是 CydiaSubstrate 的一个组件，对 C 和 Objective-C 均有效。</p>
@@ -470,7 +470,7 @@ ldr    pc, [sp, #-0x18]
 <p>比如 prefix = “xxx”，sel = @selector(connect_orig)。执行了这段代码之后，只需要在头文件中声明　- (void)xxxconnect_orig;　不用在 .m 文件中实现，直接调用　[self xxxconnect_orig];　就会执行原来的 connect_orig 代码。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，因为使用的是 <code>method_getImplementation</code> 函数，虽然具体调用方法跟 class_getMethodImplementation 函数并不一样，在 objc/runtime.h 中也提到：。</p>
 <blockquote>
-<p>@note \c class_getMethodImplementation may be faster than \c method_getImplementation(class_getInstanceMethod(cls, name)).</p>
+<p>@note \c class_getMethodImplementation may be faster than \c<br>method_getImplementation(class_getInstanceMethod(cls, name)).</p>
 </blockquote>
 <p>但正如我的前一篇文章所言，它也会去寻找父类（以及父类的父类，直到基类）的方法列表，所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>

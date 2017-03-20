@@ -106,12 +106,12 @@
 前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
 
 在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstra">
-<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
-<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png">
-<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
-<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
-<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
-<meta property="og:updated_time" content="2017-03-08T07:30:16.419Z">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
+<meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
+<meta property="og:updated_time" content="2017-03-20T12:58:14.213Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
 <meta name="twitter:description" content="愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》
@@ -119,7 +119,7 @@
 前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
 
 在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstra">
-<meta name="twitter:image" content="https://amywushu.github.io/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
+<meta name="twitter:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png">
 
 
 
@@ -372,9 +372,9 @@
 <ol>
 <li><p>首先需要在你的工程中引入以下几个文件：ARM.hpp、x86.hpp、CydiaSubstrate.h、Debug.hpp、Debug.cpp 以及 Log.hpp，后面三个文件可以不导入，修改几处 Log 的代码即可。</p>
 </li>
-<li><p>然后在工程中添加一对新的 C++ 文件（即实现文件和头文件），我的命名为 MyMSHookMessageFx。 </p>
+<li><p>然后在工程中添加一对新的 C++ 文件（即实现文件和头文件），我的命名为 MyMSHookMessageEx。 </p>
 </li>
-<li><p>然后将 ObjectiveC.cpp 中的内容，包括引入的头文件，<code>static Method MSFindMethod(Class _class, SEL sel)</code> 函数，<code>static void MSHookMessageInternal(...)</code> 函数和 <code>_extern void MSHookMessageEx(...)</code> 函数拷贝到 MyMSHookMessageFx.cpp 中。</p>
+<li><p>然后将 ObjectiveC.cpp 中的内容，包括引入的头文件，<code>static Method MSFindMethod(Class _class, SEL sel)</code> 函数，<code>static void MSHookMessageInternal(...)</code> 函数和 <code>_extern void MSHookMessageEx(...)</code> 函数拷贝到 MyMSHookMessageEx.cpp 中。</p>
 </li>
 <li><p>新建 Cocoa Touch Class，我的命名为 <code>MySwizzling</code>。在头文件中添加函数声明 <code>- (void)exchange;</code>。</p>
 </li>
@@ -386,7 +386,7 @@
 <h2 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h2><h3 id="MSHookMessageEx"><a href="#MSHookMessageEx" class="headerlink" title="MSHookMessageEx"></a>MSHookMessageEx</h3><p>MSHookMessageEx 函数就是对 MSHookMessageInternal 函数的封装，除了 prefix 参数为 NULL 之外，其余的参数都原封不动的传入。</p>
 <h3 id="MSHookMessageInternal"><a href="#MSHookMessageInternal" class="headerlink" title="MSHookMessageInternal"></a>MSHookMessageInternal</h3><p>先厘清一下这个核心函数的整个流程。</p>
 <ol>
-<li><p>进入 MSHookMessageInternal 函数先是一大堆 log 比较清晰，就不分析了。然后调用 <code>Method method(MSFindMethod(_class, sel));</code> 通过 MSFindMethod 函数获取 sel 对应的方法 method；</p>
+<li><p>进入 MSHookMessageInternal 函数先是一大堆参数检查的 log， 比较清晰，就不分析了。然后调用 <code>Method method(MSFindMethod(_class, sel));</code> 通过 MSFindMethod 函数获取 sel 对应的方法 method；</p>
 </li>
 <li><p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。如果不是本类的方法，执行第3步。如果是本类的方法，就跳过 if 函数，执行第4步。</p>
 </li>
@@ -417,7 +417,7 @@
 <p>接下来这一部分涉及到汇编和机器码的对应问题，后面的讲解主要以32位的 arm 为例，i386 和 x86_64 都跟它差不多，比它要更简单一点。</p>
 <p>推荐官方手册：ARM Architecture Reference Manual。非常详细和权威的参考资料。</p>
 <p>汇编语言对应着不同的机器语言指令集。一种汇编语言专用于某种计算机系统结构，而不像高级语言，可以在不同系统平台间移植。CPU 处理的时候实际上是处理的机器语言，也就是我们常说的机器码。由汇编器负责汇编语言到机器语言的转换。</p>
-<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png" alt=""></p>
+<p><img src="/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码格式.png" alt=""></p>
 <p>上图为与汇编语言相对应的通用的机器码格式。cond 为条件码，如 EQ(EQual to 0)、NE(Not Equal to 0)、CS(Carry Set)等等，如果是无条件，则为 AL(ALways)，对应的机器码为1110。</p>
 <p>26~27位是保留位。</p>
 <p>I 位，也就是第25位，是用来表明 shifter_operand 段存放的类型。0表示寄存器，1表示立即数。</p>
@@ -430,12 +430,12 @@
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">enum</span> A$r &#123;</div><div class="line">    A$r0, A$r1, A$r2, A$r3,</div><div class="line">    A$r4, A$r5, A$r6, A$r7,</div><div class="line">    A$r8, A$r9, A$r10, A$r11,</div><div class="line">    A$r12, A$r13, A$r14, A$r15,</div><div class="line">    A$sp = A$r13,</div><div class="line">    A$lr = A$r14,</div><div class="line">    A$pc = A$r15</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> A$stmdb_sp$_$rs$(rs) <span class="comment">/* stmdb sp!, &#123;rs&#125; */</span> \</span></div><div class="line">    (0xe9200000 | (A$sp <span class="meta-string">&lt;&lt; 16) | (rs))</span></div></pre></td></tr></table></figure>
 <p>0xe920000 的二进制数为1110 10 0 1001 0 000000000000，即无条件，操作指令为1001，0~19的字段通过按位或来填充。首先 A$sp 左移16位，A$sp = A$r13 = 13 = 1101，左移16位，即填充至19~16位，Rn 寄存器的位置，0~15的字段由 rs 填充。</p>
 <p>第一句 <code>buffer[ 0] = A$stmdb_sp$_$rs$((1 &lt;&lt; A$r0) | (1 &lt;&lt; A$r1) | (1 &lt;&lt; A$r2) | (1 &lt;&lt; A$r3) | (1 &lt;&lt; A$lr));</code> 即1左移0位，1左移1位，1左移2位，1左移3位，1左移14位，按位或之后为：1110 10 0 1001 0 1101 0100 0000 0000 1111。官方手册上关于 stmdb 的格式是这样的：</p>
-<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png" alt=""></p>
+<p><img src="/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/stmdb.png" alt=""></p>
 <p>其中 registers 的解释为：</p>
-<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png" alt=""></p>
+<p><img src="/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png" alt=""></p>
 <p>上面的代码执行后，在第0、1、2、3、14位均为1，也就是代表了 r0、r1、r2、r3、lr 寄存器。因此我们将机器码整理为汇编语言，即为 <code>stmdb  sp! {r0~r3,lr}</code>。</p>
 <p>将后面的几句依次整理为汇编语言：</p>
-<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png" alt=""></p>
+<p><img src="/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png" alt=""></p>
 <p>即为</p>
 <pre><code>
 stmdb  sp! {r0~r3, lr}
@@ -449,7 +449,7 @@ ldr    pc, [sp, #-0x18]
 </code></pre>
 
 <p>我们在 newConnect 函数的末尾 <code>return oldConnect(self, _cmd)</code> 处下一个断点，然后在控制台输入几次 si 命令，即可看到增加的这几行汇编代码与我们分析的一样，如下图：</p>
-<p><img src="/images/2017-03-07-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png" alt=""></p>
+<p><img src="/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png" alt=""></p>
 <p>那么这几行汇编代码是什么意思呢？<br>第1行，是将 r0~r3，以及 lr 寄存器推入栈中，即保存现在的状态。</p>
 <p>第2、3、4行，将 pc+0x14 处的数值存入 r0、r1、lr 寄存器。这几行汇编指令都是以机器码的形式写入 buffer 中的，buffer[0]~buffer[7] 保存了这8条指令。<code>buffer[ 8] = reinterpret_cast&lt;uint32_t&gt;(super);</code> 即保存的是 super （_class 父类）的值，buffer[9] 保存的是 sel 的值，buffer[10] 保存的是 class_getMethodImplementation 的地址。</p>
 <blockquote>
@@ -468,11 +468,21 @@ ldr    pc, [sp, #-0x18]
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
 <p>比如 prefix = “xxx”，sel = @selector(connect_orig)。执行了这段代码之后，只需要在头文件中声明　- (void)xxxconnect_orig;　不用在 .m 文件中实现，直接调用　[self xxxconnect_orig];　就会执行原来的 connect_orig 代码。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，因为使用的是 <code>method_getImplementation</code> 函数，虽然具体调用方法跟 class_getMethodImplementation 函数并不一样，在 objc/runtime.h 中也提到：。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>关于 if (!direct) 这个分支，总的来说就是:</p>
+<ul>
+<li><p>如果 direct == true，这个 sel 是本类的方法，就执行<br>old = method_getImplementation(method);<br>method_setImplementation(method, imp);</p>
+</li>
+<li><p>如果 direct == false，不是本类的方法，就执行<br>old = class_getMethodImplementation(super, sel);<br>class_addMethod(_class, sel, imp, type);</p>
+</li>
+</ul>
+<blockquote>
+<p>执行 class_addMethod 这个方法，主要是为了避免使用 method_setImplementation 覆盖父类已有的函数，所以在本类中动态添加了这个方法。</p>
+</blockquote>
+<p>另外，在 objc/runtime.h 中提到：</p>
 <blockquote>
 <p>@note \c class_getMethodImplementation may be faster than \c<br>method_getImplementation(class_getInstanceMethod(cls, name)).</p>
 </blockquote>
-<p>但正如我的前一篇文章所言，它也会去寻找父类（以及父类的父类，直到基类）的方法列表，所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
+<p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>

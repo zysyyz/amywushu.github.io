@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-20T12:58:14.213Z</updated>
+  <updated>2017-03-21T11:56:38.967Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-03-20T12:58:14.213Z</updated>
+    <updated>2017-03-21T11:56:38.967Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
 </blockquote>
@@ -128,6 +128,49 @@ ldr    pc, [sp, #-0x18]
 <p>　　class_getMethodImplementation 函数内部会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。<br>　　 而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。因此 class_getMethodImplementation 函数寻找对应的 imp 的流程跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，找不到再进行消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
 </blockquote>
 <p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
+<h3 id="为什么要使用-if-direct-这段代码"><a href="#为什么要使用-if-direct-这段代码" class="headerlink" title="为什么要使用 if (!direct) 这段代码"></a>为什么要使用 if (!direct) 这段代码</h3><p>在 MSHookMessageEx 的<a href="http://www.cydiasubstrate.com/api/c/MSHookMessageEx/" target="_blank" rel="external">官方介绍页面</a>有这样一段话：</p>
+<blockquote>
+<p>However, while these APIs function quite well when there are only a small number of people making modifications, they fail to satisfy more complex use cases; in particular, there are ordering problems if multiple people attempt to hook the same message at different points in an inheritance hierarchy.</p>
+<p>Finally, it is important that classes that are being instrumented are not “initialized” as they are being modified (which would both change the ordering of the target program, as well as make it impossible to hook the initialization sequence); over time, the way Objective-C runtime APIs implement this has changed.</p>
+<p>Substrate solves all of these problems by providing a replacement API that takes all of these issues into account, always making certain that the classes are not initialized and that the right “next implementation” is used while walking back up an inheritance hierarchy.</p>
+</blockquote>
+<p>作者讲得非常清楚。这一部分将汇编代码嵌入到原始方法的 IMP 之前，使得在调用自定义方法之后，调用原始方法之前，有一个 old = class_getMethodImplementation(super, sel) 的动作，也就是说，是在执行方法的时候动态查找原始 IMP 的函数，而不是在 MSHookMessageEx 函数执行的时候，就已经确定好了原始 IMP 的地址。</p>
+<p>这样做是为了解决在一个继承体系中的不同节点处，hook 相同函数的问题。</p>
+<p>现在让我们设想一个情景：有三个类，Parent、Child、Grandson，其中  Grandson 类继承于 Child 类，Child 类继承于 Parent 类。</p>
+<p>在 Parent 类中实现了一个函数： - (void)parent_connect。<br>在 Child 类、Grandson 类中声明这个函数但并没有实现。<br>在 Child 类以及 Grandson 类中均使用 MSHookMessageEx 函数 hook 了 - (void)parent_connect 函数。</p>
+<p>情景1：     </p>
+<ol>
+<li>先调用 <strong>Child 类</strong>中的 hook 函数，    </li>
+<li>再调用 Grandson 类中的 hook 函数。<br>情景2：     </li>
+<li>先调用 <strong>Grandson 类</strong>中的 hook 函数，    </li>
+<li>再调用 Child 类中的 hook 函数，    </li>
+<li>最后再调用一次 <strong>Grandson 类</strong>中的 hook 函数。</li>
+</ol>
+<ul>
+<li>如果没有这段嵌入的代码，即注释掉 if (!direct){…} 这段代码。</li>
+</ul>
+<p>在情景1中，   </p>
+<ol>
+<li>依次调用Child 类中的自定义函数、 Parent 类中的原始函数，   </li>
+<li>依次调用 Grandson 类中的自定义函数、 Child 类中的自定义函数、 Parent 类中的原始函数。 </li>
+</ol>
+<p>在情景2中，    </p>
+<ol>
+<li>依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数，   </li>
+<li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
+<li><strong>仍是依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
+</ol>
+<p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
+<ul>
+<li>而有这段嵌入代码的话，</li>
+</ul>
+<p>情景1执行状态相同。<br>情景2则为，   </p>
+<ol>
+<li>依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数，   </li>
+<li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
+<li><strong>依次调用 Grandson 类中的自定义函数、 Child 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
+</ol>
+<p>　　 Grandson 类中的 - (void)parent_connect 函数的执行顺序是在该函数调用时才会通过嵌入的那段汇编代码去查找原始方法的实现。这样做维护了原来的继承体系，这也是 OC runtime 的体现。</p>
 <h3 id="if-prefix-NULL"><a href="#if-prefix-NULL" class="headerlink" title="if (prefix!=NULL)"></a>if (prefix!=NULL)</h3><p>这一部分比起上一部分来说就简单多了。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
@@ -136,7 +179,7 @@ ldr    pc, [sp, #-0x18]
 <ul>
 <li><p>如果 direct == true，这个 sel 是本类的方法，就执行<br>old = method_getImplementation(method);<br>method_setImplementation(method, imp);</p>
 </li>
-<li><p>如果 direct == false，不是本类的方法，就执行<br>old = class_getMethodImplementation(super, sel);<br>class_addMethod(_class, sel, imp, type);</p>
+<li><p>如果 direct == false，不是本类的方法，就把<br>old = class_getMethodImplementation(super, sel) 这个函数通过汇编嵌入到调用原函数之前，使得在调用自定义方法后，动态查询原始 IMP 指针;<br>最后通过 class_addMethod(_class, sel, imp, type) 加入到本类的方法列表中;</p>
 </li>
 </ul>
 <blockquote>
@@ -146,7 +189,7 @@ ldr    pc, [sp, #-0x18]
 <blockquote>
 <p>@note \c class_getMethodImplementation may be faster than \c<br>method_getImplementation(class_getInstanceMethod(cls, name)).</p>
 </blockquote>
-<p>在我的测试中，就算没有 if (!direct) 那一段代码，程序依然可以找到父类的 sel 执行 hook 操作，所以不太懂作者为什么要加这样一段机器码，此点存疑。如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
+<p>如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>

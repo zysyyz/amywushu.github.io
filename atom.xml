@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-21T11:56:38.967Z</updated>
+  <updated>2017-03-21T12:04:21.544Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-03-21T11:56:38.967Z</updated>
+    <updated>2017-03-21T12:04:21.544Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
 </blockquote>
@@ -141,15 +141,15 @@ ldr    pc, [sp, #-0x18]
 <p>情景1：     </p>
 <ol>
 <li>先调用 <strong>Child 类</strong>中的 hook 函数，    </li>
-<li>再调用 Grandson 类中的 hook 函数。<br>情景2：     </li>
+<li>再调用 Grandson 类中的 hook 函数。    </li>
+</ol>
+<p>情景2：     </p>
+<ol>
 <li>先调用 <strong>Grandson 类</strong>中的 hook 函数，    </li>
 <li>再调用 Child 类中的 hook 函数，    </li>
 <li>最后再调用一次 <strong>Grandson 类</strong>中的 hook 函数。</li>
 </ol>
-<ul>
-<li>如果没有这段嵌入的代码，即注释掉 if (!direct){…} 这段代码。</li>
-</ul>
-<p>在情景1中，   </p>
+<h4 id="如果没有这段嵌入的代码，即注释掉-if-direct-…-这段代码。"><a href="#如果没有这段嵌入的代码，即注释掉-if-direct-…-这段代码。" class="headerlink" title="如果没有这段嵌入的代码，即注释掉 if (!direct){…} 这段代码。"></a>如果没有这段嵌入的代码，即注释掉 if (!direct){…} 这段代码。</h4><p>在情景1中，   </p>
 <ol>
 <li>依次调用Child 类中的自定义函数、 Parent 类中的原始函数，   </li>
 <li>依次调用 Grandson 类中的自定义函数、 Child 类中的自定义函数、 Parent 类中的原始函数。 </li>
@@ -161,10 +161,7 @@ ldr    pc, [sp, #-0x18]
 <li><strong>仍是依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
 </ol>
 <p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
-<ul>
-<li>而有这段嵌入代码的话，</li>
-</ul>
-<p>情景1执行状态相同。<br>情景2则为，   </p>
+<h4 id="如果有这段嵌入代码，"><a href="#如果有这段嵌入代码，" class="headerlink" title="如果有这段嵌入代码，"></a>如果有这段嵌入代码，</h4><p>情景1执行状态相同。<br>情景2则为，   </p>
 <ol>
 <li>依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数，   </li>
 <li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>

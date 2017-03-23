@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-21T12:06:07.024Z</updated>
+  <updated>2017-03-23T04:08:37.130Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -16,11 +16,107 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx</title>
+    <link href="https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
+    <id>https://amywushu.github.io/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html</id>
+    <published>2017-03-22T16:00:00.000Z</published>
+    <updated>2017-03-23T04:08:37.130Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>天地有大美而不言</p>
+</blockquote>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
+<p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
+<a id="more"></a>
+<h2 id="如何调试"><a href="#如何调试" class="headerlink" title="如何调试"></a>如何调试</h2><p>我们使用 CydiaSubstrate 框架对 APP 作 hook 操作的话，它是会在 /Library/MobileSubstarte/DynamicLibraries/ 目录下生成一个 .dylib 文件和一个对应的 plist 文件。这个 .dylib 文件将在 App 启动时被 dyld 加载到程序中，对指定类的方法进行 hook。</p>
+<ol>
+<li>在 iPhone 的 /Library/MobileSubstarte/ 目录下有一个 <strong>MobileSubstrate.dylib</strong> 文件，这只是一个链接文件，它的真身是在 /Library/Frameworks/CydiaSubstrate.framework/Librarys/ 目录下的 SubstrateBootstrap.dylib 文件。     </li>
+<li>这个动态库会被加载入每个 App 进程中，然后调用同目录下的 <strong>SubstrateLoader.dylib</strong> 动态库。     </li>
+<li>通过 SubstrateLoader.dylib 来启动上级目录下的 Mach-O 文件： <strong>CydiaSubstrate</strong>。关于 MSHookMessageEx 的代码即在这个可执行文件中。      </li>
+<li>最后通过 CydiaSubstrate 来加载该 App 对应的，位于 /Library/MobileSubstarte/DynamicLibraries/ 目录下的 hook dylib 文件，从而完成 hook 操作。    </li>
+</ol>
+<p><strong>这些动作都发生在 main 函数被调用之前。</strong></p>
+<p>程序启动后，不会再调用 MSHookMessageEx 函数，而是直接通过已被设置的 IMP 值跳到自定义的 hook dylib 中。因此我们要进入 CydiaSubstrate 可执行文件中动态调试 MSHookMessageEx 函数，就需要<strong>将断点下在第3步和第4步之间</strong>。</p>
+<p>准备工作：自己构建的 App，hook 该 App 的 dylib。（这两个程序均已在越狱 iPhone 上安装好）</p>
+<p>首先添加 Symbolic Breakpoint（符号断点）<code>_objc_init</code>，然后运行 App，当程序停在断点处时，在控制台输入 <code>image list -o -f</code> 命令，可以看见，与 Cydia 相关的文件，目前就只加载了 MobileSubstrate.dylib。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/MobileSubstrate.png" alt=""></p>
+<p>在 IDA 中打开它的真身 SubstrateBootstrap.dylib，可以看见自定义的函数只有一个 InitFunc_0，其余几个（exit、dlclose、dlopen、getenv）函数都是从外部引用的。而 InitFunc_0 函数也非常简单。主要是通过 dlopen 函数调用几个动态库，来作环境准备，其中我们要下断点的地方就在 dlopen 调用 SubstrateLoader.dylib 时：</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/SubstrateBootstrap_dlopen.png" alt=""></p>
+<p>我这边的版本是在0x3DF8地址处，加上 ASLR 偏移，用 <code>br s -a xxx</code> 命令在这个地方下一个断点，然后通过 si 命令进入 dlopen 函数，然后执行到 br x16 的地方，再 si 进入系统库（libdyld.dylib）中的 dlopen 函数。 </p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/dlopen.png" alt=""></p>
+<p>dlopen 函数会通过 _dyld_func_lookup 找到对应的 dylib 的地址，然后在最后几行命令中的 blr x8 调用该动态库，我们直接在这条指令的下一条指令下断点，然后 c 运行程序跳到该断点。这时候再使用 image list -o -f 命令，就会发现 SubstrateLoader.dylib 动态库已经被加载起来了。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/SubstrateLoader.png" alt=""></p>
+<p>既然我们已经知道是通过 dlopen 来加载的程序，那么用 IDA 打开 SubstrateLoader.dylib 文件，引用 dlopen 的只有三处：</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/SubstrateLoader_dlopen.png" alt=""></p>
+<p>可以在这三处都下断点，然后看那一处启动了 CydiaSubstrate Mach-O 文件。结果证明是在 InitFunc_0_0 + 0x1AC8 处的 dlopen 调用了 CydiaSubstrate。</p>
+<p>在控制台中同样的地方下断点（SubstrateLoader.dylib 的 ASLR + 0x1AC8），运行程序，然后同样进入 dlopen，在blr x8 的下一条指令处下断点，当程序断在这里时，就会发现我们最终要调试的 CydiaSubstrate 文件终于被加载起来了。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/CydiaSubstrate.png" alt=""></p>
+<p>然后在 IDA 里面找到 MSHookMessageEx 函数的起点地址（我的版本是0x5908），再下断点，然后运行，就到 MSHookMessageEx 函数里了。</p>
+<p>以下是整个流程的动图：</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/动图.gif" alt=""></p>
+<h2 id="逆向分析"><a href="#逆向分析" class="headerlink" title="逆向分析"></a>逆向分析</h2><h3 id="异同点"><a href="#异同点" class="headerlink" title="异同点"></a>异同点</h3><p>通过阅读 IDA 中的汇编代码我们会发现，整个流程以及大部分的代码都与我上一篇博文中讲的老版本的源代码非常相似。</p>
+<ul>
+<li><code>sub\_14130</code> 函数是新增的，涉及到调用 “/usr/sbin/aslmanager”、”/usr/lib/system/libsystem_sandbox.dylib” 等动态库，貌似是在做沙盒权限检查（此点存疑）。     </li>
+<li><code>sub\_5E6C</code>函数即是之前的 MSFindMethod 函数。     </li>
+<li><code>sub\_10000</code> 函数则做的 if (!direct){…} 这段代码的工作。</li>
+</ul>
+<p>其余部分大致相同，不做过多介绍，接下来主要讲解 sub_10000 函数。</p>
+<h3 id="sub-10000"><a href="#sub-10000" class="headerlink" title="sub_10000"></a>sub_10000</h3><p>sub_10000 函数的主要代码为：</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/sub_10000.png" alt=""></p>
+<p>蓝绿色部分是正常执行流程，可以看到主要使用的函数是 vm_allocate()、vm_deallocate()、vm_remap()。</p>
+<p>这里有一个 <code>trampoline</code>（蹦床）的概念。在很多时候，我们并不能直接执行我们想要的代码，而需要一个跳转代码或者跳转页面，经过一次或多次的跳转，最后跳到目的代码处执行。生成的这个跳转的代码或者页面就称之为 trampoline。</p>
+<p><strong>在本函数中，target_address 页面就是 trampoline page。</strong></p>
+<p>蹦床通常利用可写代码页（即具有可写、可执行权限）来实现。将指令写入 PROT_EXEC | PROT_WRITE 页面，需要的上下文信息直接包含在生成的代码中。</p>
+<p>但是 iOS 中不允许 PROT_EXEC、 PROT_WRITE 这两种权限同时出现在页面中，也就是说不存在可写代码页（在我的测试中，ARMv7是可以的）。那么就需要使用一种替代机制来是实现 trampoline 中特定的上下文数据以及代码。</p>
+<p>这种机制就是 <strong>vm_remap() + PC 相对寻址</strong>的组合。</p>
+<p>vm_remap() 函数可以在新的地址中映射现有的代码页，并会同时保留页面保护权限（如果映射范围内的内存权限相同，则返回该权限；如果不同，则返回最大限制值）。也就是说，我们可以通过 vm_remap() 函数映射可执行的代码页面，或者可写的数据页面到新的页面地址处。</p>
+<p>那么如何配置 trampoline 的数据呢？答案是通过 PC 相对寻址。PC（程序计数器）寄存器指示当前正在执行的指令的地址。我们将可写的数据页映射到可执行的代码页（trampoline page）旁边，然后使用 PC 相对寻址从相邻的可写数据页面加载 trampoline data，这样就达到了“可写”代码页的目的。</p>
+<p>在本函数中也是这样做的，先通过 vm_allocate() 分配两页内存（0x8000），然后通过 vm_deallocate 释放第二页，作为 trampoline page，调用 vm_remap() 将 MSCloseTable 映射到已释放的第二页，最后在第一页中填充需要的数据，返回第二页的首地址。</p>
+<p>以下是我仿照着写的伪代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">vm_address_t</span> address = <span class="number">0x0</span>;</div><div class="line"><span class="keyword">kern_return_t</span> kt;</div><div class="line"></div><div class="line"><span class="comment">/* Try to allocate two pages */</span></div><div class="line">kt = vm_allocate (mach_task_self (), &amp;address, PAGE_SIZE*<span class="number">2</span>, <span class="number">1</span>);</div><div class="line"><span class="keyword">if</span> (kt != KERN_SUCCESS) &#123;</div><div class="line">   <span class="keyword">return</span> ...;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/* Now drop the second half of the allocation to make room for the trampoline table */</span></div><div class="line"><span class="keyword">vm_address_t</span> target_address = address+PAGE_SIZE;</div><div class="line">kt = vm_deallocate (mach_task_self (), target_address, PAGE_SIZE);</div><div class="line"><span class="keyword">if</span> (kt != KERN_SUCCESS) &#123;</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/* Remap the trampoline table to directly follow the config page */</span></div><div class="line"><span class="keyword">vm_prot_t</span> cur_prot;</div><div class="line"><span class="keyword">vm_prot_t</span> max_prot;</div><div class="line"></div><div class="line">kt = vm_remap (mach_task_self (), &amp;target_address, PAGE_SIZE, <span class="number">0x0</span>, FALSE, mach_task_self (), (<span class="keyword">vm_address_t</span>) &amp;MSCloseTable, FALSE, &amp;cur_prot, &amp;max_prot, VM_INHERIT_SHARE);</div><div class="line"></div><div class="line"><span class="keyword">if</span> (kt != KERN_SUCCESS) &#123;</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">intp64_t</span> **x20 = _class;<span class="comment">//&amp;_class+0x8 == &amp;sel</span></div><div class="line">	*x20 + <span class="number">0x8</span> = sub_5F20</div><div class="line">address = x20;</div><div class="line">address + <span class="number">0x8</span> = (IMP)MSCloseTarget;</div><div class="line">	</div><div class="line"><span class="keyword">return</span> target_address;</div></pre></td></tr></table></figure>
+<p>其中 MSCloseTable 的具体内容为：</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/MSCloseTable.png" alt=""></p>
+<p>MSCloseTarget 中只有三条命令，主要是执行加载、跳转的操作。将PC-0x4000 处的值加载到 x16 寄存器中（这里 IDA 自动将相对偏移-0x4000解释为 _MSCloseTarget，实际上我们只需要这个偏移值，执行时偏移值指向的是 address），然后再将[x16]中的值存入x16，[x16+0x8]中的值存入x17，然后跳到x17所指的地址处执行代码。在动态调试中我们会发现这三条命令再加 nop 指令填充了 trampoline page。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/trampoline.png" alt=""></p>
+<p>上图中，target_address = 0x105b7c000, address =  0x105b78000，x17 = (IMP)MSCloseTarget，[x16] = &amp;(_class+sel)，[x16]+0x8 = sub_5F20。</p>
+<p>也就是说，trampoline 的作用就是使得程序跳转到 MSCloseTarget 处执行，并把参数 _class，sel 的地址以及 sub_5F20 的地址存入 x16 寄存器中。</p>
+<p>MSCloseTarget 函数主要是调用 sub_5F20 函数，并传入参数 _class 和 sel。</p>
+<p>sub_5F20 函数则是直接调用 class_getMethodImplementation(_class, sel) 函数。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/sub_5F20.png" alt=""></p>
+<p>总的来说，sub_10000 函数的作用与老版本的一样，都是为了嵌入一段 class_getMethodImplementation(_class, sel) 的 <code>JIT (just in time)</code> 代码，使得程序在运行时才会执行这段代码，而不是在开始的时候就已经传参执行了。</p>
+<h3 id="为什么不使用原来的-if-direct"><a href="#为什么不使用原来的-if-direct" class="headerlink" title="为什么不使用原来的 if (!direct)"></a>为什么不使用原来的 if (!direct)</h3><p>首先 if (!direct) 中的机器码只定义了 ARM 32位、i386、x86_64位，没有定义 ARM64 的嵌入指令。</p>
+<p>再者，在 ARM64 中也不能使用这种先 mmap 一段可写的内存，然后将内存改为可执行的权限的方法。</p>
+<p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/mprotect.png" alt=""></p>
+<p>上图来自2014年在 The Black Hat USA 会议中的一篇演讲 “<a href="https://lifeasageek.github.io/papers/jang:ios-slides.pdf" target="_blank" rel="external">Exploit unpatched iOS vulnerabilities for fun and profit</a>”。</p>
+<p>比如以下代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">&lt;sys/mman.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">char</span> shell[] = &#123;<span class="number">0x10</span>, <span class="number">0x20</span>, <span class="number">0x70</span>, <span class="number">0x47</span>&#125;; <span class="comment">// return 16;</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</div><div class="line">    <span class="keyword">void</span> *page = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (page == (<span class="keyword">void</span>*)<span class="number">-1</span>) &#123;</div><div class="line">        perror(<span class="literal">NULL</span>);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    memcpy(page, shell, <span class="keyword">sizeof</span>(shell));</div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">int</span> (*shell_execute)();</div><div class="line">    shell_execute exe = (shell_execute)((<span class="keyword">int</span>)page+<span class="number">1</span>);</div><div class="line">    mprotect(page, <span class="number">4096</span>, PROT_READ | PROT_EXEC);</div><div class="line">    <span class="built_in">NSString</span> *string = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%d"</span>, exe()];</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, string);</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 32位的 iOS 系统上，是可以正确运行并打印出16的，但在64位中，则会报错：EXE_BAD_ACCESS(code=257,address=…)</p>
+<hr>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Implementing imp_implementationWithBlock()　<a href="http://landonf.org/2011/04/index.html" target="_blank" rel="external">http://landonf.org/2011/04/index.html</a><br>[2] pandamonia/libffi-iOS　<a href="https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios" target="_blank" rel="external">https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios</a><br>[3] WilliamLCobb/iNDS　<a href="https://github.com/WilliamLCobb/iNDS/issues/44" target="_blank" rel="external">https://github.com/WilliamLCobb/iNDS/issues/44</a><br>[4] 谁偷了我的热更新？Mono，JIT，iOS    　<br><a href="http://www.cnblogs.com/murongxiaopifu/p/4278947.html" target="_blank" rel="external">http://www.cnblogs.com/murongxiaopifu/p/4278947.html</a>   </p>
+<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;天地有大美而不言&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;前情提要&quot;&gt;&lt;a href=&quot;#前情提要&quot; class=&quot;headerlink&quot; title=&quot;前情提要&quot;&gt;&lt;/a&gt;前情提要&lt;/h2&gt;&lt;p&gt;在上一篇博文“&lt;a href=&quot;https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html&quot;&gt;Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx&lt;/a&gt;”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。&lt;/p&gt;
+&lt;p&gt;两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="逆向知识" scheme="https://amywushu.github.io/categories/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="hook" scheme="https://amywushu.github.io/tags/hook/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</title>
     <link href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-03-21T12:06:07.024Z</updated>
+    <updated>2017-03-22T06:56:52.950Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
 </blockquote>
@@ -54,7 +150,7 @@
 </li>
 <li><p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。如果不是本类的方法，执行第3步。如果是本类的方法，就跳过 if 函数，执行第4步。</p>
 </li>
-<li><p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的汇编代码，将返回值存储在 old 中。然后执行第5步。</p>
+<li><p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的机器码，将返回值存储在 old 中。然后执行第5步。</p>
 </li>
 <li><p>如果是本类的方法，就跳过 if 函数，将找到的 sel 对应的方法 method 的实现 imp 赋给 old。然后执行第5步。</p>
 </li>
@@ -127,15 +223,15 @@ ldr    pc, [sp, #-0x18]
 <blockquote>
 <p>　　class_getMethodImplementation 函数内部会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。<br>　　 而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。因此 class_getMethodImplementation 函数寻找对应的 imp 的流程跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，找不到再进行消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
 </blockquote>
-<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
-<h4 id="为什么要使用-if-direct-这段代码"><a href="#为什么要使用-if-direct-这段代码" class="headerlink" title="为什么要使用 if (!direct) 这段代码"></a>为什么要使用 if (!direct) 这段代码</h4><p>在 MSHookMessageEx 的<a href="http://www.cydiasubstrate.com/api/c/MSHookMessageEx/" target="_blank" rel="external">官方介绍页面</a>有这样一段话：</p>
+<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条机器码，找到 sel 对应的 imp 并执行。</p>
+<h4 id="为什么要使用-if-direct-这段代码"><a href="#为什么要使用-if-direct-这段代码" class="headerlink" title="为什么要使用 if (!direct) 这段代码"></a>为什么要使用 if (!direct) 这段代码</h4><p>在 MSHookMessageEx 的<a href="http://www.cydiasubstrate.com/api/c/MSHookMessageEx/" target="_blank" rel="external">官方介绍页面</a>有这样几段话：</p>
 <blockquote>
 <p>However, while these APIs function quite well when there are only a small number of people making modifications, they fail to satisfy more complex use cases; in particular, there are ordering problems if multiple people attempt to hook the same message at different points in an inheritance hierarchy.</p>
 <p>Finally, it is important that classes that are being instrumented are not “initialized” as they are being modified (which would both change the ordering of the target program, as well as make it impossible to hook the initialization sequence); over time, the way Objective-C runtime APIs implement this has changed.</p>
 <p>Substrate solves all of these problems by providing a replacement API that takes all of these issues into account, always making certain that the classes are not initialized and that the right “next implementation” is used while walking back up an inheritance hierarchy.</p>
 </blockquote>
-<p>作者讲得非常清楚。这一部分将汇编代码嵌入到原始方法的 IMP 之前，使得在调用自定义方法之后，调用原始方法之前，有一个 old = class_getMethodImplementation(super, sel) 的动作，也就是说，是在执行方法的时候动态查找原始 IMP 的函数，而不是在 MSHookMessageEx 函数执行的时候，就已经确定好了原始 IMP 的地址。</p>
-<p>这样做是为了解决在一个继承体系中的不同节点处，hook 相同函数的问题。</p>
+<p>作者讲得非常清楚。这一部分将机器码嵌入到原始方法的 IMP 之前，使得在调用自定义方法之后，调用原始方法之前，有一个 old = class_getMethodImplementation(super, sel) 的动作，也就是说，是在执行方法的时候动态查找原始 IMP 的函数，而不是在 MSHookMessageEx 函数执行的时候，就已经确定好了原始 IMP 的地址。</p>
+<p><strong>这样做是为了解决在一个继承体系中的不同节点处，hook 相同函数的问题。</strong></p>
 <p>现在让我们设想一个情景：有三个类，Parent、Child、Grandson，其中  Grandson 类继承于 Child 类，Child 类继承于 Parent 类。</p>
 <p>在 Parent 类中实现了一个函数： - (void)parent_connect。<br>在 Child 类、Grandson 类中声明这个函数但并没有实现。<br>在 Child 类以及 Grandson 类中均使用 MSHookMessageEx 函数 hook 了 - (void)parent_connect 函数。</p>
 <p>情景1：     </p>
@@ -169,7 +265,7 @@ ldr    pc, [sp, #-0x18]
 <li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
 <li><strong>依次调用 Grandson 类中的自定义函数、 Child 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
 </ol>
-<p>　　 Grandson 类中的 - (void)parent_connect 函数的执行顺序是在该函数调用时才会通过嵌入的那段汇编代码去查找原始方法的实现。这样做维护了原来的继承体系，这也是 OC runtime 的体现。</p>
+<p>　　 Grandson 类中的 - (void)parent_connect 函数的执行顺序是在该函数调用时才会通过嵌入的那段机器码去查找原始方法的实现。这样做维护了原来的继承体系，这也是 OC runtime 的体现。</p>
 <h3 id="if-prefix-NULL"><a href="#if-prefix-NULL" class="headerlink" title="if (prefix!=NULL)"></a>if (prefix!=NULL)</h3><p>这一部分比起上一部分来说就简单多了。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
@@ -178,7 +274,7 @@ ldr    pc, [sp, #-0x18]
 <ul>
 <li><p>如果 direct == true，这个 sel 是本类的方法，就执行<br>old = method_getImplementation(method);<br>method_setImplementation(method, imp);</p>
 </li>
-<li><p>如果 direct == false，不是本类的方法，就把<br>old = class_getMethodImplementation(super, sel) 这个函数通过汇编嵌入到调用原函数之前，使得在调用自定义方法后，动态查询原始 IMP 指针;<br>最后通过 class_addMethod(_class, sel, imp, type) 加入到本类的方法列表中;</p>
+<li><p>如果 direct == false，不是本类的方法，就把<br>old = class_getMethodImplementation(super, sel) 这个函数通过机器码嵌入到调用原函数之前，使得在调用自定义方法后，动态查询原始 IMP 指针;<br>最后通过 class_addMethod(_class, sel, imp, type) 加入到本类的方法列表中;</p>
 </li>
 </ul>
 <blockquote>
@@ -188,7 +284,6 @@ ldr    pc, [sp, #-0x18]
 <blockquote>
 <p>@note \c class_getMethodImplementation may be faster than \c<br>method_getImplementation(class_getInstanceMethod(cls, name)).</p>
 </blockquote>
-<p>如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>

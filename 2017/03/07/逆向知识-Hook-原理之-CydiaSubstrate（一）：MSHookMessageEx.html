@@ -111,7 +111,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
-<meta property="og:updated_time" content="2017-03-21T12:06:07.024Z">
+<meta property="og:updated_time" content="2017-03-22T06:56:52.950Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
 <meta name="twitter:description" content="愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》
@@ -390,7 +390,7 @@
 </li>
 <li><p>初始化一些值。字符指针 type 赋值为 method 的参数类型等描述。direct 赋值为 false，这个值代表着传入的参数 sel 是否为传入的参数 _class 中的方法，即是否为本类的方法。在接下来的第一个 for 循环中改变 direct 的值，这个循环就是用来判断 sel 是否是 _class 中的方法。如果不是本类的方法，执行第3步。如果是本类的方法，就跳过 if 函数，执行第4步。</p>
 </li>
-<li><p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的汇编代码，将返回值存储在 old 中。然后执行第5步。</p>
+<li><p>如果不是本类的方法，就根据运行设备的架构（32位的arm，i386 和 x86_64）添加 <code>class_getMethodImplementation(super,sel)</code> 以及 <code>执行 sel 对应的函数实现</code> 的机器码，将返回值存储在 old 中。然后执行第5步。</p>
 </li>
 <li><p>如果是本类的方法，就跳过 if 函数，将找到的 sel 对应的方法 method 的实现 imp 赋给 old。然后执行第5步。</p>
 </li>
@@ -463,15 +463,15 @@ ldr    pc, [sp, #-0x18]
 <blockquote>
 <p>　　class_getMethodImplementation 函数内部会调用 lookUpImpOrNil 函数，这个函数接着又会调用 <code>lookUpImpOrForward</code> 函数。<br>　　 而 lookUpImpOrForward 正是 objc_msgSend 消息函数在没有缓存的时候，将会执行的函数。因此 class_getMethodImplementation 函数寻找对应的 imp 的流程跟无 cache 发送消息的流程是一样的，会往上寻找父类的方法列表，一直到基类的方法列表，找不到再进行消息转发等等。（具体内容可以参考我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a>）</p>
 </blockquote>
-<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条汇编代码，找到 sel 对应的 imp 并执行。</p>
-<h4 id="为什么要使用-if-direct-这段代码"><a href="#为什么要使用-if-direct-这段代码" class="headerlink" title="为什么要使用 if (!direct) 这段代码"></a>为什么要使用 if (!direct) 这段代码</h4><p>在 MSHookMessageEx 的<a href="http://www.cydiasubstrate.com/api/c/MSHookMessageEx/" target="_blank" rel="external">官方介绍页面</a>有这样一段话：</p>
+<p>最后是将 buffer 的地址赋给 old，这样，在执行 connect_orig 时，就会跳到 buffer[0] 处执行那几条机器码，找到 sel 对应的 imp 并执行。</p>
+<h4 id="为什么要使用-if-direct-这段代码"><a href="#为什么要使用-if-direct-这段代码" class="headerlink" title="为什么要使用 if (!direct) 这段代码"></a>为什么要使用 if (!direct) 这段代码</h4><p>在 MSHookMessageEx 的<a href="http://www.cydiasubstrate.com/api/c/MSHookMessageEx/" target="_blank" rel="external">官方介绍页面</a>有这样几段话：</p>
 <blockquote>
 <p>However, while these APIs function quite well when there are only a small number of people making modifications, they fail to satisfy more complex use cases; in particular, there are ordering problems if multiple people attempt to hook the same message at different points in an inheritance hierarchy.</p>
 <p>Finally, it is important that classes that are being instrumented are not “initialized” as they are being modified (which would both change the ordering of the target program, as well as make it impossible to hook the initialization sequence); over time, the way Objective-C runtime APIs implement this has changed.</p>
 <p>Substrate solves all of these problems by providing a replacement API that takes all of these issues into account, always making certain that the classes are not initialized and that the right “next implementation” is used while walking back up an inheritance hierarchy.</p>
 </blockquote>
-<p>作者讲得非常清楚。这一部分将汇编代码嵌入到原始方法的 IMP 之前，使得在调用自定义方法之后，调用原始方法之前，有一个 old = class_getMethodImplementation(super, sel) 的动作，也就是说，是在执行方法的时候动态查找原始 IMP 的函数，而不是在 MSHookMessageEx 函数执行的时候，就已经确定好了原始 IMP 的地址。</p>
-<p>这样做是为了解决在一个继承体系中的不同节点处，hook 相同函数的问题。</p>
+<p>作者讲得非常清楚。这一部分将机器码嵌入到原始方法的 IMP 之前，使得在调用自定义方法之后，调用原始方法之前，有一个 old = class_getMethodImplementation(super, sel) 的动作，也就是说，是在执行方法的时候动态查找原始 IMP 的函数，而不是在 MSHookMessageEx 函数执行的时候，就已经确定好了原始 IMP 的地址。</p>
+<p><strong>这样做是为了解决在一个继承体系中的不同节点处，hook 相同函数的问题。</strong></p>
 <p>现在让我们设想一个情景：有三个类，Parent、Child、Grandson，其中  Grandson 类继承于 Child 类，Child 类继承于 Parent 类。</p>
 <p>在 Parent 类中实现了一个函数： - (void)parent_connect。<br>在 Child 类、Grandson 类中声明这个函数但并没有实现。<br>在 Child 类以及 Grandson 类中均使用 MSHookMessageEx 函数 hook 了 - (void)parent_connect 函数。</p>
 <p>情景1：     </p>
@@ -505,7 +505,7 @@ ldr    pc, [sp, #-0x18]
 <li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
 <li><strong>依次调用 Grandson 类中的自定义函数、 Child 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
 </ol>
-<p>　　 Grandson 类中的 - (void)parent_connect 函数的执行顺序是在该函数调用时才会通过嵌入的那段汇编代码去查找原始方法的实现。这样做维护了原来的继承体系，这也是 OC runtime 的体现。</p>
+<p>　　 Grandson 类中的 - (void)parent_connect 函数的执行顺序是在该函数调用时才会通过嵌入的那段机器码去查找原始方法的实现。这样做维护了原来的继承体系，这也是 OC runtime 的体现。</p>
 <h3 id="if-prefix-NULL"><a href="#if-prefix-NULL" class="headerlink" title="if (prefix!=NULL)"></a>if (prefix!=NULL)</h3><p>这一部分比起上一部分来说就简单多了。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prefix != <span class="literal">NULL</span>) &#123;</div><div class="line">        <span class="keyword">const</span> <span class="keyword">char</span> *name(sel_getName(sel));</div><div class="line">        size_t namelen(strlen(name));</div><div class="line">        size_t fixlen(strlen(prefix));</div><div class="line"></div><div class="line">        <span class="keyword">char</span> *newname(reinterpret_cast&lt;<span class="keyword">char</span> *&gt;(alloca(fixlen + namelen + <span class="number">1</span>)));</div><div class="line">        memcpy(newname, prefix, fixlen);</div><div class="line">        memcpy(newname + fixlen, name, namelen + <span class="number">1</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!class_addMethod(_<span class="keyword">class</span>, sel_registerName(newname), old, type))</div><div class="line">            MSLog(MSLogLevelError, <span class="string">"MS:Error: failed to rename [%s %s]"</span>, class_getName(_<span class="keyword">class</span>), name);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>总体来说，就是给传入的参数 sel 字符串加上前缀 prefix，然后将 old 作为 prefix+sel 的实现，type 作为它的函数类型，将这个 method 加入 _class 的方法列表。</p>
@@ -514,7 +514,7 @@ ldr    pc, [sp, #-0x18]
 <ul>
 <li><p>如果 direct == true，这个 sel 是本类的方法，就执行<br>old = method_getImplementation(method);<br>method_setImplementation(method, imp);</p>
 </li>
-<li><p>如果 direct == false，不是本类的方法，就把<br>old = class_getMethodImplementation(super, sel) 这个函数通过汇编嵌入到调用原函数之前，使得在调用自定义方法后，动态查询原始 IMP 指针;<br>最后通过 class_addMethod(_class, sel, imp, type) 加入到本类的方法列表中;</p>
+<li><p>如果 direct == false，不是本类的方法，就把<br>old = class_getMethodImplementation(super, sel) 这个函数通过机器码嵌入到调用原函数之前，使得在调用自定义方法后，动态查询原始 IMP 指针;<br>最后通过 class_addMethod(_class, sel, imp, type) 加入到本类的方法列表中;</p>
 </li>
 </ul>
 <blockquote>
@@ -524,7 +524,6 @@ ldr    pc, [sp, #-0x18]
 <blockquote>
 <p>@note \c class_getMethodImplementation may be faster than \c<br>method_getImplementation(class_getInstanceMethod(cls, name)).</p>
 </blockquote>
-<p>如果大家什么想法，欢迎与我交流，amywushu@gmail.com。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
@@ -566,6 +565,10 @@ ldr    pc, [sp, #-0x18]
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html" rel="prev" title="Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx">
+                Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -633,7 +636,7 @@ ldr    pc, [sp, #-0x18]
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

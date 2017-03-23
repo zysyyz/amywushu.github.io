@@ -92,42 +92,39 @@
 
 
 
-<meta name="description" content="我搬进鸟的眼睛，经常盯着路过的风。　　——电影《路边野餐》
-
-栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+<meta name="description" content="栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
 
 因为： Objective-C 的对象在内存中是以堆的方式分配空间的
 
 堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
-OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )">
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在栈里面(栈内存会被系统自动回收)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="@property 中的常用关键字分析">
 <meta property="og:url" content="https://amywushu.github.io/2016/09/08/语法-property-中的常用关键字分析.html">
 <meta property="og:site_name" content="Amywushu">
-<meta property="og:description" content="我搬进鸟的眼睛，经常盯着路过的风。　　——电影《路边野餐》
-
-栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+<meta property="og:description" content="栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
 
 因为： Objective-C 的对象在内存中是以堆的方式分配空间的
 
 堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
-OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )">
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在栈里面(栈内存会被系统自动回收)">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图1.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图2assign.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图3.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图4.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图5.png">
-<meta property="og:updated_time" content="2017-02-23T06:51:42.015Z">
+<meta property="og:updated_time" content="2017-03-23T07:04:15.018Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="@property 中的常用关键字分析">
-<meta name="twitter:description" content="我搬进鸟的眼睛，经常盯着路过的风。　　——电影《路边野餐》
-
-栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
+<meta name="twitter:description" content="栈与堆首先，我们需要知道：为什么只有OC对象需要进行内存管理，而其它非对象类型（如基本数据类型）不需要我们来管理呢？
 
 因为： Objective-C 的对象在内存中是以堆的方式分配空间的
 
 堆里面的内存是动态分配的，所以也就需要程序员手动的去添加内存、回收内存
-OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )">
+OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release )   
+非OC对象一般放在栈里面(栈内存会被系统自动回收)">
 <meta name="twitter:image" content="https://amywushu.github.io/images/2016-09-08-语法-property-中的常用关键字分析/图1.png">
 
 
@@ -367,9 +364,7 @@ OC对象存放于堆里面(堆内存要程序员手动回收，也就是 release
       
 
       
-        <blockquote class="blockquote-center"><p>我搬进鸟的眼睛，经常盯着路过的风。　　——电影《路边野餐》</p>
-</blockquote>
-<h2 id="栈与堆"><a href="#栈与堆" class="headerlink" title="栈与堆"></a>栈与堆</h2><p>首先，我们需要知道：为什么<strong>只有OC对象需要进行内存管理</strong>，而其它非对象类型（如基本数据类型）不需要我们来管理呢？</p>
+        <h2 id="栈与堆"><a href="#栈与堆" class="headerlink" title="栈与堆"></a>栈与堆</h2><p>首先，我们需要知道：为什么<strong>只有OC对象需要进行内存管理</strong>，而其它非对象类型（如基本数据类型）不需要我们来管理呢？</p>
 <blockquote>
 <p>因为： Objective-C 的对象在内存中是以堆的方式分配空间的</p>
 <ul>

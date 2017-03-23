@@ -92,18 +92,14 @@
 
 
 
-<meta name="description" content="天地有大美而不言
-
-前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
-两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌">
+<meta name="description" content="前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
+两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx">
 <meta property="og:url" content="https://amywushu.github.io/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html">
 <meta property="og:site_name" content="Amywushu">
-<meta property="og:description" content="天地有大美而不言
-
-前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
-两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌">
+<meta property="og:description" content="前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
+两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IM">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/MobileSubstrate.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/SubstrateBootstrap_dlopen.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/dlopen.png">
@@ -116,13 +112,11 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/trampoline.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/sub_5F20.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/mprotect.png">
-<meta property="og:updated_time" content="2017-03-23T04:08:37.130Z">
+<meta property="og:updated_time" content="2017-03-23T07:03:27.658Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx">
-<meta name="twitter:description" content="天地有大美而不言
-
-前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
-两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌">
+<meta name="twitter:description" content="前情提要在上一篇博文“Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。
+两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IM">
 <meta name="twitter:image" content="https://amywushu.github.io/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/MobileSubstrate.png">
 
 
@@ -362,9 +356,7 @@
       
 
       
-        <blockquote class="blockquote-center"><p>天地有大美而不言</p>
-</blockquote>
-<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
+        <h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
 <p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
 <a id="more"></a>
 <h2 id="如何调试"><a href="#如何调试" class="headerlink" title="如何调试"></a>如何调试</h2><p>我们使用 CydiaSubstrate 框架对 APP 作 hook 操作的话，它是会在 /Library/MobileSubstarte/DynamicLibraries/ 目录下生成一个 .dylib 文件和一个对应的 plist 文件。这个 .dylib 文件将在 App 启动时被 dyld 加载到程序中，对指定类的方法进行 hook。</p>

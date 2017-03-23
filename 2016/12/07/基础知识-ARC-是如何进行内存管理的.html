@@ -92,37 +92,31 @@
 
 
 
-<meta name="description" content="任重而道远，不过进一寸便有进一寸的欢喜。　　——改编自胡适语录、小蛋黄儿《恋爱基因缺陷》
-
-基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
+<meta name="description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
 
 retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
-deallo">
+dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ARC 是如何进行内存管理的">
 <meta property="og:url" content="https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html">
 <meta property="og:site_name" content="Amywushu">
-<meta property="og:description" content="任重而道远，不过进一寸便有进一寸的欢喜。　　——改编自胡适语录、小蛋黄儿《恋爱基因缺陷》
-
-基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
+<meta property="og:description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
 
 retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
-deallo">
-<meta property="og:updated_time" content="2017-02-23T07:02:19.192Z">
+dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
+<meta property="og:updated_time" content="2017-03-23T07:05:40.674Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARC 是如何进行内存管理的">
-<meta name="twitter:description" content="任重而道远，不过进一寸便有进一寸的欢喜。　　——改编自胡适语录、小蛋黄儿《恋爱基因缺陷》
-
-基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
+<meta name="twitter:description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
 
 retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
-deallo">
+dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
 
 
 
@@ -361,9 +355,7 @@ deallo">
       
 
       
-        <blockquote class="blockquote-center"><p>任重而道远，不过进一寸便有进一寸的欢喜。　　——改编自胡适语录、小蛋黄儿《恋爱基因缺陷》</p>
-</blockquote>
-<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
+        <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
 <ul>
 <li>retain ：　　 　使得对象的引用计数+1</li>
 <li>release：　　　使得对象的引用计数-1</li>

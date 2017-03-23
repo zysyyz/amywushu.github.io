@@ -340,9 +340,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>天地有大美而不言</p>
-</blockquote>
-<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
+          <h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
 <p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html" rel="contents">
@@ -458,9 +456,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>愿麦子和麦子长在一起，愿河流与河流流归一处。　　——海子《黎明和黄昏》</p>
-</blockquote>
-<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
+          <h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
 <blockquote>
 <p>在用 theos 开发中，control 文件中的 depend 字段依赖库为 mobilesubstrate，该工具是实现 CydiaSubstrate 注入的关键所在，整个工具主要分为 MobileHooker、MobileLoader 以及 Safe mode 三部分。    </p>
 <p>MobileHooker，是 CydiaSubstrate 的一个组件，对 C 和 Objective-C 均有效。</p>
@@ -937,9 +933,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>四面都是夜的峭壁，八方来风尽是不详耳语，我坐在我摇摇欲坠的鸟巢上痛苦。我的翅翼下有什么呢？我拢住的只是虚空。　　——微博@逃亡者的恰恰</p>
-</blockquote>
-<blockquote>
+          <blockquote>
 <p>翻译自 jndok’s blog  &emsp; 原文链接：<a href="http://jndok.github.io/2016/10/04/pegasus-writeup/">http://jndok.github.io/2016/10/04/pegasus-writeup/</a></p>
 </blockquote>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>大家好，在这篇博文中，我决定讲述一些原理，是关于两个在 <a href="https://www.lookout.com/trident-pegasus-enterprise-discovery">Pegasusu spyware</a> 中提到的 OS X/iOS 的内核漏洞的，影响至 OS X 10.11.6 以及 iOS 9.3.4 版本。我尝试对这些漏洞以及它们的利用程序进行深入的分析。</p>
@@ -1058,9 +1052,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>任重而道远，不过进一寸便有进一寸的欢喜。　　——改编自胡适语录、小蛋黄儿《恋爱基因缺陷》</p>
-</blockquote>
-<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
+          <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
 <ul>
 <li>retain ：　　 　使得对象的引用计数+1</li>
 <li>release：　　　使得对象的引用计数-1</li>
@@ -1300,9 +1292,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>光是永恒的，所以你是永恒的。</p>
-</blockquote>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>对象拷贝有两种方式：浅拷贝和深拷贝。</p>
+          <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>对象拷贝有两种方式：浅拷贝和深拷贝。</p>
 <p>浅拷贝(shallow copy)，并不拷贝对象本身，<strong>仅仅是拷贝指向对象的指针</strong>。<br>如果 <code>B = [A 浅拷贝]</code>，则 A、B 两个对象中都保存的同一个指针，如果 A 通过这个指针改变了指针指向的对象，那么 B 指针指向的对象也就随之改变了；</p>
 <p>深拷贝是直接<strong>拷贝整个对象到另一块内存中</strong>，开辟新的地址来存储，两个对象至此一别，再无关联。</p>
 <blockquote>
@@ -1423,9 +1413,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>人在世上，爱欲之中，独生独死，独来独往，苦乐自知，无有代者。　　——《佛说大乘无量寿庄严清净平等觉经》</p>
-</blockquote>
-<h2 id="基础提要：栈结构"><a href="#基础提要：栈结构" class="headerlink" title="基础提要：栈结构"></a>基础提要：栈结构</h2><p>ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：</p>
+          <h2 id="基础提要：栈结构"><a href="#基础提要：栈结构" class="headerlink" title="基础提要：栈结构"></a>基础提要：栈结构</h2><p>ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：</p>
 <p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png" alt=""></p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2016/10/12/逆向知识-栈·参数存储方式.html" rel="contents">

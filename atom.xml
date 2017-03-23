@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-23T07:43:27.499Z</updated>
+  <updated>2017-03-23T07:47:14.109Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html</id>
     <published>2017-03-22T16:00:00.000Z</published>
-    <updated>2017-03-23T07:43:27.499Z</updated>
+    <updated>2017-03-23T07:47:14.109Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
 <p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
@@ -87,7 +87,7 @@
 <p>上图来自2014年在 The Black Hat USA 会议中的一篇演讲 “<a href="https://lifeasageek.github.io/papers/jang:ios-slides.pdf" target="_blank" rel="external">Exploit unpatched iOS vulnerabilities for fun and profit</a>”。</p>
 <p>比如以下代码：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">&lt;sys/mman.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">char</span> shell[] = &#123;<span class="number">0x10</span>, <span class="number">0x20</span>, <span class="number">0x70</span>, <span class="number">0x47</span>&#125;; <span class="comment">// return 16;</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</div><div class="line">    <span class="keyword">void</span> *page = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (page == (<span class="keyword">void</span>*)<span class="number">-1</span>) &#123;</div><div class="line">        perror(<span class="literal">NULL</span>);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    memcpy(page, shell, <span class="keyword">sizeof</span>(shell));</div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">int</span> (*shell_execute)();</div><div class="line">    shell_execute exe = (shell_execute)((<span class="keyword">int</span>)page+<span class="number">1</span>);</div><div class="line">    mprotect(page, <span class="number">4096</span>, PROT_READ | PROT_EXEC);</div><div class="line">    <span class="built_in">NSString</span> *string = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%d"</span>, exe()];</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, string);</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在 32位的 iOS 系统上，是可以正确运行并打印出16的，但在64位中，则会报错：EXE_BAD_ACCESS (code=257,address=…)</p>
+<p>在 32位的 iOS 系统上，是可以正确运行并打印出16的，但在64位中，则会报错：EXE_BAD_ACCESS (code=257, address=…)</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Implementing imp_implementationWithBlock()　<a href="http://landonf.org/2011/04/index.html" target="_blank" rel="external">http://landonf.org/2011/04/index.html</a><br>[2] pandamonia/libffi-iOS　<a href="https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios" target="_blank" rel="external">https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios</a><br>[3] WilliamLCobb/iNDS　<a href="https://github.com/WilliamLCobb/iNDS/issues/44" target="_blank" rel="external">https://github.com/WilliamLCobb/iNDS/issues/44</a><br>[4] 谁偷了我的热更新？Mono，JIT，iOS    　<br><a href="http://www.cnblogs.com/murongxiaopifu/p/4278947.html" target="_blank" rel="external">http://www.cnblogs.com/murongxiaopifu/p/4278947.html</a>   </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
@@ -306,12 +306,12 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/03/01/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html"/>
     <id>https://amywushu.github.io/2017/03/01/基础知识-Hook-原理之-Method-Swizzling.html</id>
     <published>2017-02-28T16:00:00.000Z</published>
-    <updated>2017-03-07T08:06:36.865Z</updated>
+    <updated>2017-03-23T07:49:48.340Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>世间所有仇与怨的消弭，大抵一边靠忘，一边靠将心比心吧。　　——priest《杀破狼》</p>
 </blockquote>
 <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>Method Swizzling 其实就是利用了 <code>runtime</code> 机制，替换了调用的方法（method）的实现（imp）。很多人一看到有 runtime 就头疼了，跟 runloop 一样，由于被太多大牛提起，反而心生胆怯，觉得是一个很难理解的机制。</p>
-<p>runtime 运行时机制，主要是在 OC 和 C 语言（或汇编语言）之间架了一座桥梁。比如我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a> 中提到的调用方法的本质是发送消息。方法调用是 OC 中的，而消息发送，找到方法的入口则是 C （或汇编）中的。这其中转换的过程，就是 runtime。</p>
+<p>runtime 运行时机制，主要是在 OC 和 C 语言（或汇编语言）之间架了一座桥梁。比如我之前的文章 <a href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html">通过汇编解读 objc_msgSend</a> 中提到的调用方法的本质是发送消息，方法调用是 OC 中的，而消息发送，找到方法的入口则是 C （或汇编）中的。这其中转换的过程，就是 runtime。</p>
 <p>runtime 是一个使用 C 语言以及汇编写的动态库。它封装了一些 C 语言的结构体和函数，这些函数可以让使用者在运行时创建、查看、修改类，对象以及方法等。同时也执行着较为底层的传递消息，寻找方法的执行代码的操作。</p>
 <a id="more"></a>
 <p>在使用 runtime 时，一般需要引入 <code>&lt;objc/runtime.h&gt;</code> 头文件。</p>
@@ -406,7 +406,7 @@ ldr    pc, [sp, #-0x18]
       &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;世间所有仇与怨的消弭，大抵一边靠忘，一边靠将心比心吧。　　——priest《杀破狼》&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;基础知识提要&quot;&gt;&lt;a href=&quot;#基础知识提要&quot; class=&quot;headerlink&quot; title=&quot;基础知识提要&quot;&gt;&lt;/a&gt;基础知识提要&lt;/h2&gt;&lt;p&gt;Method Swizzling 其实就是利用了 &lt;code&gt;runtime&lt;/code&gt; 机制，替换了调用的方法（method）的实现（imp）。很多人一看到有 runtime 就头疼了，跟 runloop 一样，由于被太多大牛提起，反而心生胆怯，觉得是一个很难理解的机制。&lt;/p&gt;
-&lt;p&gt;runtime 运行时机制，主要是在 OC 和 C 语言（或汇编语言）之间架了一座桥梁。比如我之前的文章 &lt;a href=&quot;https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html&quot;&gt;通过汇编解读 objc_msgSend&lt;/a&gt; 中提到的调用方法的本质是发送消息。方法调用是 OC 中的，而消息发送，找到方法的入口则是 C （或汇编）中的。这其中转换的过程，就是 runtime。&lt;/p&gt;
+&lt;p&gt;runtime 运行时机制，主要是在 OC 和 C 语言（或汇编语言）之间架了一座桥梁。比如我之前的文章 &lt;a href=&quot;https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html&quot;&gt;通过汇编解读 objc_msgSend&lt;/a&gt; 中提到的调用方法的本质是发送消息，方法调用是 OC 中的，而消息发送，找到方法的入口则是 C （或汇编）中的。这其中转换的过程，就是 runtime。&lt;/p&gt;
 &lt;p&gt;runtime 是一个使用 C 语言以及汇编写的动态库。它封装了一些 C 语言的结构体和函数，这些函数可以让使用者在运行时创建、查看、修改类，对象以及方法等。同时也执行着较为底层的传递消息，寻找方法的执行代码的操作。&lt;/p&gt;
     
     </summary>
@@ -425,13 +425,13 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/02/27/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-fishhook-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.html"/>
     <id>https://amywushu.github.io/2017/02/27/源码学习-Hook-原理之-fishhook-源码解析.html</id>
     <published>2017-02-26T16:00:00.000Z</published>
-    <updated>2017-03-09T02:39:57.971Z</updated>
+    <updated>2017-03-23T07:56:00.626Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》</p>
 </blockquote>
 <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。</p>
-<p>懒加载（lazy load），又叫做延迟加载。也就说在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 过程来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
-<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr 和 _la_symbol_ptr。这两个指针表，保存着与字符串表对应的函数指针。</p>
+<p>懒加载（lazy load），又叫做延迟加载。在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
+<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr（非懒加载符号表）和 _la_symbol_ptr（懒加载符号表）。这两个指针表，保存着与字符串表对应的函数指针。</p>
 <p>Dynamic Symbol Table(Indirect Symbols): 动态符号表是加载动态库时导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在<strong>原所属表指针</strong>中的偏移量（offset）+ 原所属表在<strong>动态符号表</strong>中的偏移量 + 动态符号表的<strong>基地址</strong>（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。</p>
 <p>Symbol Table（以下简称为 symtab）: 即符号表。每个目标文件都有自己的符号表，记录了符号的映射。在 Mach-O 中，符号表是由结构体 n_list 构成。</p>
 <a id="more"></a>
@@ -483,7 +483,7 @@ ldr    pc, [sp, #-0x18]
 <p>reserved1（也就是上图 MachOView 中显示的 Indirect Sym Index）为25，那么在动态符号表中 _nl_symbol_ptr 所在的首地址应该是（先不考虑 slide）： Dynamic Symbol Table 的首地址 + (reserved1 * 4) = 0x100005F30 + 0x64 = 0x100005F94。</p>
 <p>slide + section-&gt;addr 为 _nl_symbol_ptr section 数据所在的地址。然后遍历 dysymtab 中从 _nl_symbol_ptr 开始的符号，取得 Symbol 数据，如果为 INDIRECT_SYMBOL_ABS(即懒加载符号指针结束的地方)等，则跳出本次循环。否则将取得的 Symbol 数据作为 symtab 中的 offset。</p>
 <p><img src="/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/symtab.png" alt=""></p>
-<p>如上图所示，_dyld_stub_binder 符号（也是这个程序中的 _nl_symbol_ptr 的首个符号）在 dysymtab 中的 Symbol 数据为0xA1，那么在对应的 symtab 中，它的地址应为 symtab 首地址 + 0xA1 <em> 16 = 0x10005510 + 161 </em> 16 = 0x10005F20。(16是 n_list 结构共16个字节)</p>
+<p>如上图所示，_dyld_stub_binder 符号（也是这个程序中的 _nl_symbol_ptr 的首个符号）在 dysymtab 中的 Symbol 数据为0xA1，那么在对应的 symtab 中，它的地址应为 symtab 首地址 + 0xA1 * 16 = 0x10005510 + 161 * 16 = 0x10005F20。(16是 n_list 结构共16个字节)</p>
 <p>Symbol Table 中的 n_strx（之前提到的 n_list 结构）即为 strtab 中的 index。</p>
 <p><img src="/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/strtab.png" alt=""></p>
 <p>最后就是匹配替换了。比较字符串表中的字符串与 rebindings 数组中的 name 字段，匹配成功后，将 _nl_symbol_ptr 或 _la_symbol_ptr 这两个 Section 的指针表中对应的函数指针（<code>indirect_symbol_bindings[i]</code>）赋值给 rebindings 数组中的 replaced 字段，然后用数组中的 replacement 字段（也就是自定义的 my_open 或 my_close 函数的指针）覆盖原来的函数指针。</p>
@@ -500,8 +500,8 @@ ldr    pc, [sp, #-0x18]
       &lt;blockquote class=&quot;blockquote-center&quot;&gt;&lt;p&gt;数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&quot;基础知识提要&quot;&gt;&lt;a href=&quot;#基础知识提要&quot; class=&quot;headerlink&quot; title=&quot;基础知识提要&quot;&gt;&lt;/a&gt;基础知识提要&lt;/h2&gt;&lt;p&gt;各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。&lt;/p&gt;
-&lt;p&gt;懒加载（lazy load），又叫做延迟加载。也就说在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 &lt;code&gt;dyld_stub_binder&lt;/code&gt; 过程来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。&lt;/p&gt;
-&lt;p&gt;在 Mach-O 中，相对应的就是 _nl_symbol_ptr 和 _la_symbol_ptr。这两个指针表，保存着与字符串表对应的函数指针。&lt;/p&gt;
+&lt;p&gt;懒加载（lazy load），又叫做延迟加载。在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 &lt;code&gt;dyld_stub_binder&lt;/code&gt; 来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。&lt;/p&gt;
+&lt;p&gt;在 Mach-O 中，相对应的就是 _nl_symbol_ptr（非懒加载符号表）和 _la_symbol_ptr（懒加载符号表）。这两个指针表，保存着与字符串表对应的函数指针。&lt;/p&gt;
 &lt;p&gt;Dynamic Symbol Table(Indirect Symbols): 动态符号表是加载动态库时导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在&lt;strong&gt;原所属表指针&lt;/strong&gt;中的偏移量（offset）+ 原所属表在&lt;strong&gt;动态符号表&lt;/strong&gt;中的偏移量 + 动态符号表的&lt;strong&gt;基地址&lt;/strong&gt;（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。&lt;/p&gt;
 &lt;p&gt;Symbol Table（以下简称为 symtab）: 即符号表。每个目标文件都有自己的符号表，记录了符号的映射。在 Mach-O 中，符号表是由结构体 n_list 构成。&lt;/p&gt;
     
@@ -1007,7 +1007,7 @@ kalloc.8192                 8192       3160K       3503K        395         437 
     <link href="https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html"/>
     <id>https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html</id>
     <published>2016-12-06T16:00:00.000Z</published>
-    <updated>2017-03-23T07:05:40.674Z</updated>
+    <updated>2017-03-23T08:06:07.251Z</updated>
     
     <content type="html"><![CDATA[<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
 <ul>
@@ -1151,9 +1151,9 @@ __Block_byref_val_0 val = {
 <p>&emsp;&emsp;因为如果在最初 copy 的时候 retain，那么只有等 Block 被废弃时，该变量才会被废弃，从而释放对对象 X 的持有权。但是由于循环引用，该变量始终直接或间接的持有 block 对象，所以 Block 永远不会被废弃，进而也不会释放对象 X 的持有权，从而造成这两块内存永远不会被回收，即内存泄漏。</p>
 <p>&emsp;&emsp;而在执行的时候 retain，ARC会对 Block 的执行作用域的变量自动进行内存管理，执行完毕后即释放，不会等到 Block 被废弃时才能被释放，因此打破了循环引用。</p>
 <h4 id="方法二：在-ARC-中使用-block-修饰符，并在-Block-中为其赋值为-nil"><a href="#方法二：在-ARC-中使用-block-修饰符，并在-Block-中为其赋值为-nil" class="headerlink" title="方法二：在 ARC 中使用 __block 修饰符，并在 Block 中为其赋值为 nil"></a>方法二：在 ARC 中使用 <code>__block 修饰符，并在 Block 中为其赋值为 nil</code></h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//开启 ARC</span></div><div class="line">- (<span class="keyword">void</span>)loadView </div><div class="line">&#123; </div><div class="line"> [<span class="keyword">super</span> loadView];</div><div class="line"> </div><div class="line"> __blok TestViewController *wself = <span class="keyword">self</span>; </div><div class="line"></div><div class="line"> _observer = [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"testKey"</span> </div><div class="line"> object:<span class="literal">nil</span> </div><div class="line"> queue:<span class="literal">nil</span> </div><div class="line"> usingBlock:^(<span class="built_in">NSNotification</span> *note) &#123;</div><div class="line"> [wself dismissModalViewControllerAnimated:<span class="literal">YES</span>]; </div><div class="line"> &#125;]; </div><div class="line"></div><div class="line"> wself = <span class="literal">nil</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>由于在 Block 执行时释放了对 self 所指向的对象的持有权，因此 Block 执行后即打破循环引用，同样不会等到 Block 被废弃时才能释放对象的持有权，因为没有内存泄漏。</p>
+<p>由于在 Block 执行时释放了对 self 所指向的对象的持有权，因此 Block 执行后即打破循环引用，同样不会等到 Block 被废弃时才能释放对象的持有权，因此没有内存泄漏。</p>
 <p>&emsp;&emsp;这种方法的缺点是，一定要确保 Block 会执行。如果有多种分支，而某一条分支中的 Block 不会执行，那么这条分支同样会造成内存泄漏。</p>
-<h4 id="方法三：在非-ARC-中使用-block-修饰符"><a href="#方法三：在非-ARC-中使用-block-修饰符" class="headerlink" title="方法三：在非 ARC 中使用 __block 修饰符"></a>方法三：在非 ARC 中使用 <code>__block 修饰符</code></h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ARC 无效</span></div><div class="line">- (<span class="keyword">void</span>)loadView </div><div class="line">&#123; </div><div class="line"> [<span class="keyword">super</span> loadView];</div><div class="line"> </div><div class="line"> __blok TestViewController *wself = <span class="keyword">self</span>; </div><div class="line"></div><div class="line"> _observer = [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"testKey"</span> </div><div class="line"> object:<span class="literal">nil</span> </div><div class="line"> queue:<span class="literal">nil</span> </div><div class="line"> usingBlock:^(<span class="built_in">NSNotification</span> *note) &#123;</div><div class="line"> [wself dismissModalViewControllerAnimated:<span class="literal">YES</span>]; </div><div class="line"> &#125;]; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="方法三：在非-ARC-中使用-block-修饰符"><a href="#方法三：在非-ARC-中使用-block-修饰符" class="headerlink" title="方法三：在非 ARC 中使用 __block 修饰符"></a>方法三：在非 ARC 中使用 <code>__block 修饰符</code></h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ARC 无效</span></div><div class="line">- (<span class="keyword">void</span>)loadView </div><div class="line">&#123; </div><div class="line"> [<span class="keyword">super</span> loadView];</div><div class="line"> </div><div class="line"> __block TestViewController *wself = <span class="keyword">self</span>; </div><div class="line"></div><div class="line"> _observer = [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"testKey"</span> </div><div class="line"> object:<span class="literal">nil</span> </div><div class="line"> queue:<span class="literal">nil</span> </div><div class="line"> usingBlock:^(<span class="built_in">NSNotification</span> *note) &#123;</div><div class="line"> [wself dismissModalViewControllerAnimated:<span class="literal">YES</span>]; </div><div class="line"> &#125;]; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>由于在非 ARC 中，Block 不持有 __block 修饰符修饰的对象，因此也不会造成循环引用。</p>
 <p>注1：在使用委托 delegate 时，属性要用 weak 关键字也是为了避免循环引用。<br>注2：在异常 <code>NSException</code> 处理过程中，也容易遗忘对象释放，从而造成内存泄漏，一般须在 <code>@finally</code> 中将未释放的资源释放掉。当然如果该异常直接造成程序崩溃，也就无所谓释放不释放了。</p>
 <p>以上即是 ARC 与非 ARC 的内存管理区别，以及 ARC 是如何将手动管理转换为自动管理的。</p>

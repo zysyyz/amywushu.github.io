@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/dysymtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/symtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/strtab.png">
-<meta property="og:updated_time" content="2017-03-09T02:39:57.971Z">
+<meta property="og:updated_time" content="2017-03-23T07:56:00.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 fishhook 源码解析">
 <meta name="twitter:description" content="数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》
@@ -354,8 +354,8 @@
         <blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》</p>
 </blockquote>
 <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。</p>
-<p>懒加载（lazy load），又叫做延迟加载。也就说在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 过程来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
-<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr 和 _la_symbol_ptr。这两个指针表，保存着与字符串表对应的函数指针。</p>
+<p>懒加载（lazy load），又叫做延迟加载。在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
+<p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr（非懒加载符号表）和 _la_symbol_ptr（懒加载符号表）。这两个指针表，保存着与字符串表对应的函数指针。</p>
 <p>Dynamic Symbol Table(Indirect Symbols): 动态符号表是加载动态库时导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在<strong>原所属表指针</strong>中的偏移量（offset）+ 原所属表在<strong>动态符号表</strong>中的偏移量 + 动态符号表的<strong>基地址</strong>（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。</p>
 <p>Symbol Table（以下简称为 symtab）: 即符号表。每个目标文件都有自己的符号表，记录了符号的映射。在 Mach-O 中，符号表是由结构体 n_list 构成。</p>
 <a id="more"></a>
@@ -407,7 +407,7 @@
 <p>reserved1（也就是上图 MachOView 中显示的 Indirect Sym Index）为25，那么在动态符号表中 _nl_symbol_ptr 所在的首地址应该是（先不考虑 slide）： Dynamic Symbol Table 的首地址 + (reserved1 * 4) = 0x100005F30 + 0x64 = 0x100005F94。</p>
 <p>slide + section-&gt;addr 为 _nl_symbol_ptr section 数据所在的地址。然后遍历 dysymtab 中从 _nl_symbol_ptr 开始的符号，取得 Symbol 数据，如果为 INDIRECT_SYMBOL_ABS(即懒加载符号指针结束的地方)等，则跳出本次循环。否则将取得的 Symbol 数据作为 symtab 中的 offset。</p>
 <p><img src="/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/symtab.png" alt=""></p>
-<p>如上图所示，_dyld_stub_binder 符号（也是这个程序中的 _nl_symbol_ptr 的首个符号）在 dysymtab 中的 Symbol 数据为0xA1，那么在对应的 symtab 中，它的地址应为 symtab 首地址 + 0xA1 <em> 16 = 0x10005510 + 161 </em> 16 = 0x10005F20。(16是 n_list 结构共16个字节)</p>
+<p>如上图所示，_dyld_stub_binder 符号（也是这个程序中的 _nl_symbol_ptr 的首个符号）在 dysymtab 中的 Symbol 数据为0xA1，那么在对应的 symtab 中，它的地址应为 symtab 首地址 + 0xA1 * 16 = 0x10005510 + 161 * 16 = 0x10005F20。(16是 n_list 结构共16个字节)</p>
 <p>Symbol Table 中的 n_strx（之前提到的 n_list 结构）即为 strtab 中的 index。</p>
 <p><img src="/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/strtab.png" alt=""></p>
 <p>最后就是匹配替换了。比较字符串表中的字符串与 rebindings 数组中的 name 字段，匹配成功后，将 _nl_symbol_ptr 或 _la_symbol_ptr 这两个 Section 的指针表中对应的函数指针（<code>indirect_symbol_bindings[i]</code>）赋值给 rebindings 数组中的 replaced 字段，然后用数组中的 replacement 字段（也就是自定义的 my_open 或 my_close 函数的指针）覆盖原来的函数指针。</p>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-03-23T07:47:14.109Z</updated>
+  <updated>2017-03-28T08:34:30.493Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html</id>
     <published>2017-03-22T16:00:00.000Z</published>
-    <updated>2017-03-23T07:47:14.109Z</updated>
+    <updated>2017-03-28T08:34:30.493Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
 <p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
@@ -82,12 +82,12 @@
 <p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/sub_5F20.png" alt=""></p>
 <p>总的来说，sub_10000 函数的作用与老版本的一样，都是为了嵌入一段 class_getMethodImplementation(_class, sel) 的 <code>JIT (just in time)</code> 代码，使得程序在运行时才会执行这段代码，而不是在开始的时候就已经传参执行了。</p>
 <h3 id="为什么不使用原来的-if-direct"><a href="#为什么不使用原来的-if-direct" class="headerlink" title="为什么不使用原来的 if (!direct)"></a>为什么不使用原来的 if (!direct)</h3><p>首先 if (!direct) 中的机器码只定义了 ARM 32位、i386、x86_64位，没有定义 ARM64 的嵌入指令。</p>
-<p>再者，在 ARM64 中也不能使用这种先 mmap 一段可写的内存，然后将内存改为可执行的权限的方法。</p>
+<p><del>再者，在 ARM64 中也不能使用这种先 mmap 一段可写的内存，然后将内存改为可执行的权限的方法。</del></p>
 <p><img src="/images/2017-03-23-逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx/mprotect.png" alt=""></p>
 <p>上图来自2014年在 The Black Hat USA 会议中的一篇演讲 “<a href="https://lifeasageek.github.io/papers/jang:ios-slides.pdf" target="_blank" rel="external">Exploit unpatched iOS vulnerabilities for fun and profit</a>”。</p>
 <p>比如以下代码：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#import <span class="meta-string">&lt;sys/mman.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">char</span> shell[] = &#123;<span class="number">0x10</span>, <span class="number">0x20</span>, <span class="number">0x70</span>, <span class="number">0x47</span>&#125;; <span class="comment">// return 16;</span></div><div class="line"></div><div class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</div><div class="line">    <span class="keyword">void</span> *page = mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, <span class="number">-1</span>, <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (page == (<span class="keyword">void</span>*)<span class="number">-1</span>) &#123;</div><div class="line">        perror(<span class="literal">NULL</span>);</div><div class="line">        <span class="keyword">return</span>;</div><div class="line">    &#125;</div><div class="line">    memcpy(page, shell, <span class="keyword">sizeof</span>(shell));</div><div class="line">    <span class="keyword">typedef</span> <span class="keyword">int</span> (*shell_execute)();</div><div class="line">    shell_execute exe = (shell_execute)((<span class="keyword">int</span>)page+<span class="number">1</span>);</div><div class="line">    mprotect(page, <span class="number">4096</span>, PROT_READ | PROT_EXEC);</div><div class="line">    <span class="built_in">NSString</span> *string = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%d"</span>, exe()];</div><div class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, string);</div><div class="line">    [<span class="keyword">super</span> viewDidLoad];</div><div class="line">    <span class="comment">// Do any additional setup after loading the view, typically from a nib.</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在 32位的 iOS 系统上，是可以正确运行并打印出16的，但在64位中，则会报错：EXE_BAD_ACCESS (code=257, address=…)</p>
+<p>在32位的 iOS 系统上，是可以正确运行并打印出16的 <del>但在64位中，则会报错：EXE_BAD_ACCESS (code=257, address=…)</del></p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Implementing imp_implementationWithBlock()　<a href="http://landonf.org/2011/04/index.html" target="_blank" rel="external">http://landonf.org/2011/04/index.html</a><br>[2] pandamonia/libffi-iOS　<a href="https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios" target="_blank" rel="external">https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios</a><br>[3] WilliamLCobb/iNDS　<a href="https://github.com/WilliamLCobb/iNDS/issues/44" target="_blank" rel="external">https://github.com/WilliamLCobb/iNDS/issues/44</a><br>[4] 谁偷了我的热更新？Mono，JIT，iOS    　<br><a href="http://www.cnblogs.com/murongxiaopifu/p/4278947.html" target="_blank" rel="external">http://www.cnblogs.com/murongxiaopifu/p/4278947.html</a>   </p>
 <p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>

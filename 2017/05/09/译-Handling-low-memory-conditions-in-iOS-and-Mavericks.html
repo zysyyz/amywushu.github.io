@@ -111,7 +111,7 @@ AboutOS X 和 iOS 中的内存压力是虚拟内存管理的一个非常重要�
 <meta property="og:image" content="https://amywushu.github.io/images/2017-05-09-译-Handling-low-memory-conditions-in-iOS-and-Mavericks/图片7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-05-09-译-Handling-low-memory-conditions-in-iOS-and-Mavericks/图片8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-05-09-译-Handling-low-memory-conditions-in-iOS-and-Mavericks/图片9.png">
-<meta property="og:updated_time" content="2017-05-09T13:37:52.422Z">
+<meta property="og:updated_time" content="2017-05-09T13:43:54.757Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="（译）Handling low memory conditions in iOS and Mavericks">
 <meta name="twitter:description" content="翻译自 Jonathan Levin’s site  &amp;emsp; 原文链接：http://newosxbook.com/articles/MemoryPressure.html
@@ -412,11 +412,11 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
 </ul>
 <h2 id="内存压力"><a href="#内存压力" class="headerlink" title="内存压力"></a>内存压力</h2><p>Mach 层内部有两个计数器定义内存压力：   </p>
 <ul>
-<li><u`vm\_page\_free\_count< u="">：目前有多少页 RAM 是空闲的</u`vm\_page\_free\_count<></li>
+<li><u>vm_page_free_count</u>：目前有多少页 RAM 是空闲的</li>
 <li><u>vm_page_free_target</u>：至少有多少页 RAM 应该被释放。<br>你可以使用 sysctl 轻松查看这些：</li>
 </ul>
 <p><img src="/images/2017-05-09-译-Handling-low-memory-conditions-in-iOS-and-Mavericks/图片3.png" alt=""></p>
-<p>如果空闲页面的数量低于目标数量 - 也就是有内存压力的情况（当然还有其他潜在的情况，但为了简化起见我省略了这些 <sup><a href="#footnotes">[2]</a></sup>）。你也可以使用sysctl(8) 来查询 <code>vm.memory\_pressure</code> 的值。在OS X 10.9 及更高版本中，你也可以查询 <code>kern.memorystatus\_vm\_pressure\_level</code>，将会为 1（NORMAL），2（WARN）或4（CRITICAL）</p>
+<p>如果空闲页面的数量低于目标数量 - 也就是有内存压力的情况（当然还有其他潜在的情况，但为了简化起见我省略了这些 <sup><a href="#footnotes">[2]</a></sup>）。你也可以使用 sysctl(8) 来查询 <code>vm.memory\_pressure</code> 的值。在 OS X 10.9 及更高版本中，你也可以查询 <code>kern.memorystatus\_vm\_pressure\_level</code>，将会为 1（NORMAL），2（WARN）或 4（CRITICAL）</p>
 <p>在内核初始化之后，主线程变为 vm_pageout，并产生一个专用的线程，贴切地被叫做 vm_pressure_thread，用来监测压力事件。这个线程是空转的（阻塞自己）。当检测到压力时，线程将被 vm_pageout 唤醒。这种行为已在 XNU 2422/3（OSX 10.9/iOS 7）中修改（最显著的是转移到 vm_pressure_response 中封装）。</p>
 <p>只有当 VM_PRESSURE_EVENTS 是 #define 的时候，压力处理才会被编译到 XNU 中。如果不是（比如，自定义编译），vm_pressure_thread 在2050 版本中什么都不做，甚至在 2422/3 中也不会开始。此外，在iOS内核中，定义 CONFIG_JETSAM 会更频繁地将内存处理调度到 memorystatus 线程以及更新其计数器（稍后会讲）来更改某些行为。</p>
 <h3 id="mach-vm-pressure-monitor"><a href="#mach-vm-pressure-monitor" class="headerlink" title="[mach]_vm_pressure_monitor"></a>[mach]_vm_pressure_monitor</h3><p>XNU 导出未记录的系统调用#296，vm_pressure_monitor（bsd/vm/vm_unix.c），它是 mach_vm_pressure_monitor（osfmk/vm/vm_pageout.c）以上的一个封装器。系统调用（以及相应的内部 Mach 调用）定义如下：</p>
@@ -580,7 +580,7 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
 <div id="footnotes"></div>
 
 <h2 id="Footnotes"><a href="#Footnotes" class="headerlink" title="Footnotes"></a>Footnotes</h2><ol>
-<li>为了简单阐述，我们忽略了为某些给定进程提供的虚拟内存，实际上只是保留和映射以供内核使用的事实。顺便说一句，对于64位来说，是256TB，是由于硬件限制（加上没有人会真正使用它，更不用说是全64位的16EB）。 Mac OS X 以128-TB的47位（0x7fffffffffff）用做用户空间虚拟内存，最上面的（技术上为0xffffffff8 …）128TB 为内核保留。    </li>
+<li>为了简单阐述，我们忽略了为某些给定进程提供的虚拟内存，实际上只是保留和映射以供内核使用的事实。顺便说一句，对于64位来说，是256TB，是由于硬件限制（加上没有人会真正使用它，更不用说是全64位的16EB）。 Mac OS X 以128-TB的47位（0x7fffffffffff）用做用户空间虚拟内存，最上面的（技术上为 0xffffffff8 …）128TB 为内核保留。    </li>
 <li>再次声明，为了简化，我并没有说明实际的条件。     </li>
 <li>我没有考虑空闲降级的过程，也就是说（10.9）进程可能被移动到空闲频段，以便它们成为空闲退出的候选者。 进程可以使用 PROC_INFO_CALL_DIRTYCONTROL 调用 proc_info 让内核跟踪其状态，当“dirty”和“clean”（空闲）自愿允许被杀死时，寻求保护以免被 kill 。与 vproc 机制（&lt;vproc.h&gt;）一起使用。     </li>
 </ol>

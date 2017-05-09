@@ -106,7 +106,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/dysymtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/symtab.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-02-27-源码学习-Hook-原理之-fishhook-源码解析/strtab.png">
-<meta property="og:updated_time" content="2017-03-23T07:56:00.626Z">
+<meta property="og:updated_time" content="2017-05-04T07:49:02.689Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 fishhook 源码解析">
 <meta name="twitter:description" content="数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》
@@ -394,7 +394,7 @@
 <p>首先定义了4个会被用到的结构体指针。其中 segment_command_t 就是LC_SEGMENT_64 结构，symtab_command 是 Section Header 中 LC_SYMTAB 的结构，dysymtab_command 是 Section Header 中 LC_DYSYMTAB 的结构。（有关 Mach-O 文件的结构可以参考我之前的文章 <a href="https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html">解读 Mach-O 文件格式</a>）</p>
 <p>接下来跳过 Mach-O 的 Header 结构，开始遍历 Load Commands。通过 Header-&gt;ncmds，以及 Segment-&gt;cmdsize 来控制循环。通过遍历，找到 LC_SEGMENT_64(_LINKEDIT)，赋值给 linkedit_segment，然后给 symtab_cmd 和 dysymtab_cmd 赋值。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//接上段代码</span></div><div class="line"><span class="comment">// Find base symbol/string table addresses</span></div><div class="line">  <span class="keyword">uintptr_t</span> linkedit_base = (<span class="keyword">uintptr_t</span>)slide + linkedit_segment-&gt;vmaddr - linkedit_segment-&gt;fileoff;</div><div class="line">  <span class="keyword">nlist_t</span> *symtab = (<span class="keyword">nlist_t</span> *)(linkedit_base + symtab_cmd-&gt;symoff);</div><div class="line">  <span class="keyword">char</span> *strtab = (<span class="keyword">char</span> *)(linkedit_base + symtab_cmd-&gt;stroff);</div><div class="line"></div><div class="line">  <span class="comment">// Get indirect symbol table (array of uint32_t indices into symbol table)</span></div><div class="line">  <span class="keyword">uint32_t</span> *indirect_symtab = (<span class="keyword">uint32_t</span> *)(linkedit_base + dysymtab_cmd-&gt;indirectsymoff);</div><div class="line"><span class="comment">//接下段代码</span></div></pre></td></tr></table></figure>
-<p>通过找到的 _LINKEDIT 段和传入的参数 slide 来计算 base 地址。也就是这个 Mach-O 文件在 ASLR 偏移后的首地址。个人觉得这里不一定要用  _LINKEDIT 段，其他段也是一样的。 base = vmaddr - fileoffset + slide。</p>
+<p>通过找到的 _LINKEDIT 段和传入的参数 slide 来计算 base 地址。也就是这个 Mach-O 文件在 ASLR 偏移后的首地址（因为这里用到的这些表都是属于 _LINKEDIT 段的）。 base = vmaddr - fileoffset + slide。</p>
 <p>然后 base + symtab 段的 Symbol Table Offset（该表在文件中的偏移） = symtab 的首地址（该表在内存中的偏移），base + symtab 段的 String Table Offset = strtab 的首地址。base + DYSYTAB 段的 IndSym Table Offset = 动态符号表的首地址。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//接上段代码</span></div><div class="line">cur = (<span class="keyword">uintptr_t</span>)header + <span class="keyword">sizeof</span>(<span class="keyword">mach_header_t</span>);</div><div class="line">  <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; header-&gt;ncmds; i++, cur += cur_seg_cmd-&gt;cmdsize) &#123;</div><div class="line">    cur_seg_cmd = (<span class="keyword">segment_command_t</span> *)cur;</div><div class="line">    <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SEGMENT_ARCH_DEPENDENT) &#123;</div><div class="line">      <span class="keyword">if</span> (<span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_DATA) != <span class="number">0</span> &amp;&amp;</div><div class="line">          <span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_DATA_CONST) != <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">continue</span>;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">for</span> (uint j = <span class="number">0</span>; j &lt; cur_seg_cmd-&gt;nsects; j++) &#123;</div><div class="line">        <span class="keyword">section_t</span> *sect =</div><div class="line">          (<span class="keyword">section_t</span> *)(cur + <span class="keyword">sizeof</span>(<span class="keyword">segment_command_t</span>)) + j;</div><div class="line">        <span class="keyword">if</span> ((sect-&gt;flags &amp; SECTION_TYPE) == S_LAZY_SYMBOL_POINTERS) &#123;</div><div class="line">          perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> ((sect-&gt;flags &amp; SECTION_TYPE) == S_NON_LAZY_SYMBOL_POINTERS) &#123;</div><div class="line">          perform_rebinding_with_section(rebindings, sect, slide, symtab, strtab, indirect_symtab);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这是一个嵌套循环，外层循环依旧是遍历 Load Commands，内循环则是遍历 LC_SEGMENT_64(_DATA) 段内的 Section Header，通过 Section-&gt;flags &amp; SECTION_TYPE 来寻找 _nl_symbol_ptr 和 _la_symbol_ptr。找到后调用 perform_rebinding_with_section 函数。</p>
@@ -528,7 +528,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -545,7 +545,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

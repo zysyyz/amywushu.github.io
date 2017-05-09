@@ -108,7 +108,7 @@ retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
 dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
-<meta property="og:updated_time" content="2017-03-23T08:06:07.251Z">
+<meta property="og:updated_time" content="2017-03-30T14:18:37.567Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARC 是如何进行内存管理的">
 <meta name="twitter:description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
@@ -490,8 +490,11 @@ __Block_byref_val_0 val = {
 <h3 id="循环引用"><a href="#循环引用" class="headerlink" title="循环引用"></a>循环引用</h3><p>既然 Block 也会持有对象，那么就很容易出现不易发现的循环引用问题了。如下：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//开启 ARC</span></div><div class="line">- (<span class="keyword">void</span>)loadView </div><div class="line">&#123; </div><div class="line"></div><div class="line"> [<span class="keyword">super</span> loadView]; </div><div class="line"></div><div class="line"> _observer = [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"testKey"</span> </div><div class="line"> object:<span class="literal">nil</span> </div><div class="line"> queue:<span class="literal">nil</span> </div><div class="line"> usingBlock:^(<span class="built_in">NSNotification</span> *note) &#123; </div><div class="line"> [<span class="keyword">self</span> dismissModalViewControllerAnimated:<span class="literal">YES</span>]; </div><div class="line"> &#125;]; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>正如之前所提到的 Blcok 被复制到堆上的情况，<code>在使用方法名中含有 usingBlock 的 Cocoa 框架方法</code>时会被自动 copy 到堆上，从而对捕获到的 <code>__strong 变量</code> 执行 retain 操作，Block 持有该变量。</p>
-<p>&emsp;&emsp;在本例中，self 的成员变量 _observer 会 <code>copy 一份 Block</code>，从而持有 Block，而 Block 中用到了默认为 <code>__strong 修饰符的 self变量</code> ，从而持有 self，self 类本身又持有 <code>成员变量 _observer</code>，从而导致循环引用，使得谁都无法被最终释放，导致内存泄漏。</p>
+<p>&emsp;&emsp;在本例中，<strong>self 的成员变量 _observer</strong> 会 <code>copy 一份 Block</code>，从而持有 Block，而 Block 中用到了默认为 <code>__strong 修饰符的 self变量</code> ，从而持有 self，self 类本身又持有 <code>成员变量 _observer</code>，从而导致循环引用，使得谁都无法被最终释放，导致内存泄漏。</p>
 <p>所以，要打破这种循环引用，需要使得 [block copy] 时不会 retain 捕获到的 self 变量。</p>
+<blockquote>
+<p>注意：函数的闭包和 block 如果没有引用任何实例或类变量，其本身也不会造成循环引用，另外在 GCD 中，一般不会造成循环引用。这个例子之所以会造成循环引用，是因为 _observer 是 self 的成员变量。</p>
+</blockquote>
 <h4 id="方法一：-在-ARC-中使用不持有对象的-weak-或-unsafe-unretain-修饰符"><a href="#方法一：-在-ARC-中使用不持有对象的-weak-或-unsafe-unretain-修饰符" class="headerlink" title="方法一： 在 ARC 中使用不持有对象的 __weak 或 __unsafe_unretain 修饰符"></a>方法一： 在 ARC 中使用不持有对象的 <code>__weak</code> 或 <code>__unsafe_unretain</code> 修饰符</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//开启 ARC</span></div><div class="line">- (<span class="keyword">void</span>)loadView </div><div class="line">&#123; </div><div class="line"> [<span class="keyword">super</span> loadView];</div><div class="line"> </div><div class="line"> __<span class="keyword">weak</span> TestViewController *wself = <span class="keyword">self</span>; </div><div class="line"></div><div class="line"> _observer = [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserverForName:<span class="string">@"testKey"</span> </div><div class="line"> object:<span class="literal">nil</span> </div><div class="line"> queue:<span class="literal">nil</span> </div><div class="line"> usingBlock:^(<span class="built_in">NSNotification</span> *note) &#123; </div><div class="line"></div><div class="line"> __<span class="keyword">strong</span> TestViewController *sself = wself;</div><div class="line"> </div><div class="line"> [sself dismissModalViewControllerAnimated:<span class="literal">YES</span>]; </div><div class="line"> &#125;]; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>&emsp;&emsp;对于拥有 __weak 修饰符的 wself 变量，Block 复制时，不会对该变量指向的对象进行 retain，从而不持有该对象，对该对象的引用计数无影响。在 Block 内部又通过 __strong 修饰符的 sself 变量来持有对象，是为了避免在 Block 执行过程中，该对象被其他地方释放，从而造成访问错误。这实际上是一种延迟 self 的 retain 操作，使得它不在 Block 被 copy 的时候 retain，而是在执行的时候 retain。</p>
 <p>&emsp;&emsp;因为如果在最初 copy 的时候 retain，那么只有等 Block 被废弃时，该变量才会被废弃，从而释放对对象 X 的持有权。但是由于循环引用，该变量始终直接或间接的持有 block 对象，所以 Block 永远不会被废弃，进而也不会释放对象 X 的持有权，从而造成这两块内存永远不会被回收，即内存泄漏。</p>
@@ -617,7 +620,7 @@ __Block_byref_val_0 val = {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -634,7 +637,7 @@ __Block_byref_val_0 val = {
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">18</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

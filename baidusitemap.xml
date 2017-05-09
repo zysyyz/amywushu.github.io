@@ -4,19 +4,63 @@
 
     
   <url>
-    <loc>https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html</loc>
-    <lastmod>2017-03-28T08:34:30.493Z</lastmod>
+    <loc>https://amywushu.github.io/2017/05/09/%E8%AF%91-Handling-low-memory-conditions-in-iOS-and-Mavericks.html</loc>
+    <lastmod>2017-05-09T13:37:52.422Z</lastmod>
     <data>
         <display>
-        <title>Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx</title>
-        <pubTime>2017-03-22T16:00:00.000Z</pubTime>
+        <title>（译）Handling low memory conditions in iOS and Mavericks</title>
+        <pubTime>2017-05-08T16:00:00.000Z</pubTime>
         
-        <tag>hook</tag>
+        <tag>Jetsam</tag>
+         
+        <tag>Memory</tag>
          
          
            
              
-              <breadCrumb title="逆向知识" url="https://amywushu.github.io/categories/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86/"/>
+              <breadCrumb title="翻译" url="https://amywushu.github.io/categories/%E7%BF%BB%E8%AF%91/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html</loc>
+    <lastmod>2017-05-09T13:34:55.030Z</lastmod>
+    <data>
+        <display>
+        <title>解读 Mach-O 文件格式</title>
+        <pubTime>2017-02-20T16:00:00.000Z</pubTime>
+        
+        <tag>Mach-O</tag>
+         
+         
+           
+             
+              <breadCrumb title="基础知识" url="https://amywushu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>https://amywushu.github.io/2017/02/27/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-fishhook-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.html</loc>
+    <lastmod>2017-05-04T07:49:02.689Z</lastmod>
+    <data>
+        <display>
+        <title>Hook 原理之 fishhook 源码解析</title>
+        <pubTime>2017-02-26T16:00:00.000Z</pubTime>
+        
+        <tag>hook</tag>
+         
+        <tag>fishhook</tag>
+         
+         
+           
+             
+              <breadCrumb title="源码学习" url="https://amywushu.github.io/categories/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"/>
           
         </display>
     </data>
@@ -25,7 +69,7 @@
     
   <url>
     <loc>https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html</loc>
-    <lastmod>2017-03-23T08:06:07.251Z</lastmod>
+    <lastmod>2017-03-30T14:18:37.567Z</lastmod>
     <data>
         <display>
         <title>ARC 是如何进行内存管理的</title>
@@ -46,21 +90,19 @@
 
     
   <url>
-    <loc>https://amywushu.github.io/2017/02/27/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-fishhook-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.html</loc>
-    <lastmod>2017-03-23T07:56:00.626Z</lastmod>
+    <loc>https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html</loc>
+    <lastmod>2017-03-28T08:34:30.493Z</lastmod>
     <data>
         <display>
-        <title>Hook 原理之 fishhook 源码解析</title>
-        <pubTime>2017-02-26T16:00:00.000Z</pubTime>
+        <title>Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx</title>
+        <pubTime>2017-03-22T16:00:00.000Z</pubTime>
         
         <tag>hook</tag>
-         
-        <tag>fishhook</tag>
          
          
            
              
-              <breadCrumb title="源码学习" url="https://amywushu.github.io/categories/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"/>
+              <breadCrumb title="逆向知识" url="https://amywushu.github.io/categories/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86/"/>
           
         </display>
     </data>
@@ -251,26 +293,6 @@
            
              
               <breadCrumb title="逆向知识" url="https://amywushu.github.io/categories/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html</loc>
-    <lastmod>2017-03-08T13:51:42.350Z</lastmod>
-    <data>
-        <display>
-        <title>解读 Mach-O 文件格式</title>
-        <pubTime>2017-02-20T16:00:00.000Z</pubTime>
-        
-        <tag>Mach-O</tag>
-         
-         
-           
-             
-              <breadCrumb title="基础知识" url="https://amywushu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
           
         </display>
     </data>

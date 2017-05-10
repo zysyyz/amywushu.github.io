@@ -458,7 +458,9 @@
 
       
         
-          <h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
+          <blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》</p>
+</blockquote>
+<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>在上一篇博文“<a href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html">Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx</a>”中，我分析了 MSHookMessageEx 以前的老代码，也就是 iOS5 版本。那么在这一篇文中，我将通过逆向来分析新版的 MSHookMessageEx。</p>
 <p>两个版本的大部分代码和流程都差不多，主要区别在于，当 hook 的方法不是本类方法的时候，老版本的代码是通过嵌入机器码来获取 IMP，新版本是通过构建 trampoline（蹦床）页来获取 IMP。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html" rel="contents">
@@ -813,9 +815,7 @@
 
       
         
-          <blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》</p>
-</blockquote>
-<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。</p>
+          <h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。</p>
 <p>懒加载（lazy load），又叫做延迟加载。在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
 <p>在 Mach-O 中，相对应的就是 _nl_symbol_ptr（非懒加载符号表）和 _la_symbol_ptr（懒加载符号表）。这两个指针表，保存着与字符串表对应的函数指针。</p>
 <p>Dynamic Symbol Table(Indirect Symbols): 动态符号表是加载动态库时导出的函数表，是符号表的 subset。动态符号表的符号 = 该符号在<strong>原所属表指针</strong>中的偏移量（offset）+ 原所属表在<strong>动态符号表</strong>中的偏移量 + 动态符号表的<strong>基地址</strong>（base）。在动态表中查找到的这个符号的值又等于该符号在 symtab 中的 offset。</p>

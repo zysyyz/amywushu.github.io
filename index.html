@@ -396,6 +396,122 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/12/基础知识-Objective-C-中的类结构.html" itemprop="url">
+                  Objective-C 中的类结构
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-12T00:00:00+08:00" content="2017-04-12">
+              2017-04-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/基础知识/" itemprop="url" rel="index">
+                    <span itemprop="name">基础知识</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>我们已知，OC 中的类也是对象，且对象和类实际上是以结构体的形式存在的（可通过 clang 转换）。在 OC 运行时可以修改对象的方法和属性。那么，这些结论背后的机理是什么呢？</p>
+<p>在这篇文章中，我将从类的内存布局以及内存结构方面入手，通过调试 objc runtime 的源代码来厘清上述问题（源代码版本为 objc4-706）。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/04/12/基础知识-Objective-C-中的类结构.html" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html" itemprop="url">
                   Hook 原理之 CydiaSubstrate（二）：MSHookMessageEx
                 </a>
@@ -1327,127 +1443,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" itemprop="url">
-                  copy 与 mutableCopy（传说中的深浅拷贝）
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-20T00:00:00+08:00" content="2016-10-20">
-              2016-10-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/OC语法/" itemprop="url" rel="index">
-                    <span itemprop="name">OC语法</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>对象拷贝有两种方式：浅拷贝和深拷贝。</p>
-<p>浅拷贝(shallow copy)，并不拷贝对象本身，<strong>仅仅是拷贝指向对象的指针</strong>。<br>如果 <code>B = [A 浅拷贝]</code>，则 A、B 两个对象中都保存的同一个指针，如果 A 通过这个指针改变了指针指向的对象，那么 B 指针指向的对象也就随之改变了；</p>
-<p>深拷贝是直接<strong>拷贝整个对象到另一块内存中</strong>，开辟新的地址来存储，两个对象至此一别，再无关联。</p>
-<blockquote>
-<p>对于集合对象（如 NSSArray、NSDictionary 等）而言，又有<strong>单层深拷贝</strong>与<strong>完全拷贝</strong>之分。</p>
-<p>单层深拷贝(one-level-deep copy)：指的是对于被拷贝对象，至少有一层是深拷贝。<br>完全拷贝(real-deep copy)：指的是对于被拷贝对象的每一层都是对象拷贝。</p>
-</blockquote>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1493,7 +1488,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-count">16</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1510,7 +1505,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

@@ -113,7 +113,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/cache.png">
-<meta property="og:updated_time" content="2017-03-13T09:04:35.565Z">
+<meta property="og:updated_time" content="2017-08-03T07:48:23.110Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过汇编解读 objc_msgSend">
 <meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
@@ -402,7 +402,11 @@
 <td style="text-align:center">0 表示普通的 isa 指针，1 表示使用优化，存储引用计数</td>
 </tr>
 <tr>
-<td>has_assoc (1、2位)</td>
+<td>has_assoc (1位)</td>
+<td style="text-align:center">表示该对象是否有关联引用，如果没有，则析构时更快</td>
+</tr>
+<tr>
+<td>has_cxx_dtor (2位)</td>
 <td style="text-align:center">表示该对象是否有 C++ 或 ARC 的析构函数，如果没有，则析构时更快</td>
 </tr>
 <tr>
@@ -442,7 +446,7 @@
 <ul>
 <li><p>先讨论没有搜索完的情况，<br><code>loc_1800B9C00  LDP  X16,X17,[X12,#-0X10]</code>,  <code>B  loc_1800B9BE0</code>： bucket 元素减16字节，即跳到前一个 bucket 元素，同样将 sel 和 imp 指针赋值，然后跳回与 _cmd 比较的那条指令循环。</p>
 </li>
-<li><p>直到搜索完毕，<br><code>ADD  X12,X12,W11,UXTW #4</code>： x12 = buckets+(mask&lt;&lt;4)，扩大搜索范围，在缓存内全面搜索。（进行到这一步，说明 bucket [(_cmd&amp;mask)&lt;&lt;4] 元素之前的 bucket 已全部被占满，且均不是我没要找的方法）<br><code>LDP  X16,X17,[X12]</code>： 跟之前的命令意思一样。</p>
+<li><p>直到搜索完毕，<br><code>ADD  X12,X12,W11,UXTW #4</code>： x12 = buckets+(mask&lt;&lt;4)，扩大搜索范围，在缓存内全面搜索。（进行到这一步，说明 bucket [(_cmd&amp;mask)&lt;&lt;4] 元素之前的 bucket 已全部被占满，且均不是我们要找的方法）<br><code>LDP  X16,X17,[X12]</code>： 跟之前的命令意思一样。</p>
 </li>
 </ul>
 <p><img src="/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend6.png" alt=""></p>
@@ -586,7 +590,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-count">16</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -603,7 +607,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

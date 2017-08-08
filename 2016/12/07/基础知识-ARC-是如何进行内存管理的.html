@@ -108,7 +108,7 @@ retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
 dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
-<meta property="og:updated_time" content="2017-03-30T14:18:37.567Z">
+<meta property="og:updated_time" content="2017-08-05T04:19:01.809Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARC 是如何进行内存管理的">
 <meta name="twitter:description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
@@ -508,11 +508,43 @@ __Block_byref_val_0 val = {
 <p>以上即是 ARC 与非 ARC 的内存管理区别，以及 ARC 是如何将手动管理转换为自动管理的。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 《Objective-C 高级编程 - iOS 与 OS X 多线程和内存管理》<br>[2] 《Effective Objective-C 2.0》<br>[3]&ensp;Objective-C中block实现和技巧学习　<a href="http://www.tuicool.com/articles/aQFV7bv" target="_blank" rel="external">http://www.tuicool.com/articles/aQFV7bv</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 
       
     </div>
+	<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2016/12/07/基础知识-ARC-是如何进行内存管理的.html">ARC 是如何进行内存管理的</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Amywushu 的个人博客">Amywushu</a></p>
+  <p><span>原始链接:</span><a href="/2016/12/07/基础知识-ARC-是如何进行内存管理的.html" title="ARC 是如何进行内存管理的">https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+	clipboard.on('success', $(function(){
+	  $(".fa-clipboard").click(function(){
+		swal({   
+		  title: "",   
+		  text: '复制成功',   
+		  html: false,
+		  timer: 500,   
+		  showConfirmButton: false
+	    });
+	  });
+    }));  
+</script>
 
+      
+	</div>
     <div>
       
         

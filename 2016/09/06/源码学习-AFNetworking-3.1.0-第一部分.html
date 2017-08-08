@@ -98,7 +98,7 @@
 <meta property="og:url" content="https://amywushu.github.io/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html">
 <meta property="og:site_name" content="Amywushu">
 <meta property="og:description" content="写在前面我主要根据作者polobymulberry的博客AFNetworking源码阅读系列来学习，因为我有很多知识不懂，所以有些地方可能会记录得过于繁琐。原作者的大体流程和记录不变，某些知识点会有自己的补充。在此非常感谢博客作者polobymulberry的分享。">
-<meta property="og:updated_time" content="2017-03-23T07:05:28.483Z">
+<meta property="og:updated_time" content="2017-08-05T04:17:33.360Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AFNetworking 3.1.0 第一部分">
 <meta name="twitter:description" content="写在前面我主要根据作者polobymulberry的博客AFNetworking源码阅读系列来学习，因为我有很多知识不懂，所以有些地方可能会记录得过于繁琐。原作者的大体流程和记录不变，某些知识点会有自己的补充。在此非常感谢博客作者polobymulberry的分享。">
@@ -424,11 +424,43 @@
 <p>(返回值 (^)(参数))block名称</p>
 </blockquote>
 <p>也就是说在block作为函数参数传递时，定义block的这个A函数(<code>globalTimelinePostsWithBlock:</code>)并没有block函数体，而是调用A函数(<code>[Post globalTimelinePostsWithBlock:]</code>)在传参数时定义block的具体执行内容。</p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 
       
     </div>
+	<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html">AFNetworking 3.1.0 第一部分</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Amywushu 的个人博客">Amywushu</a></p>
+  <p><span>原始链接:</span><a href="/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html" title="AFNetworking 3.1.0 第一部分">https://amywushu.github.io/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://amywushu.github.io/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+	clipboard.on('success', $(function(){
+	  $(".fa-clipboard").click(function(){
+		swal({   
+		  title: "",   
+		  text: '复制成功',   
+		  html: false,
+		  timer: 500,   
+		  showConfirmButton: false
+	    });
+	  });
+    }));  
+</script>
 
+      
+	</div>
     <div>
       
         

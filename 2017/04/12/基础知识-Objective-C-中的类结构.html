@@ -116,7 +116,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-04-12-基础知识-Objective-C-中的类结构/图14.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-04-12-基础知识-Objective-C-中的类结构/图15.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-04-12-基础知识-Objective-C-中的类结构/图16.png">
-<meta property="og:updated_time" content="2017-08-05T03:34:17.622Z">
+<meta property="og:updated_time" content="2017-08-05T04:20:41.010Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Objective-C 中的类结构">
 <meta name="twitter:description" content="引子我们已知，OC 中的类也是对象，且对象和类实际上是以结构体的形式存在的（可通过 clang 转换）。在 OC 运行时可以修改对象的方法和属性。那么，这些结论背后的机理是什么呢？
@@ -364,7 +364,7 @@
 <p>在这篇文章中，我将从类的内存布局以及内存结构方面入手，通过调试 objc runtime 的源代码来厘清上述问题（源代码版本为 objc4-706）。</p>
 <a id="more"></a>
 <h2 id="isa-t-结构体"><a href="#isa-t-结构体" class="headerlink" title="isa_t 结构体"></a>isa_t 结构体</h2><p>首先来认识一下 isa 指针，isa 的意思是 it is a object，这是一个对象。对象是由 objc_object 结构体定义的，类是由 objc_calss 结构体定义的，我们可以在 runtime 源码中查看它们的定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> objc_object &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">isa_t</span> isa;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</div><div class="line">    <span class="comment">// Class ISA;</span></div><div class="line">    Class superclass;　　　　<span class="comment">// 父类</span></div><div class="line">    <span class="keyword">cache_t</span> cache;		　　<span class="comment">// formerly cache pointer and vtable</span></div><div class="line">    <span class="keyword">class_data_bits_t</span> bits; <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> objc_object &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">isa_t</span> isa;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</div><div class="line">    <span class="comment">// Class ISA;</span></div><div class="line">    Class superclass;　　　　<span class="comment">// 父类</span></div><div class="line">    <span class="keyword">cache_t</span> cache;　　　　　　<span class="comment">// formerly cache pointer and vtable</span></div><div class="line">    <span class="keyword">class_data_bits_t</span> bits; <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="isa-定义"><a href="#isa-定义" class="headerlink" title="isa 定义"></a>isa 定义</h3><p>我们可以看到，对象的结构体中其实就只包含了一个 isa_t 联合类型的成员，类的结构体继承于对象的结构体，因此类的结构体的第一个成员也是 isa_t 联合类型，从这一点来讲，类也是对象。</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">union isa_t </div><div class="line">&#123;</div><div class="line">    isa_t() &#123; &#125;</div><div class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</div><div class="line"></div><div class="line">    Class cls;</div><div class="line">    uintptr_t bits;</div><div class="line"></div><div class="line">#if SUPPORT_PACKED_ISA</div><div class="line"></div><div class="line">    // extra_rc must be the MSB-most field (so it matches carry/overflow flags)</div><div class="line">    // nonpointer must be the LSB (fixme or get rid of it)</div><div class="line">    // shiftcls must occupy the same bits that a real class pointer would</div><div class="line">    // bits + RC_ONE is equivalent to extra_rc + 1</div><div class="line">    // RC_HALF is the high bit of extra_rc (i.e. half of its range)</div><div class="line"></div><div class="line">    // future expansion:</div><div class="line">    // uintptr_t fast_rr : 1;     // no r/r overrides</div><div class="line">    // uintptr_t lock : 2;        // lock for atomic property, @synch</div><div class="line">    // uintptr_t extraBytes : 1;  // allocated with extra bytes</div><div class="line"></div><div class="line"># if __arm64__</div><div class="line">#   define ISA_MASK        0x0000000ffffffff8ULL</div><div class="line">#   define ISA_MAGIC_MASK  0x000003f000000001ULL</div><div class="line">#   define ISA_MAGIC_VALUE 0x000001a000000001ULL</div><div class="line">    struct &#123;</div><div class="line">        uintptr_t nonpointer        : 1;</div><div class="line">        uintptr_t has_assoc         : 1;</div><div class="line">        uintptr_t has_cxx_dtor      : 1;</div><div class="line">        uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000</div><div class="line">        uintptr_t magic             : 6;</div><div class="line">        uintptr_t weakly_referenced : 1;</div><div class="line">        uintptr_t deallocating      : 1;</div><div class="line">        uintptr_t has_sidetable_rc  : 1;</div><div class="line">        uintptr_t extra_rc          : 19;</div><div class="line">#       define RC_ONE   (1ULL&lt;&lt;45)</div><div class="line">#       define RC_HALF  (1ULL&lt;&lt;18)</div><div class="line">    &#125;;</div><div class="line"></div><div class="line"># elif __x86_64__</div><div class="line">#   define ISA_MASK        0x00007ffffffffff8ULL</div><div class="line">#   define ISA_MAGIC_MASK  0x001f800000000001ULL</div><div class="line">#   define ISA_MAGIC_VALUE 0x001d800000000001ULL</div><div class="line">    struct &#123;</div><div class="line">        uintptr_t nonpointer        : 1;</div><div class="line">        uintptr_t has_assoc         : 1;</div><div class="line">        uintptr_t has_cxx_dtor      : 1;</div><div class="line">        uintptr_t shiftcls          : 44; // MACH_VM_MAX_ADDRESS 0x7fffffe00000</div><div class="line">        uintptr_t magic             : 6;</div><div class="line">        uintptr_t weakly_referenced : 1;</div><div class="line">        uintptr_t deallocating      : 1;</div><div class="line">        uintptr_t has_sidetable_rc  : 1;</div><div class="line">        uintptr_t extra_rc          : 8;</div><div class="line">#       define RC_ONE   (1ULL&lt;&lt;56)</div><div class="line">#       define RC_HALF  (1ULL&lt;&lt;7)</div><div class="line">    &#125;;</div><div class="line"> ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>关于联合类型，联合表示几个变量公用一个内存位置，在不同的时间保存不同的变量。当一个联合被说明时，编译程序自动地产生一个变量，其长度为联合中最大的变量长度。也就是说没，在任何同一时刻，联合只存放了一个被选中的成员。在 isa_t 联合结构中，共有三个成员，cls，bits，以及结构体变量。</p>
@@ -446,11 +446,43 @@
 <p>所以，<strong>动态添加的方法只修该 rw 中 methods 的内存布局</strong>，对编译期间就确定的 ro 中的 baseMethodList 没有影响。 <strong>ro 的结构是在编译期确定的，在运行期间不可更改</strong>。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 深入解析 ObjC 中方法的结构　<a href="http://draveness.me/method-struct.html" target="_blank" rel="external">http://draveness.me/method-struct.html</a><br>[2] 从 NSObject 的初始化了解 isa　<a href="http://draveness.me/isa.html" target="_blank" rel="external">http://draveness.me/isa.html</a><br>[3] 用 isa 承载对象的类信息　<a href="http://www.desgard.com/isa/" target="_blank" rel="external">http://www.desgard.com/isa/</a><br>[4] 我们的对象会经历什么　<a href="http://www.jianshu.com/p/ff8a7c458c96" target="_blank" rel="external">http://www.jianshu.com/p/ff8a7c458c96</a>     </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 
       
     </div>
+	<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/04/12/基础知识-Objective-C-中的类结构.html">Objective-C 中的类结构</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Amywushu 的个人博客">Amywushu</a></p>
+  <p><span>原始链接:</span><a href="/2017/04/12/基础知识-Objective-C-中的类结构.html" title="Objective-C 中的类结构">https://amywushu.github.io/2017/04/12/基础知识-Objective-C-中的类结构.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://amywushu.github.io/2017/04/12/基础知识-Objective-C-中的类结构.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+	clipboard.on('success', $(function(){
+	  $(".fa-clipboard").click(function(){
+		swal({   
+		  title: "",   
+		  text: '复制成功',   
+		  html: false,
+		  timer: 500,   
+		  showConfirmButton: false
+	    });
+	  });
+    }));  
+</script>
 
+      
+	</div>
     <div>
       
         

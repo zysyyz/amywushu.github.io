@@ -113,7 +113,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend7.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/objc_msgSend8.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-11-09-逆向知识-通过汇编解读-objc_msgSend/cache.png">
-<meta property="og:updated_time" content="2017-08-03T07:48:23.110Z">
+<meta property="og:updated_time" content="2017-08-05T04:18:51.194Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过汇编解读 objc_msgSend">
 <meta name="twitter:description" content="想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详
@@ -478,11 +478,43 @@
 <p>对于 objc_msgSend 反汇编的分析就结束啦！如果是在动态调试过程中，遇到 objc_msgSend 想要进入被调用的方法的话，有 cache，则直接 si 进入 br X17，如果没有 cache，则在 _objc_msgSend_uncached_impcache 函数中最后几行中的 br X17 指令输入 si 即可进入被调用方法。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ObjC Runtime（五）：消息传递机制　<a href="https://xiuchundao.me/post/runtime-messaging" target="_blank" rel="external">https://xiuchundao.me/post/runtime-messaging</a><br>[2] 从源代码看 ObjC 中消息的发送　<a href="http://draveness.me/message/" target="_blank" rel="external">http://draveness.me/message/</a><br>[3] objc_msgSend内部到底做了什么？　<a href="http://oriochan.com/14710029019312.html" target="_blank" rel="external">http://oriochan.com/14710029019312.html</a><br>[4] 用 isa 承载对象的类信息　<a href="http://www.desgard.com/isa/" target="_blank" rel="external">http://www.desgard.com/isa/</a><br>[5] 深入解析 ObjC 中方法的结构<br><a href="https://github.com/Draveness/iOS-Source-Code-Analyze/blob/master/contents/objc/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90%20ObjC%20%E4%B8%AD%E6%96%B9%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%84.md" target="_blank" rel="external">https://github.com/Draveness/iOS-Source-Code-Analyze/blob/master/contents/objc/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90%20ObjC%20%E4%B8%AD%E6%96%B9%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%84.md</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 
       
     </div>
+	<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html">通过汇编解读 objc_msgSend</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Amywushu 的个人博客">Amywushu</a></p>
+  <p><span>原始链接:</span><a href="/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html" title="通过汇编解读 objc_msgSend">https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+	clipboard.on('success', $(function(){
+	  $(".fa-clipboard").click(function(){
+		swal({   
+		  title: "",   
+		  text: '复制成功',   
+		  html: false,
+		  timer: 500,   
+		  showConfirmButton: false
+	    });
+	  });
+    }));  
+</script>
 
+      
+	</div>
     <div>
       
         

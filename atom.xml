@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://amywushu.github.io/"/>
-  <updated>2017-05-10T02:57:38.691Z</updated>
+  <updated>2017-08-05T04:16:03.497Z</updated>
   <id>https://amywushu.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://amywushu.github.io/2017/05/09/%E8%AF%91-Handling-low-memory-conditions-in-iOS-and-Mavericks.html"/>
     <id>https://amywushu.github.io/2017/05/09/译-Handling-low-memory-conditions-in-iOS-and-Mavericks.html</id>
     <published>2017-05-08T16:00:00.000Z</published>
-    <updated>2017-05-10T02:57:38.691Z</updated>
+    <updated>2017-08-05T04:16:03.497Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>翻译自 Jonathan Levin’s site  &emsp; 原文链接：<a href="http://newosxbook.com/articles/MemoryPressure.html" target="_blank" rel="external">http://newosxbook.com/articles/MemoryPressure.html</a></p>
@@ -275,13 +275,13 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
     <link href="https://amywushu.github.io/2017/04/12/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Objective-C-%E4%B8%AD%E7%9A%84%E7%B1%BB%E7%BB%93%E6%9E%84.html"/>
     <id>https://amywushu.github.io/2017/04/12/基础知识-Objective-C-中的类结构.html</id>
     <published>2017-04-11T16:00:00.000Z</published>
-    <updated>2017-08-05T03:34:17.622Z</updated>
+    <updated>2017-08-05T04:20:41.010Z</updated>
     
     <content type="html"><![CDATA[<h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>我们已知，OC 中的类也是对象，且对象和类实际上是以结构体的形式存在的（可通过 clang 转换）。在 OC 运行时可以修改对象的方法和属性。那么，这些结论背后的机理是什么呢？</p>
 <p>在这篇文章中，我将从类的内存布局以及内存结构方面入手，通过调试 objc runtime 的源代码来厘清上述问题（源代码版本为 objc4-706）。</p>
 <a id="more"></a>
 <h2 id="isa-t-结构体"><a href="#isa-t-结构体" class="headerlink" title="isa_t 结构体"></a>isa_t 结构体</h2><p>首先来认识一下 isa 指针，isa 的意思是 it is a object，这是一个对象。对象是由 objc_object 结构体定义的，类是由 objc_calss 结构体定义的，我们可以在 runtime 源码中查看它们的定义：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> objc_object &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">isa_t</span> isa;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</div><div class="line">    <span class="comment">// Class ISA;</span></div><div class="line">    Class superclass;　　　　<span class="comment">// 父类</span></div><div class="line">    <span class="keyword">cache_t</span> cache;		　　<span class="comment">// formerly cache pointer and vtable</span></div><div class="line">    <span class="keyword">class_data_bits_t</span> bits; <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> objc_object &#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">    <span class="keyword">isa_t</span> isa;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">struct</span> objc_class : objc_object &#123;</div><div class="line">    <span class="comment">// Class ISA;</span></div><div class="line">    Class superclass;　　　　<span class="comment">// 父类</span></div><div class="line">    <span class="keyword">cache_t</span> cache;　　　　　　<span class="comment">// formerly cache pointer and vtable</span></div><div class="line">    <span class="keyword">class_data_bits_t</span> bits; <span class="comment">// class_rw_t * plus custom rr/alloc flags</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="isa-定义"><a href="#isa-定义" class="headerlink" title="isa 定义"></a>isa 定义</h3><p>我们可以看到，对象的结构体中其实就只包含了一个 isa_t 联合类型的成员，类的结构体继承于对象的结构体，因此类的结构体的第一个成员也是 isa_t 联合类型，从这一点来讲，类也是对象。</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line">union isa_t </div><div class="line">&#123;</div><div class="line">    isa_t() &#123; &#125;</div><div class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</div><div class="line"></div><div class="line">    Class cls;</div><div class="line">    uintptr_t bits;</div><div class="line"></div><div class="line">#if SUPPORT_PACKED_ISA</div><div class="line"></div><div class="line">    // extra_rc must be the MSB-most field (so it matches carry/overflow flags)</div><div class="line">    // nonpointer must be the LSB (fixme or get rid of it)</div><div class="line">    // shiftcls must occupy the same bits that a real class pointer would</div><div class="line">    // bits + RC_ONE is equivalent to extra_rc + 1</div><div class="line">    // RC_HALF is the high bit of extra_rc (i.e. half of its range)</div><div class="line"></div><div class="line">    // future expansion:</div><div class="line">    // uintptr_t fast_rr : 1;     // no r/r overrides</div><div class="line">    // uintptr_t lock : 2;        // lock for atomic property, @synch</div><div class="line">    // uintptr_t extraBytes : 1;  // allocated with extra bytes</div><div class="line"></div><div class="line"># if __arm64__</div><div class="line">#   define ISA_MASK        0x0000000ffffffff8ULL</div><div class="line">#   define ISA_MAGIC_MASK  0x000003f000000001ULL</div><div class="line">#   define ISA_MAGIC_VALUE 0x000001a000000001ULL</div><div class="line">    struct &#123;</div><div class="line">        uintptr_t nonpointer        : 1;</div><div class="line">        uintptr_t has_assoc         : 1;</div><div class="line">        uintptr_t has_cxx_dtor      : 1;</div><div class="line">        uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000</div><div class="line">        uintptr_t magic             : 6;</div><div class="line">        uintptr_t weakly_referenced : 1;</div><div class="line">        uintptr_t deallocating      : 1;</div><div class="line">        uintptr_t has_sidetable_rc  : 1;</div><div class="line">        uintptr_t extra_rc          : 19;</div><div class="line">#       define RC_ONE   (1ULL&lt;&lt;45)</div><div class="line">#       define RC_HALF  (1ULL&lt;&lt;18)</div><div class="line">    &#125;;</div><div class="line"></div><div class="line"># elif __x86_64__</div><div class="line">#   define ISA_MASK        0x00007ffffffffff8ULL</div><div class="line">#   define ISA_MAGIC_MASK  0x001f800000000001ULL</div><div class="line">#   define ISA_MAGIC_VALUE 0x001d800000000001ULL</div><div class="line">    struct &#123;</div><div class="line">        uintptr_t nonpointer        : 1;</div><div class="line">        uintptr_t has_assoc         : 1;</div><div class="line">        uintptr_t has_cxx_dtor      : 1;</div><div class="line">        uintptr_t shiftcls          : 44; // MACH_VM_MAX_ADDRESS 0x7fffffe00000</div><div class="line">        uintptr_t magic             : 6;</div><div class="line">        uintptr_t weakly_referenced : 1;</div><div class="line">        uintptr_t deallocating      : 1;</div><div class="line">        uintptr_t has_sidetable_rc  : 1;</div><div class="line">        uintptr_t extra_rc          : 8;</div><div class="line">#       define RC_ONE   (1ULL&lt;&lt;56)</div><div class="line">#       define RC_HALF  (1ULL&lt;&lt;7)</div><div class="line">    &#125;;</div><div class="line"> ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>关于联合类型，联合表示几个变量公用一个内存位置，在不同的时间保存不同的变量。当一个联合被说明时，编译程序自动地产生一个变量，其长度为联合中最大的变量长度。也就是说没，在任何同一时刻，联合只存放了一个被选中的成员。在 isa_t 联合结构中，共有三个成员，cls，bits，以及结构体变量。</p>
@@ -363,7 +363,6 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
 <p>所以，<strong>动态添加的方法只修该 rw 中 methods 的内存布局</strong>，对编译期间就确定的 ro 中的 baseMethodList 没有影响。 <strong>ro 的结构是在编译期确定的，在运行期间不可更改</strong>。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 深入解析 ObjC 中方法的结构　<a href="http://draveness.me/method-struct.html" target="_blank" rel="external">http://draveness.me/method-struct.html</a><br>[2] 从 NSObject 的初始化了解 isa　<a href="http://draveness.me/isa.html" target="_blank" rel="external">http://draveness.me/isa.html</a><br>[3] 用 isa 承载对象的类信息　<a href="http://www.desgard.com/isa/" target="_blank" rel="external">http://www.desgard.com/isa/</a><br>[4] 我们的对象会经历什么　<a href="http://www.jianshu.com/p/ff8a7c458c96" target="_blank" rel="external">http://www.jianshu.com/p/ff8a7c458c96</a>     </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -387,7 +386,7 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
     <link href="https://amywushu.github.io/2017/03/23/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/23/逆向知识-Hook-原理之-CydiaSubstrate（二）：MSHookMessageEx.html</id>
     <published>2017-03-22T16:00:00.000Z</published>
-    <updated>2017-05-10T03:14:01.229Z</updated>
+    <updated>2017-08-05T04:20:29.113Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>数以万计的人类同时发出各不相干的呻吟，有人晾晒爱有人直播死，有人挥洒热泪，有人披露奸情，你跟你的情人们相互拉黑，下一秒钟就在偷偷搜索他的名字，屏气凝神，像一个听壁脚的贼。那些从字里行间拧出来的体液、唾沫、眼泪……蒸腾而上，汇聚成文明史至今最大的一场蜃楼。　　——逃亡者的恰恰 《低俗小说》</p>
 </blockquote>
@@ -460,7 +459,6 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
 <p>补充：测试后发现，在64位 iOS 越狱系统上也是可以使用 mprotect 修改权限的，至于为什么要使用蹦床页面，我猜测是为了更好的兼容性以及后续扩展。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Implementing imp_implementationWithBlock()　<a href="http://landonf.org/2011/04/index.html" target="_blank" rel="external">http://landonf.org/2011/04/index.html</a><br>[2] pandamonia/libffi-iOS　<a href="https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios" target="_blank" rel="external">https://github.com/pandamonia/libffi-iOS/blob/master/patches/ios</a><br>[3] WilliamLCobb/iNDS　<a href="https://github.com/WilliamLCobb/iNDS/issues/44" target="_blank" rel="external">https://github.com/WilliamLCobb/iNDS/issues/44</a><br>[4] 谁偷了我的热更新？Mono，JIT，iOS    　<br><a href="http://www.cnblogs.com/murongxiaopifu/p/4278947.html" target="_blank" rel="external">http://www.cnblogs.com/murongxiaopifu/p/4278947.html</a>   </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -484,7 +482,7 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
     <link href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-03-23T07:03:30.738Z</updated>
+    <updated>2017-08-05T04:20:07.368Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
 <blockquote>
@@ -652,7 +650,6 @@ ldr    pc, [sp, #-0x18]
 </blockquote>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ARM机器码分析　<a href="http://www.mamicode.com/info-detail-893760.html" target="_blank" rel="external">http://www.mamicode.com/info-detail-893760.html</a><br>[2] 3.Arm机器码　<a href="http://www.cnblogs.com/FORFISH/p/4199600.html" target="_blank" rel="external">http://www.cnblogs.com/FORFISH/p/4199600.html</a><br>[3] C++标准转换运算符reinterpret_cast   　<br><a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank" rel="external">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>       </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -678,7 +675,7 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/03/01/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-Method-Swizzling.html"/>
     <id>https://amywushu.github.io/2017/03/01/基础知识-Hook-原理之-Method-Swizzling.html</id>
     <published>2017-02-28T16:00:00.000Z</published>
-    <updated>2017-03-23T07:49:48.340Z</updated>
+    <updated>2017-08-05T04:19:52.769Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>世间所有仇与怨的消弭，大抵一边靠忘，一边靠将心比心吧。　　——priest《杀破狼》</p>
 </blockquote>
@@ -770,7 +767,6 @@ ldr    pc, [sp, #-0x18]
 </table>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] iOS黑魔法－Method Swizzling　<a href="http://www.jianshu.com/p/ff19c04b34d0" target="_blank" rel="external">http://www.jianshu.com/p/ff19c04b34d0</a><br>[2] iOS runtime实战应用：Method Swizzling　<a href="http://www.jianshu.com/p/3efc3e94b14c" target="_blank" rel="external">http://www.jianshu.com/p/3efc3e94b14c</a><br>[3] 黑魔法 - Method Swizzling　<a href="http://nucleardev.com/Method-Swizzling/" target="_blank" rel="external">http://nucleardev.com/Method-Swizzling/</a><br>[4] Method Swizzling　<a href="http://nshipster.cn/method-swizzling/" target="_blank" rel="external">http://nshipster.cn/method-swizzling/</a>    </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -797,7 +793,7 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/02/27/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-fishhook-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90.html"/>
     <id>https://amywushu.github.io/2017/02/27/源码学习-Hook-原理之-fishhook-源码解析.html</id>
     <published>2017-02-26T16:00:00.000Z</published>
-    <updated>2017-05-10T03:14:23.033Z</updated>
+    <updated>2017-08-05T04:19:42.512Z</updated>
     
     <content type="html"><![CDATA[<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>各种表在 Mach-O 文件中，是位于 Section 数据之后的一些记录数据。下面介绍本文会用到的几个表。</p>
 <p>懒加载（lazy load），又叫做延迟加载。在实际需要使用该符号（或资源）的时候，该符号才会通过 dyld 中的 <code>dyld_stub_binder</code> 来进行加载。与之相对的是非懒加载（non-lazy load），这些符号在动态链接库绑定的时候，就会被加载。</p>
@@ -862,7 +858,6 @@ ldr    pc, [sp, #-0x18]
 </blockquote>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 动态修改 C 语言函数的实现　<a href="http://draveness.me/fishhook/" target="_blank" rel="external">http://draveness.me/fishhook/</a><br>[2] 趣探 Mach-O：FishHook 解析　<a href="http://www.open-open.com/lib/view/open1487057519754.html" target="_blank" rel="external">http://www.open-open.com/lib/view/open1487057519754.html</a><br>[3] 编译体系漫游　<a href="http://www.tuicool.com/articles/uI7Bria" target="_blank" rel="external">http://www.tuicool.com/articles/uI7Bria</a>    </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -889,7 +884,7 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html"/>
     <id>https://amywushu.github.io/2017/02/21/基础知识-解读-Mach-O-文件格式.html</id>
     <published>2017-02-20T16:00:00.000Z</published>
-    <updated>2017-05-09T13:34:55.030Z</updated>
+    <updated>2017-08-05T04:19:25.417Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>桃花坞里桃花庵，桃花庵里桃花仙。桃花仙人种桃树，又摘桃花换酒钱。酒醒只在花前坐，酒醉还来花下眠。半醉半醒日复日，花开花落年复年。但愿老死花酒间，不愿鞠躬车马前。　　——唐寅《桃花庵歌》</p>
 </blockquote>
@@ -982,7 +977,6 @@ ldr    pc, [sp, #-0x18]
 <p>LC_MAIN 加载命令中的 Entry Offset 字段 + 基地址（RVA 选项下的文件头部地址） = IDA 中左侧函数 _main 的地址。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] mach-o格式分析    　<br><a href="http://turingh.github.io/2016/03/07/mach-o%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%88%86%E6%9E%90/#" target="_blank" rel="external">http://turingh.github.io/2016/03/07/mach-o%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E5%88%86%E6%9E%90/#</a><br>[2] 趣探 Mach-O：文件格式分析　<a href="http://www.jianshu.com/p/54d842db3f69" target="_blank" rel="external">http://www.jianshu.com/p/54d842db3f69</a><br>[3] 网易云课堂《iOS逆向与安全》 </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1005,7 +999,7 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2016/12/16/%E8%AF%91-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html"/>
     <id>https://amywushu.github.io/2016/12/16/译-Analysis-and-exploitation-of-Pegasus-kernel-vulnerabilities-CVE-2016-4655-CVE-2016-4656.html</id>
     <published>2016-12-15T16:00:00.000Z</published>
-    <updated>2017-03-23T07:05:47.338Z</updated>
+    <updated>2017-08-05T04:19:13.193Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>翻译自 jndok’s blog  &emsp; 原文链接：<a href="http://jndok.github.io/2016/10/04/pegasus-writeup/" target="_blank" rel="external">http://jndok.github.io/2016/10/04/pegasus-writeup/</a></p>
@@ -1347,7 +1341,6 @@ kalloc.8192                 8192       3160K       3503K        395         437 
 <li><a href="http://stackoverflow.com/questions/12645647/what-happens-in-os-when-we-dereference-a-null-pointer-in-c" target="_blank" rel="external">What happens in OS when we dereference a NULL pointer in C?</a> –– StackOverflow</li>
 <li><a href="http://neilscomputerblog.blogspot.jp/2012/06/stack-pivoting.html" target="_blank" rel="external">Stack Pivoting</a> –– Neil Sikka</li>
 </ol>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1376,7 +1369,7 @@ kalloc.8192                 8192       3160K       3503K        395         437 
     <link href="https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html"/>
     <id>https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html</id>
     <published>2016-12-06T16:00:00.000Z</published>
-    <updated>2017-03-30T14:18:37.567Z</updated>
+    <updated>2017-08-05T04:19:01.809Z</updated>
     
     <content type="html"><![CDATA[<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
 <ul>
@@ -1531,7 +1524,6 @@ __Block_byref_val_0 val = {
 <p>以上即是 ARC 与非 ARC 的内存管理区别，以及 ARC 是如何将手动管理转换为自动管理的。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 《Objective-C 高级编程 - iOS 与 OS X 多线程和内存管理》<br>[2] 《Effective Objective-C 2.0》<br>[3]&ensp;Objective-C中block实现和技巧学习　<a href="http://www.tuicool.com/articles/aQFV7bv" target="_blank" rel="external">http://www.tuicool.com/articles/aQFV7bv</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1560,7 +1552,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/11/09/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E9%80%9A%E8%BF%87%E6%B1%87%E7%BC%96%E8%A7%A3%E8%AF%BB-objc_msgSend.html"/>
     <id>https://amywushu.github.io/2016/11/09/逆向知识-通过汇编解读-objc_msgSend.html</id>
     <published>2016-11-08T16:00:00.000Z</published>
-    <updated>2017-08-03T07:48:23.110Z</updated>
+    <updated>2017-08-05T04:18:51.194Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>想做一条瀑布，每一秒钟都可以跳楼。　　——出处不详</p>
 </blockquote>
@@ -1681,7 +1673,6 @@ __Block_byref_val_0 val = {
 <p>对于 objc_msgSend 反汇编的分析就结束啦！如果是在动态调试过程中，遇到 objc_msgSend 想要进入被调用的方法的话，有 cache，则直接 si 进入 br X17，如果没有 cache，则在 _objc_msgSend_uncached_impcache 函数中最后几行中的 br X17 指令输入 si 即可进入被调用方法。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] ObjC Runtime（五）：消息传递机制　<a href="https://xiuchundao.me/post/runtime-messaging" target="_blank" rel="external">https://xiuchundao.me/post/runtime-messaging</a><br>[2] 从源代码看 ObjC 中消息的发送　<a href="http://draveness.me/message/" target="_blank" rel="external">http://draveness.me/message/</a><br>[3] objc_msgSend内部到底做了什么？　<a href="http://oriochan.com/14710029019312.html" target="_blank" rel="external">http://oriochan.com/14710029019312.html</a><br>[4] 用 isa 承载对象的类信息　<a href="http://www.desgard.com/isa/" target="_blank" rel="external">http://www.desgard.com/isa/</a><br>[5] 深入解析 ObjC 中方法的结构<br><a href="https://github.com/Draveness/iOS-Source-Code-Analyze/blob/master/contents/objc/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90%20ObjC%20%E4%B8%AD%E6%96%B9%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%84.md" target="_blank" rel="external">https://github.com/Draveness/iOS-Source-Code-Analyze/blob/master/contents/objc/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90%20ObjC%20%E4%B8%AD%E6%96%B9%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%84.md</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1708,7 +1699,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/10/20/%E8%AF%AD%E6%B3%95-copy-%E4%B8%8E-mutableCopy%EF%BC%88%E4%BC%A0%E8%AF%B4%E4%B8%AD%E7%9A%84%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D%EF%BC%89.html"/>
     <id>https://amywushu.github.io/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html</id>
     <published>2016-10-19T16:00:00.000Z</published>
-    <updated>2017-03-23T07:04:50.515Z</updated>
+    <updated>2017-08-05T04:18:40.361Z</updated>
     
     <content type="html"><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>对象拷贝有两种方式：浅拷贝和深拷贝。</p>
 <p>浅拷贝(shallow copy)，并不拷贝对象本身，<strong>仅仅是拷贝指向对象的指针</strong>。<br>如果 <code>B = [A 浅拷贝]</code>，则 A、B 两个对象中都保存的同一个指针，如果 A 通过这个指针改变了指针指向的对象，那么 B 指针指向的对象也就随之改变了；</p>
@@ -1786,7 +1777,6 @@ __Block_byref_val_0 val = {
 <p>终于搞定这个了！</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] NSString：内存简述，Copy与Strong关键字　<a href="http://www.jianshu.com/p/0e98f37114e3" target="_blank" rel="external">http://www.jianshu.com/p/0e98f37114e3</a><br>[2] iOS 集合的深复制与浅复制　<a href="https://www.zybuluo.com/MicroCai/note/50592" target="_blank" rel="external">https://www.zybuluo.com/MicroCai/note/50592</a><br>[3] 深入理解Tagged Pointe　<a href="http://www.infoq.com/cn/articles/deep-understanding-of-tagged-pointer/" target="_blank" rel="external">http://www.infoq.com/cn/articles/deep-understanding-of-tagged-pointer/</a><br>[4] 【译】采用Tagged Pointer的字符串　<a href="http://www.cocoachina.com/ios/20150918/13449.html" target="_blank" rel="external">http://www.cocoachina.com/ios/20150918/13449.html</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1813,7 +1803,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/10/12/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-%E6%A0%88%C2%B7%E5%8F%82%E6%95%B0%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F.html"/>
     <id>https://amywushu.github.io/2016/10/12/逆向知识-栈·参数存储方式.html</id>
     <published>2016-10-11T16:00:00.000Z</published>
-    <updated>2017-03-23T07:05:21.826Z</updated>
+    <updated>2017-08-05T04:18:20.841Z</updated>
     
     <content type="html"><![CDATA[<h2 id="基础提要：栈结构"><a href="#基础提要：栈结构" class="headerlink" title="基础提要：栈结构"></a>基础提要：栈结构</h2><p>ARM内存中的栈区域是满递减的，由高地址向低地址增长，SP指针始终指向最后一个压入栈的地址，即栈顶地址。如图所示：</p>
 <p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图1.png" alt=""></p>
@@ -1873,7 +1863,6 @@ __Block_byref_val_0 val = {
 <p>打印一下：</p>
 <p><img src="/images/2016-10-12-逆向知识-栈·参数存储方式/图10.png" alt=""></p>
 <p>完全正确！<br>好了，现在关于内存栈的数据排列，你是不是有更清晰的图像印在脑海里了呢？</p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1897,7 +1886,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/09/21/%E7%BB%83%E4%B9%A0-C%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B%E9%A2%98-2016%E5%B9%B4360%E7%AC%94%E8%AF%95%E4%B9%A0%E9%A2%98%E4%B9%8B%E7%97%85%E6%AF%92.html"/>
     <id>https://amywushu.github.io/2016/09/21/练习-C语言编程题-2016年360笔试习题之病毒.html</id>
     <published>2016-09-20T16:00:00.000Z</published>
-    <updated>2017-03-23T07:04:21.835Z</updated>
+    <updated>2017-08-05T04:18:10.522Z</updated>
     
     <content type="html"><![CDATA[<h2 id="题目（编程题：病毒）"><a href="#题目（编程题：病毒）" class="headerlink" title="题目（编程题：病毒）"></a>题目（编程题：病毒）</h2><p>小B最近对破解和程序攻击产生了兴趣，她迷上了病毒，然后可怕的事情发生了。不知道什么原因，可能是小B的技术水平还不够高，小B编写的病毒程序在攻击一个服务器时出现了问题。尽管成功的入侵了服务器，但并没有按照期望的方式发挥作用。</p>
 <p>小B的目的很简单：控制服务器内存区域，试图在内存中装入从1到n之间的n个自然数，以覆盖内存区域。可能是小B对编程理解上的问题，病毒似乎没有完全成功。可能是由于保护机制的原因，内存写入只接受二进制的形式，所以十进制表达中除了0和1之外的其他值都没有成功写入内存。小B希望知道，究竟有多少数成功的写入了服务器的内存！</p>
@@ -1939,7 +1928,6 @@ __Block_byref_val_0 val = {
 <p>2、用结构体定义变量和函数时不要忘了结构体名（上面程序的<code>ret</code>）。</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] 【原】C语言函数返回数组的问题　<a href="http://www.cnblogs.com/wuqi1003/archive/2013/01/09/2853657.html" target="_blank" rel="external">http://www.cnblogs.com/wuqi1003/archive/2013/01/09/2853657.html</a><br>[2] C语言中字符串如何转换为二进制、八进制、十进制、十六进制　  　<a href="http://blog.csdn.net/edonlii/article/details/9162769" target="_blank" rel="external">http://blog.csdn.net/edonlii/article/details/9162769</a><br>[3] C语言之strcat函数　<a href="http://blog.csdn.net/hgj125073/article/details/8439448" target="_blank" rel="external">http://blog.csdn.net/hgj125073/article/details/8439448</a><br>[4] C语言strcmp()函数：比较字符串（区分大小写）　<a href="http://c.biancheng.net/cpp/html/162.html" target="_blank" rel="external">http://c.biancheng.net/cpp/html/162.html</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -1961,7 +1949,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/09/08/%E8%AF%AD%E6%B3%95-property-%E4%B8%AD%E7%9A%84%E5%B8%B8%E7%94%A8%E5%85%B3%E9%94%AE%E5%AD%97%E5%88%86%E6%9E%90.html"/>
     <id>https://amywushu.github.io/2016/09/08/语法-property-中的常用关键字分析.html</id>
     <published>2016-09-07T16:00:00.000Z</published>
-    <updated>2017-03-23T07:04:15.018Z</updated>
+    <updated>2017-08-05T04:18:01.121Z</updated>
     
     <content type="html"><![CDATA[<h2 id="栈与堆"><a href="#栈与堆" class="headerlink" title="栈与堆"></a>栈与堆</h2><p>首先，我们需要知道：为什么<strong>只有OC对象需要进行内存管理</strong>，而其它非对象类型（如基本数据类型）不需要我们来管理呢？</p>
 <blockquote>
@@ -2054,7 +2042,6 @@ __Block_byref_val_0 val = {
 <p>新增博文： <a href="https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html">ARC 是如何进行内存管理的</a></p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] Objective-C 内存管理——你需要知道的一切　<a href="https://segmentfault.com/a/1190000004943276" target="_blank" rel="external">https://segmentfault.com/a/1190000004943276</a><br>[2] @property属性关键字详解　<a href="http://www.wugaojun.com/blog/2015/07/25/at-propertyshu-xing-guan-jian-zi-xiang-jie/" target="_blank" rel="external">http://www.wugaojun.com/blog/2015/07/25/at-propertyshu-xing-guan-jian-zi-xiang-jie/</a><br>[3] Objective-C 的自动引用计数（ARC）　<a href="https://hran.me/archives/objective-c-automatic-reference-counting.html" target="_blank" rel="external">https://hran.me/archives/objective-c-automatic-reference-counting.html</a><br>[4] Objective-c 内存管理的历史和参考资料　<a href="http://www.pchou.info/ios/2015/06/05/oc-memory-management.html" target="_blank" rel="external">http://www.pchou.info/ios/2015/06/05/oc-memory-management.html</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -2083,7 +2070,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/09/06/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0-AFNetworking-3.1.0-%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86.html"/>
     <id>https://amywushu.github.io/2016/09/06/源码学习-AFNetworking-3.1.0-第一部分.html</id>
     <published>2016-09-05T16:00:00.000Z</published>
-    <updated>2017-03-23T07:05:28.483Z</updated>
+    <updated>2017-08-05T04:17:33.360Z</updated>
     
     <content type="html"><![CDATA[<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a><strong>写在前面</strong></h2><p>我主要根据作者polobymulberry的博客<a href="http://www.cnblogs.com/polobymulberry/category/785705.html" target="_blank" rel="external">AFNetworking源码阅读系列</a>来学习，因为我有很多知识不懂，所以有些地方可能会记录得过于繁琐。原作者的大体流程和记录不变，某些知识点会有自己的补充。在此非常感谢博客作者polobymulberry的分享。</p>
 <a id="more"></a>
@@ -2169,7 +2156,6 @@ __Block_byref_val_0 val = {
 <p>(返回值 (^)(参数))block名称</p>
 </blockquote>
 <p>也就是说在block作为函数参数传递时，定义block的这个A函数(<code>globalTimelinePostsWithBlock:</code>)并没有block函数体，而是调用A函数(<code>[Post globalTimelinePostsWithBlock:]</code>)在传参数时定义block的具体执行内容。</p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">
@@ -2190,7 +2176,7 @@ __Block_byref_val_0 val = {
     <link href="https://amywushu.github.io/2016/08/29/%E8%AF%91-iOS-Kernel-Heap-Armageddon.html"/>
     <id>https://amywushu.github.io/2016/08/29/译-iOS-Kernel-Heap-Armageddon.html</id>
     <published>2016-08-28T16:00:00.000Z</published>
-    <updated>2017-02-23T06:50:28.483Z</updated>
+    <updated>2017-08-05T04:17:23.265Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>人世间最让你感动的是什么？   ——是遥远的相似性<br>　（霍金答记者问）</p>
 </blockquote>
@@ -2357,7 +2343,6 @@ __Block_byref_val_0 val = {
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文中我们首先重演了 iOS 内核堆空间分配，以及不同作者在之前所提到的它的利用。接着，我们介绍了其他的内核堆分配器以及它们所带来的额外的堆元数据。我们讨论了如何重写这些可以被利用的数据，以及提到了这些分配器目前的变化。接下来我们离内核堆元数据结构的利用只有一步之遥，我们讨论了 iOS C++ 内核对象，以及他们在内存结构的布局和在内存中重写他们可以得到什么。最后，我们介绍一种通用的技术，利用 OSUnserializeXML() 可以实现堆喷射和堆风水。这种新技术不仅可以使用任意数据喷射堆来完全控制它的布局，也可以使用有意思的内核应用数据来填充内核堆，该应用数据采用内核级别的 C++ 对象形式，一旦重写，将会允许任意代码执行。</p>
 <hr>
 <h4 id="References"><a href="#References" class="headerlink" title="References"></a>References</h4><p>[1] E. PERLA, M. OLDANI, ”A GUIDE TO KERNEL EXPLOITATION - ATTACKING THE CORE”, 2010, HTTP://WWW.ATTACKINGTHECORE.COM/<br>[2] S. ESSER, ”IOS KERNEL EXPLOITATION, BLACKHAT USA”, 2011 HTTPS://MEDIA.BLACKHAT.COM/BH-US- 11/ESSER/BH_US_11_ESSER_EXPLOITING_THE_IOS_KERNEL_WP.PDF<br>[3] C. MILLER, D. BLAZAKIS, D. DAIZOVI, S. ESSER, V. IOZZO, R.-P. WEINMANN, ”IOS HACKER’S HANDBOOK”, 2012, HTTP://EU.WILEY.COM/WILEYCDA/WILEYTITLE/PRODUCTCD-1118204123,DESCCD- DESCRIPTION.HTML<br>[4] A. SOTIROV, ”HEAP FENG SHUI IN JAVASCRIPT, BLACKHAT EUROPE”, 2007 HTTPS://WWW.BLACKHAT.COM/PRESENTATIONS/BH-USA-07/SOTIROV/WHITEPAPER/BH- USA-07-SOTIROV-WP.PDF </p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 ]]></content>
     
     <summary type="html">

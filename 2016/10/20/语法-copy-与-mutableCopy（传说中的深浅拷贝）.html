@@ -110,7 +110,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2016-10-20-语法-copy-与-mutableCopy（传说中的深浅拷贝）/NSMutableString.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-10-20-语法-copy-与-mutableCopy（传说中的深浅拷贝）/NSMutableString2.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2016-10-20-语法-copy-与-mutableCopy（传说中的深浅拷贝）/NSArray.png">
-<meta property="og:updated_time" content="2017-03-23T07:04:50.515Z">
+<meta property="og:updated_time" content="2017-08-05T04:18:40.361Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="copy 与 mutableCopy（传说中的深浅拷贝）">
 <meta name="twitter:description" content="概念对象拷贝有两种方式：浅拷贝和深拷贝。
@@ -433,11 +433,43 @@
 <p>终于搞定这个了！</p>
 <hr>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>[1] NSString：内存简述，Copy与Strong关键字　<a href="http://www.jianshu.com/p/0e98f37114e3" target="_blank" rel="external">http://www.jianshu.com/p/0e98f37114e3</a><br>[2] iOS 集合的深复制与浅复制　<a href="https://www.zybuluo.com/MicroCai/note/50592" target="_blank" rel="external">https://www.zybuluo.com/MicroCai/note/50592</a><br>[3] 深入理解Tagged Pointe　<a href="http://www.infoq.com/cn/articles/deep-understanding-of-tagged-pointer/" target="_blank" rel="external">http://www.infoq.com/cn/articles/deep-understanding-of-tagged-pointer/</a><br>[4] 【译】采用Tagged Pointer的字符串　<a href="http://www.cocoachina.com/ios/20150918/13449.html" target="_blank" rel="external">http://www.cocoachina.com/ios/20150918/13449.html</a></p>
-<p><strong>声明: 本文转载需标明出处，禁止用于商业目的。</strong></p>
 
       
     </div>
+	<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html">copy 与 mutableCopy（传说中的深浅拷贝）</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 Amywushu 的个人博客">Amywushu</a></p>
+  <p><span>原始链接:</span><a href="/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html" title="copy 与 mutableCopy（传说中的深浅拷贝）">https://amywushu.github.io/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://amywushu.github.io/2016/10/20/语法-copy-与-mutableCopy（传说中的深浅拷贝）.html"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+	clipboard.on('success', $(function(){
+	  $(".fa-clipboard").click(function(){
+		swal({   
+		  title: "",   
+		  text: '复制成功',   
+		  html: false,
+		  timer: 500,   
+		  showConfirmButton: false
+	    });
+	  });
+    }));  
+</script>
 
+      
+	</div>
     <div>
       
         

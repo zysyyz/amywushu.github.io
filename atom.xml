@@ -482,7 +482,7 @@ SwSS　　“交换”大小 - 以前在RAM中但被推出交换的内存。在 
     <link href="https://amywushu.github.io/2017/03/07/%E9%80%86%E5%90%91%E7%9F%A5%E8%AF%86-Hook-%E5%8E%9F%E7%90%86%E4%B9%8B-CydiaSubstrate%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9AMSHookMessageEx.html"/>
     <id>https://amywushu.github.io/2017/03/07/逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx.html</id>
     <published>2017-03-06T16:00:00.000Z</published>
-    <updated>2017-08-05T04:20:07.368Z</updated>
+    <updated>2017-08-22T12:23:41.510Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前情提要"><a href="#前情提要" class="headerlink" title="前情提要"></a>前情提要</h2><p>CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 <code>MS</code> 为前缀。</p>
 <blockquote>
@@ -621,7 +621,7 @@ ldr    pc, [sp, #-0x18]
 <li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
 <li><strong>仍是依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
 </ol>
-<p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
+<p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会因为情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
 <p><strong>2）如果有这段嵌入代码，</strong></p>
 <p>情景1执行状态相同。<br>情景2则为，   </p>
 <ol>
@@ -884,7 +884,7 @@ ldr    pc, [sp, #-0x18]
     <link href="https://amywushu.github.io/2017/02/21/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-%E8%A7%A3%E8%AF%BB-Mach-O-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F.html"/>
     <id>https://amywushu.github.io/2017/02/21/基础知识-解读-Mach-O-文件格式.html</id>
     <published>2017-02-20T16:00:00.000Z</published>
-    <updated>2017-08-05T04:19:25.417Z</updated>
+    <updated>2017-08-22T12:33:26.653Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center"><p>桃花坞里桃花庵，桃花庵里桃花仙。桃花仙人种桃树，又摘桃花换酒钱。酒醒只在花前坐，酒醉还来花下眠。半醉半醒日复日，花开花落年复年。但愿老死花酒间，不愿鞠躬车马前。　　——唐寅《桃花庵歌》</p>
 </blockquote>
@@ -900,7 +900,6 @@ ldr    pc, [sp, #-0x18]
 <h2 id="Load-Commands"><a href="#Load-Commands" class="headerlink" title="Load Commands"></a>Load Commands</h2><p>Load Commands 是跟在 Header 后面的加载命令区，所有 commands 的大小总和即为 Header-&gt;sizeofcmds 字段，共有 Header-&gt;ncmds 条加载命令。</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">struct</span> load_command &#123;</div><div class="line">    uint32_t cmd;        <span class="comment">/* type of load command */</span></div><div class="line">    uint32_t cmdsize;    <span class="comment">/* total size of command in bytes */</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
 <p>Command 以 LC 开头，不同的加载命令有不同的专有的结构体，cmd 和 cmdsize 是都有的，分别为命令类型（即命令名称），这条命令的长度。这些加载命令告诉系统应该如何处理后面的二进制数据，对系统内核加载器和动态链接器起指导作用。如果当前 LC_SEGMENT 包含 section，那么 section 的结构体紧跟在 LC_SEGMENT 的结构体之后，所占字节数由 SEGMENT 的 cmdsize 字段给出。</p>
-<p>|    <strong>MEMORYSTATUS_CMD_ const</strong>     | <strong>availability</strong> | <strong>usage</strong> |<br>|:————-|：————-|：————-|<br>| GET_PRIORITY_LIST (1) | OS X 10.9, iOS 6+ | Get priority list - array of memorystatus_priority_entry from &lt;sys/kern_memorystatus.h&gt; Example code can be seen <a href="http://newosxbook.com/src.jl?tree=listings&amp;file=mslist.c" target="_blank" rel="external">Here</a> |<br>| SET_PRIORITY_PROPERTIES (2) |    iOS only (or CONFIG_JETSAM)|    Update properties for a given proess |<br>| GET_JETSAM_SNAPSHOT (3) |iOS only (or CONFIG_JETSAM)|Get Jetsam snapshot - array of memorystatus_jetsam_snapshot_t entries (from &lt;sys/kern_memorystatus.h&gt;|<br>| GET_PRESSURE_STATUS (4) |iOS (or CONFIG_JETSAM)|    Privileged call: returns 1 if memorystatus_vm_pressure_level is not normal |<br>|SET_JETSAM_HIGH_WATER_MARK (5)| iOS (or CONFIG_JETSAM)|Sets the maximum memory utilization for a given PID, after which it may be killed. Used by launchd for processes with a memory limit）|<br>|SET_JETSAM_TASK_LIMIT (6)| iOS 8 (or CONFIG_JETSAM)|Sets the maximum memory utilization for a given PID, after which it <strong>will</strong> be killed. Used by launchd for processes with a memory limit|<br>|SET_MEMLIMIT_PROPERTIES (7) |    iOS 9 (or CONFIG_JETSAM)|    Sets memory limits + attributes|<br>|GET_MEMLIMIT_PROPERTIES (8)    |iOS 9 (or CONFIG_JETSAM)    |Retrieves memory limits + attributes|<br>|PRIVILEGED_LISTENER_ENABLE (9)    |Xnu-3247 (10.11, iOS 9)    |Registers self to receive memory notifications |<br>|PRIVILEGED_LISTENER_DISABLE (10)    | Xnu-3247 (10.11, iOS 9)|Stops self receiving memory notifications |<br>|TEST_JETSAM (1000)    |CONFIG_JETSAM &amp;&amp; (DEVELOPMENT || DEBUG)|Test Jetsam, kill specific processes (Debug/Development kernels only)|<br>| TEST_JETSAM_SORT (1001)|iOS 9 &amp;&amp; (DEVELOPMENT || DEBUG)    |Test Jetsam sorting (Debug/Development kernels only)|<br>|SET_JETSAM_PANIC_BITS (1001/1002)|CONFIG_JETSAM &amp;&amp; (DEVELOPMENT || DEBUG)    |Alter Jetsam’s panic settings (Debug/Development kernels only)|</p>
 <table>
 <thead>
 <tr>
@@ -1369,7 +1368,7 @@ kalloc.8192                 8192       3160K       3503K        395         437 
     <link href="https://amywushu.github.io/2016/12/07/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86-ARC-%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E7%9A%84.html"/>
     <id>https://amywushu.github.io/2016/12/07/基础知识-ARC-是如何进行内存管理的.html</id>
     <published>2016-12-06T16:00:00.000Z</published>
-    <updated>2017-08-05T04:19:01.809Z</updated>
+    <updated>2017-08-20T04:33:56.768Z</updated>
     
     <content type="html"><![CDATA[<h2 id="基础知识提要"><a href="#基础知识提要" class="headerlink" title="基础知识提要"></a>基础知识提要</h2><p>对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   </p>
 <ul>
@@ -1473,7 +1472,7 @@ objc_release(obj);
 
 <p>　　<code>objc_autoreleaseReturnValue</code> 函数会检查使用该函数的方法，或函数调用方的执行命令列表，如果方法的调用方在调用了该方法后，紧接着调用了 <code>objc_retainAutoreleasedReturnValue()</code> 函数，那么就不将返回的对象注册到 autorelease pool 中，而是直接传递到方法的调用方。</p>
 <h2 id="Block-的内存管理"><a href="#Block-的内存管理" class="headerlink" title="Block 的内存管理"></a>Block 的内存管理</h2><p>Block 的内存管理主要涉及到循环引用的问题。</p>
-<p>Block 的创建一般是在栈上，但以下情况会被复制到堆上：<br>1) 调用 Block 的 copy 方法时；<br>2) Block 作为函数返回指时；<br>3) 将 Block 赋值给 __strong 修饰符的 id 类型或 Block 类型的成员变量时；<br>4) 在方法名中含有 usingBlock 的 Cocoa 框架方法或 GCD 的 API 中传递 Block 时。    </p>
+<p>Block 的创建一般是在栈上，但以下情况会被复制到堆上：<br>1) 调用 Block 的 copy 方法时；<br>2) Block 作为函数返回值时；<br>3) 将 Block 赋值给 __strong 修饰符的 id 类型或 Block 类型的成员变量时；<br>4) 在方法名中含有 usingBlock 的 Cocoa 框架方法或 GCD 的 API 中传递 Block 时。    </p>
 <p>我们知道 Block 会在声明时截获在 Block 内部将会用到的变量，如：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> main()</div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> val = <span class="number">10</span>;</div><div class="line">	<span class="keyword">void</span> (^blk) (<span class="keyword">void</span>) = ^&#123;printf(val);&#125;;</div><div class="line">	val = <span class="number">20</span>;</div><div class="line">	blk();</div><div class="line"><span class="comment">//输出结果：10</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="strong-变量"><a href="#strong-变量" class="headerlink" title="__strong 变量"></a>__strong 变量</h3><p>　　对于 OC 对象而言，当 Block 从栈上被复制到堆上时，会对将要用到的带有 __strong 修饰符的变量执行 retain 操作，也就是 Block 会持有这个变量所指向的对象。如：</p>

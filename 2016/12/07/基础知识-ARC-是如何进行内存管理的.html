@@ -112,7 +112,7 @@ retain ：　　 　使得对象的引用计数+1
 release：　　　使得对象的引用计数-1
 autorelease：　使得对象的引用计数在 autorelease pool 释放的时候再-1
 dealloc：　　　当对象的引用计数为0的时候自动调用，表明对象被释放">
-<meta property="og:updated_time" content="2017-08-05T04:19:01.809Z">
+<meta property="og:updated_time" content="2017-08-20T04:33:56.768Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ARC 是如何进行内存管理的">
 <meta name="twitter:description" content="基础知识提要对于 Objective-C 对象来讲，手动内存管理主要是通过以下方法来进行的：   
@@ -461,7 +461,7 @@ objc_release(obj);
 
 <p>　　<code>objc_autoreleaseReturnValue</code> 函数会检查使用该函数的方法，或函数调用方的执行命令列表，如果方法的调用方在调用了该方法后，紧接着调用了 <code>objc_retainAutoreleasedReturnValue()</code> 函数，那么就不将返回的对象注册到 autorelease pool 中，而是直接传递到方法的调用方。</p>
 <h2 id="Block-的内存管理"><a href="#Block-的内存管理" class="headerlink" title="Block 的内存管理"></a>Block 的内存管理</h2><p>Block 的内存管理主要涉及到循环引用的问题。</p>
-<p>Block 的创建一般是在栈上，但以下情况会被复制到堆上：<br>1) 调用 Block 的 copy 方法时；<br>2) Block 作为函数返回指时；<br>3) 将 Block 赋值给 __strong 修饰符的 id 类型或 Block 类型的成员变量时；<br>4) 在方法名中含有 usingBlock 的 Cocoa 框架方法或 GCD 的 API 中传递 Block 时。    </p>
+<p>Block 的创建一般是在栈上，但以下情况会被复制到堆上：<br>1) 调用 Block 的 copy 方法时；<br>2) Block 作为函数返回值时；<br>3) 将 Block 赋值给 __strong 修饰符的 id 类型或 Block 类型的成员变量时；<br>4) 在方法名中含有 usingBlock 的 Cocoa 框架方法或 GCD 的 API 中传递 Block 时。    </p>
 <p>我们知道 Block 会在声明时截获在 Block 内部将会用到的变量，如：</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> main()</div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> val = <span class="number">10</span>;</div><div class="line">	<span class="keyword">void</span> (^blk) (<span class="keyword">void</span>) = ^&#123;printf(val);&#125;;</div><div class="line">	val = <span class="number">20</span>;</div><div class="line">	blk();</div><div class="line"><span class="comment">//输出结果：10</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="strong-变量"><a href="#strong-变量" class="headerlink" title="__strong 变量"></a>__strong 变量</h3><p>　　对于 OC 对象而言，当 Block 从栈上被复制到堆上时，会对将要用到的带有 __strong 修饰符的变量执行 retain 操作，也就是 Block 会持有这个变量所指向的对象。如：</p>

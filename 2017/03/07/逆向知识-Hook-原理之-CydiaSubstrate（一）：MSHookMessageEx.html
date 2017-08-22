@@ -111,7 +111,7 @@
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/register_list.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/机器码对比.png">
 <meta property="og:image" content="https://amywushu.github.io/images/2017-03-07-逆向知识-Hook-原理之-CydiaSubstrate（一）：MSHookMessageEx/汇编.png">
-<meta property="og:updated_time" content="2017-08-05T04:20:07.368Z">
+<meta property="og:updated_time" content="2017-08-22T12:23:41.510Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hook 原理之 CydiaSubstrate（一）：MSHookMessageEx">
 <meta name="twitter:description" content="前情提要CydiaSubstrate，作者为 Jay Freeman(saurik)，在iOS7越狱之前名为 MobileSubstrate，因此 CydiaSubstrate 框架中的大部分函数仍以 MS 为前缀。
@@ -493,7 +493,7 @@ ldr    pc, [sp, #-0x18]
 <li>依次调用 Child 类中的自定义函数、 Parent 类中的原始函数，    </li>
 <li><strong>仍是依次调用 Grandson 类中的自定义函数、 Parent 类中的原始函数。</strong></li>
 </ol>
-<p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
+<p>　　也就是说，Grandson 类中的 - (void)parent_connect 函数的执行顺序在调用 hook 函数时就已经确定了，并不会因为情景2中的第2步 Child 函数的 hook 使得调用顺序改变。</p>
 <p><strong>2）如果有这段嵌入代码，</strong></p>
 <p>情景1执行状态相同。<br>情景2则为，   </p>
 <ol>
